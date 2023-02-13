@@ -31,28 +31,38 @@ const (
 )
 
 func NewMinerConn(endpoint string) (*MinerSession, error) {
-	addr, err := net.ResolveTCPAddr("tcp", endpoint)
+	localaddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:15000")
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	server, err := net.ListenTCP("tcp", addr)
+	
+	remoteaddr, err := net.ResolveTCPAddr("tcp", endpoint)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	defer server.Close()
 
-	log.Printf("New TCP client from: %v", addr)
-
-	conn, err := server.AcceptTCP()
+	// server, err := net.Dial("tcp", endpoint)
+	server, err := net.DialTCP("tcp", localaddr, remoteaddr)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
-		return nil, err
 	}
-	conn.SetKeepAlive(true)
+	server.SetDeadline(time.Time{})
+	// defer server.Close()
+	
 
-	ip, port, _ := net.SplitHostPort(conn.RemoteAddr().String())
+	log.Printf("New TCP client made to: %v", server)
 
-	return &MinerSession{proto: "tcp", ip: ip, port: port, conn: conn, latestId: 0}, nil
+	// conn, err := server.AcceptTCP()
+	// if err != nil {
+	// 	log.Fatalf("Error: %v", err)
+	// 	return nil, err
+	// }
+	// conn.SetKeepAlive(true)
+
+	// ip, port, _ := net.SplitHostPort(conn.RemoteAddr().String())
+
+	return &MinerSession{proto: "tcp", ip: remoteaddr.AddrPort().Addr().String(), port: "15000", conn: server, latestId: 0}, nil
+	// return &MinerSession{proto: "tcp", ip: "", port: "", conn: nil, latestId: 0}, nil
 }
 
 func (miner *MinerSession) ListenTCP() {
@@ -129,15 +139,17 @@ func (ms *MinerSession) SendTCPRequest(msg jsonrpcMessage, resultCh chan *types.
 	ms.Lock()
 	defer ms.Unlock()
 
-	// ms.latestId += 1
+	ms.latestId += 1
+	// msg.ID = json.RawMessage(ms.latestId)
 	message, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
 
 	ms.conn.Write(message)
+	ms.conn.Write([]byte("\n"))
 	// header, _ := ms.conn.Read()
-	resultCh <- header
+	// resultCh <- header
 	return nil
 }
 
