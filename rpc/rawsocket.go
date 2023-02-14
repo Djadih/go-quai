@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/dominant-strategies/go-quai/core/types"
+	"github.com/dominant-strategies/go-quai/common/hexutil"
+	"github.com/dominant-strategies/go-quai/common"
 )
 
 type MinerSession struct {
@@ -27,7 +29,7 @@ type MinerSession struct {
 }
 
 const (
-	MAX_REQ_SIZE = 1024
+	MAX_REQ_SIZE = 8192
 )
 
 func NewMinerConn(endpoint string) (*MinerSession, error) {
@@ -65,19 +67,94 @@ func NewMinerConn(endpoint string) (*MinerSession, error) {
 	// return &MinerSession{proto: "tcp", ip: "", port: "", conn: nil, latestId: 0}, nil
 }
 
-func (miner *MinerSession) ListenTCP() {
-	var accept = make(chan int, 1)
-	n := 0
+// RPCMarshalHeader converts the given header to the RPC output .
+func RPCMarshalHeader(head *types.Header) map[string]interface{} {
+	result := map[string]interface{}{
+		"hash":                head.Hash(),
+		"parentHash":          head.ParentHashArray(),
+		"nonce":               head.Nonce(),
+		"sha3Uncles":          head.UncleHashArray(),
+		"logsBloom":           head.BloomArray(),
+		"stateRoot":           head.RootArray(),
+		"miner":               head.CoinbaseArray(),
+		"extraData":           hexutil.Bytes(head.Extra()),
+		"size":                hexutil.Uint64(head.Size()),
+		"timestamp":           hexutil.Uint64(head.Time()),
+		"transactionsRoot":    head.TxHashArray(),
+		"receiptsRoot":        head.ReceiptHashArray(),
+		"extTransactionsRoot": head.EtxHashArray(),
+		"extRollupRoot":       head.EtxRollupHashArray(),
+		"manifestHash":        head.ManifestHashArray(),
+		"location":            head.Location(),
+	}
 
-	accept <- n
-	go func(ms *MinerSession) {
-		err := ms.handleTCPClient(ms)
-		if err != nil {
-			ms.conn.Close()
+	number := make([]*hexutil.Big, common.HierarchyDepth)
+	difficulty := make([]*hexutil.Big, common.HierarchyDepth)
+	gasLimit := make([]hexutil.Uint, common.HierarchyDepth)
+	gasUsed := make([]hexutil.Uint, common.HierarchyDepth)
+	for i := 0; i < common.HierarchyDepth; i++ {
+		number[i] = (*hexutil.Big)(head.Number(i))
+		difficulty[i] = (*hexutil.Big)(head.Difficulty(i))
+		gasLimit[i] = hexutil.Uint(head.GasLimit(i))
+		gasUsed[i] = hexutil.Uint(head.GasUsed(i))
+	}
+	result["number"] = number
+	result["difficulty"] = difficulty
+	result["gasLimit"] = gasLimit
+	result["gasUsed"] = gasUsed
+
+	if head.BaseFee() != nil {
+		results := make([]*hexutil.Big, common.HierarchyDepth)
+		for i := 0; i < common.HierarchyDepth; i++ {
+			results[i] = (*hexutil.Big)(head.BaseFee(i))
 		}
-		<-accept
-	}(miner)
+		result["baseFeePerGas"] = results
+	}
 
+	return result
+}
+
+type JSONRpcResp struct {
+	Id      json.RawMessage `json:"id"`
+	Version string          `json:"jsonrpc"`
+	Result  types.Header    `json:"result"`
+	Error   interface{}     `json:"error,omitempty"`
+}
+
+
+func (miner *MinerSession) ListenTCP(updateCh chan *types.Header) error {
+	connbuff := bufio.NewReaderSize(miner.conn, MAX_REQ_SIZE)
+
+	for {
+		data, isPrefix, err := connbuff.ReadLine()
+		if isPrefix {
+			log.Printf("Socket flood detected from %s", miner.ip)
+			// mienr.policy.BanClient(cs.ip)
+			return err
+		} else if err == io.EOF {
+			log.Printf("Client %s disconnected", miner.ip)
+			// s.removeSession(miner)
+			break
+		} else if err != nil {
+			log.Printf("Error reading from socket: %v", err)
+			return err
+		}
+
+
+		if len(data) > 1 {
+			var rpcResp JSONRpcResp
+			err = json.Unmarshal(data, &rpcResp)
+			if err != nil {
+			log.Printf("Unable to decode header: %v", err)
+			return err
+			}
+			// var header *types.Header
+			// json.Unmarshal(rpcResp.Result, &header)
+			// header := *types.Header(rpcResp.Result)
+			 updateCh <- &rpcResp.Result
+		}
+	}
+	return nil
 }
 
 func (miner *MinerSession) handleTCPClient(ms *MinerSession) error {
@@ -134,7 +211,7 @@ func (ms *MinerSession) sendTCPResult(result json.RawMessage) error {
 	return nil
 }
 
-func (ms *MinerSession) SendTCPRequest(msg jsonrpcMessage, resultCh chan *types.Header) error {
+func (ms *MinerSession) SendTCPRequest(msg jsonrpcMessage) error {
 
 	ms.Lock()
 	defer ms.Unlock()
