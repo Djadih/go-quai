@@ -211,7 +211,7 @@ func (ms *MinerSession) sendTCPResult(result json.RawMessage) error {
 	return nil
 }
 
-func (ms *MinerSession) SendTCPRequest(msg jsonrpcMessage) error {
+func (ms *MinerSession) SendTCPRequest(msg jsonRPCArray) error {
 
 	ms.Lock()
 	defer ms.Unlock()

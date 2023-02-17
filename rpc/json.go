@@ -57,6 +57,23 @@ type  jsonrpcMessage struct {
 	Result  json.RawMessage `json:"result,omitempty"`
 }
 
+type jsonRPCArray struct {
+	Version string          	`json:"jsonrpc,omitempty"`
+	ID      json.RawMessage 	`json:"id,omitempty"`
+	Method  string          	`json:"method,omitempty"`
+	Params  []json.RawMessage 	`json:"params,omitempty"`
+	Error   *jsonError      	`json:"error,omitempty"`
+	Result  json.RawMessage 	`json:"result,omitempty"`}
+
+func ConstructJSONRPC(version string, ID json.RawMessage, method string, params []json.RawMessage) *jsonRPCArray {
+	return &jsonRPCArray{
+		Version: version,
+		ID: ID,
+		Method: method,
+		Params: params,
+	}
+}
+
 func ConstructJSON(version string, ID json.RawMessage, method string, params json.RawMessage) *jsonrpcMessage {
 	return &jsonrpcMessage{
 		Version: version,
