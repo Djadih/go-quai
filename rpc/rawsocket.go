@@ -10,9 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/common/hexutil"
+	"github.com/INFURA/go-ethlibs/jsonrpc"
+
 	"github.com/dominant-strategies/go-quai/common"
+	"github.com/dominant-strategies/go-quai/common/hexutil"
+	"github.com/dominant-strategies/go-quai/core/types"
 )
 
 type MinerSession struct {
@@ -37,7 +39,7 @@ func NewMinerConn(endpoint string) (*MinerSession, error) {
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	
+
 	remoteaddr, err := net.ResolveTCPAddr("tcp", endpoint)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -50,7 +52,6 @@ func NewMinerConn(endpoint string) (*MinerSession, error) {
 	}
 	server.SetDeadline(time.Time{})
 	// defer server.Close()
-	
 
 	log.Printf("New TCP client made to: %v", server)
 
@@ -140,18 +141,17 @@ func (miner *MinerSession) ListenTCP(updateCh chan *types.Header) error {
 			return err
 		}
 
-
 		if len(data) > 1 {
 			var rpcResp JSONRpcResp
 			err = json.Unmarshal(data, &rpcResp)
 			if err != nil {
-			log.Printf("Unable to decode header: %v", err)
-			return err
+				log.Printf("Unable to decode header: %v", err)
+				return err
 			}
 			// var header *types.Header
 			// json.Unmarshal(rpcResp.Result, &header)
 			// header := *types.Header(rpcResp.Result)
-			 updateCh <- &rpcResp.Result
+			updateCh <- &rpcResp.Result
 		}
 	}
 	return nil
@@ -211,15 +211,16 @@ func (ms *MinerSession) sendTCPResult(result json.RawMessage) error {
 	return nil
 }
 
-func (ms *MinerSession) SendTCPRequest(msg jsonRPCArray) error {
+func (ms *MinerSession) SendTCPRequest(msg jsonrpc.Request) error {
 
 	ms.Lock()
 	defer ms.Unlock()
 
 	ms.latestId += 1
 	// msg.ID = json.RawMessage(ms.latestId)
-	message, err := json.Marshal(msg)
+	message, err := msg.MarshalJSON()
 	if err != nil {
+		log.Fatalf("Error: %v", err)
 		return err
 	}
 

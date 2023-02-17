@@ -48,7 +48,7 @@ type subscriptionResult struct {
 
 // A value of this type can a JSON-RPC request, notification, successful response or
 // error response. Which one it is depends on the fields.
-type  jsonrpcMessage struct {
+type jsonrpcMessage struct {
 	Version string          `json:"jsonrpc,omitempty"`
 	ID      json.RawMessage `json:"id,omitempty"`
 	Method  string          `json:"method,omitempty"`
@@ -57,29 +57,30 @@ type  jsonrpcMessage struct {
 	Result  json.RawMessage `json:"result,omitempty"`
 }
 
-type jsonRPCArray struct {
-	Version string          	`json:"jsonrpc,omitempty"`
-	ID      json.RawMessage 	`json:"id,omitempty"`
-	Method  string          	`json:"method,omitempty"`
-	Params  []json.RawMessage 	`json:"params,omitempty"`
-	Error   *jsonError      	`json:"error,omitempty"`
-	Result  json.RawMessage 	`json:"result,omitempty"`}
+type JsonRPCArray struct {
+	Version string            `json:"version,omitempty"`
+	ID      json.RawMessage   `json:"id,omitempty"`
+	Method  string            `json:"method,omitempty"`
+	Params  *[]json.RawMessage `json:"params,omitempty"`
+	Error   *jsonError        `json:"error,omitempty"`
+	Result  json.RawMessage   `json:"result,omitempty"`
+}
 
-func ConstructJSONRPC(version string, ID json.RawMessage, method string, params []json.RawMessage) *jsonRPCArray {
-	return &jsonRPCArray{
+func ConstructJSONRPC(version string, ID json.RawMessage, method string, params []json.RawMessage) *JsonRPCArray {
+	return &JsonRPCArray{
 		Version: version,
-		ID: ID,
-		Method: method,
-		Params: params,
+		ID:      ID,
+		Method:  method,
+		Params:  &params,
 	}
 }
 
 func ConstructJSON(version string, ID json.RawMessage, method string, params json.RawMessage) *jsonrpcMessage {
 	return &jsonrpcMessage{
 		Version: version,
-		ID: ID,
-		Method: method,
-		Params: params,
+		ID:      ID,
+		Method:  method,
+		Params:  params,
 	}
 }
 
