@@ -115,12 +115,12 @@ func RPCMarshalHeader(head *types.Header) map[string]interface{} {
 	return result
 }
 
-type JSONRpcResp struct {
-	Id      json.RawMessage `json:"id"`
-	Version string          `json:"jsonrpc"`
-	Result  types.Header    `json:"result"`
-	Error   interface{}     `json:"error,omitempty"`
-}
+// type JSONRpcResp struct {
+// 	Id      json.RawMessage `json:"id"`
+// 	Version string          `json:"jsonrpc"`
+// 	Result  types.Header    `json:"result"`
+// 	Error   interface{}     `json:"error,omitempty"`
+// }
 
 
 func (miner *MinerSession) ListenTCP(updateCh chan *types.Header) error {
@@ -142,16 +142,31 @@ func (miner *MinerSession) ListenTCP(updateCh chan *types.Header) error {
 		}
 
 		if len(data) > 1 {
-			var rpcResp JSONRpcResp
-			err = json.Unmarshal(data, &rpcResp)
+			// var rpcResp *jsonrpc.Response
+			// rpcResp := jsonrpc.NewResponse()
+			// err = json.Unmarshal(data, &rpcResp)
+			// err = jsonrpcconst
+			// err = rpcResp.UnmarshalJSON(data)
+			var rpcResp *JsonRPCResponse
+			err := json.Unmarshal(data, &rpcResp)
+
+			if err != nil {
+				log.Printf("Unable to decode RPC Response: %v", err)
+				return err
+			}
+			var header *types.Header
+			err = json.Unmarshal(rpcResp.Result, &header)
 			if err != nil {
 				log.Printf("Unable to decode header: %v", err)
 				return err
 			}
-			// var header *types.Header
-			// json.Unmarshal(rpcResp.Result, &header)
-			// header := *types.Header(rpcResp.Result)
-			updateCh <- &rpcResp.Result
+			// header := *types.Header(rpcResp.Result.data)
+			// log.Println(rpcResp.Result)
+			// var header_resp *types.Header
+			// err = json.Unmarshal(rpcResp.Result, &header_resp)
+			
+
+			updateCh <- header
 		}
 	}
 	return nil
