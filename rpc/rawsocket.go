@@ -43,12 +43,14 @@ func NewMinerConn(endpoint string) (*MinerSession, error) {
 	remoteaddr, err := net.ResolveTCPAddr("tcp", endpoint)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
+		panic(err)
 	}
 
 	// server, err := net.Dial("tcp", endpoint)
 	server, err := net.DialTCP("tcp", localaddr, remoteaddr)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
+		panic(err)
 	}
 	server.SetDeadline(time.Time{})
 	// defer server.Close()
@@ -64,7 +66,7 @@ func NewMinerConn(endpoint string) (*MinerSession, error) {
 
 	// ip, port, _ := net.SplitHostPort(conn.RemoteAddr().String())
 
-	return &MinerSession{proto: "tcp", ip: remoteaddr.AddrPort().Addr().String(), port: "15000", conn: server, latestId: 0}, nil
+	return &MinerSession{proto: "tcp", ip: remoteaddr.AddrPort().Addr().String(), port: "15000", conn: server, latestId: 0, enc: json.NewEncoder(server)}, nil
 	// return &MinerSession{proto: "tcp", ip: "", port: "", conn: nil, latestId: 0}, nil
 }
 
@@ -223,6 +225,7 @@ func (ms *MinerSession) sendTCPResult(result json.RawMessage) error {
 	}
 
 	ms.conn.Write(message)
+	ms.conn.Write([]byte("\n"))
 	return nil
 }
 
@@ -238,6 +241,8 @@ func (ms *MinerSession) SendTCPRequest(msg jsonrpc.Request) error {
 		log.Fatalf("Error: %v", err)
 		return err
 	}
+
+	// return ms.enc.Encode(&message)
 
 	ms.conn.Write(message)
 	ms.conn.Write([]byte("\n"))
