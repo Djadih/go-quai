@@ -26,6 +26,7 @@ import (
 	"reflect"
 	"sync/atomic"
 	"time"
+	// "errors"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/hexutil"
