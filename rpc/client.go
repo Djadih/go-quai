@@ -193,8 +193,6 @@ func ClientFromContext(ctx context.Context) (*Client, bool) {
 	return client, ok
 }
 
-type MinerCtxKeyType string
-
 func newClient(initctx context.Context, connect reconnectFunc) (*Client, error) {
 	conn, err := connect(initctx)
 	if err != nil {
