@@ -301,7 +301,6 @@ func InspectDatabase(db ethdb.Database, keyPrefix, keyStart []byte) error {
 		accountSnaps    stat
 		storageSnaps    stat
 		preimages       stat
-		bloomBits       stat
 
 		// Ancient store statistics
 		ancientHeadersSize  common.StorageSize
@@ -355,10 +354,6 @@ func InspectDatabase(db ethdb.Database, keyPrefix, keyStart []byte) error {
 			preimages.Add(size)
 		case bytes.HasPrefix(key, configPrefix) && len(key) == (len(configPrefix)+common.HashLength):
 			metadata.Add(size)
-		case bytes.HasPrefix(key, bloomBitsPrefix) && len(key) == (len(bloomBitsPrefix)+10+common.HashLength):
-			bloomBits.Add(size)
-		case bytes.HasPrefix(key, BloomBitsIndexPrefix):
-			bloomBits.Add(size)
 		case bytes.HasPrefix(key, []byte("cht-")) ||
 			bytes.HasPrefix(key, []byte("chtIndexV2-")) ||
 			bytes.HasPrefix(key, []byte("chtRootV2-")): // Canonical hash trie
@@ -413,7 +408,6 @@ func InspectDatabase(db ethdb.Database, keyPrefix, keyStart []byte) error {
 		{"Key-Value store", "Block number->hash", numHashPairings.Size(), numHashPairings.Count()},
 		{"Key-Value store", "Block hash->number", hashNumPairings.Size(), hashNumPairings.Count()},
 		{"Key-Value store", "Transaction index", txLookups.Size(), txLookups.Count()},
-		{"Key-Value store", "Bloombit index", bloomBits.Size(), bloomBits.Count()},
 		{"Key-Value store", "Contract codes", codes.Size(), codes.Count()},
 		{"Key-Value store", "Trie nodes", tries.Size(), tries.Count()},
 		{"Key-Value store", "Trie preimages", preimages.Size(), preimages.Count()},
@@ -426,7 +420,6 @@ func InspectDatabase(db ethdb.Database, keyPrefix, keyStart []byte) error {
 		{"Ancient store", "Difficulties", ancientTdsSize.String(), ancients.String()},
 		{"Ancient store", "Block number->hash", ancientHashesSize.String(), ancients.String()},
 		{"Light client", "CHT trie nodes", chtTrieNodes.Size(), chtTrieNodes.Count()},
-		{"Light client", "Bloom trie nodes", bloomTrieNodes.Size(), bloomTrieNodes.Count()},
 	}
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Database", "Category", "Size", "Items"})

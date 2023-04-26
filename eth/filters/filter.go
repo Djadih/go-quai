@@ -23,7 +23,6 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core"
-	"github.com/dominant-strategies/go-quai/core/bloombits"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/event"
@@ -45,7 +44,6 @@ type Backend interface {
 	SubscribePendingHeaderEvent(ch chan<- *types.Header) event.Subscription
 
 	BloomStatus() (uint64, uint64)
-	ServiceFilter(ctx context.Context, session *bloombits.MatcherSession)
 }
 
 // Filter can be used to retrieve and filter logs.
@@ -59,7 +57,6 @@ type Filter struct {
 	block      common.Hash // Block hash if filtering a single block
 	begin, end int64       // Range interval if filtering multiple blocks
 
-	matcher *bloombits.Matcher
 }
 
 // NewRangeFilter creates a new filter which uses a bloom filter on blocks to
@@ -88,7 +85,6 @@ func NewRangeFilter(backend Backend, begin, end int64, addresses []common.Addres
 	// Create a generic filter and convert it into a range filter
 	filter := newFilter(backend, addresses, topics)
 
-	filter.matcher = bloombits.NewMatcher(size, filters)
 	filter.begin = begin
 	filter.end = end
 

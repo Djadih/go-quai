@@ -25,7 +25,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core"
-	"github.com/dominant-strategies/go-quai/core/bloombits"
 	"github.com/dominant-strategies/go-quai/core/state"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/core/vm"
@@ -96,7 +95,6 @@ type Backend interface {
 	// Filter API
 	BloomStatus() (uint64, uint64)
 	GetLogs(ctx context.Context, blockHash common.Hash) ([][]*types.Log, error)
-	ServiceFilter(ctx context.Context, session *bloombits.MatcherSession)
 	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
 	SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription
 	SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) event.Subscription

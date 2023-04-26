@@ -27,7 +27,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core"
-	"github.com/dominant-strategies/go-quai/core/bloombits"
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/core/state/pruner"
 	"github.com/dominant-strategies/go-quai/core/types"
@@ -69,8 +68,6 @@ type Ethereum struct {
 	eventMux *event.TypeMux
 	engine   consensus.Engine
 
-	bloomRequests     chan chan *bloombits.Retrieval // Channel receiving bloom data retrieval requests
-	bloomIndexer      *core.ChainIndexer             // Bloom indexer operating during block imports
 	closeBloomHandler chan struct{}
 
 	APIBackend *QuaiAPIBackend
@@ -136,8 +133,6 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		networkID:         config.NetworkId,
 		gasPrice:          config.Miner.GasPrice,
 		etherbase:         config.Miner.Etherbase,
-		bloomRequests:     make(chan chan *bloombits.Retrieval),
-		bloomIndexer:      core.NewBloomIndexer(chainDb, params.BloomBitsBlocks, params.BloomConfirms),
 		p2pServer:         stack.Server(),
 	}
 
@@ -408,9 +403,6 @@ func (s *Ethereum) Protocols() []p2p.Protocol {
 // Ethereum protocol implementation.
 func (s *Ethereum) Start() error {
 	eth.StartENRUpdater(s.core, s.p2pServer.LocalNode())
-
-	// Start the bloom bits servicing goroutines
-	s.startBloomHandlers(params.BloomBitsBlocks)
 
 	// Figure out a max peers count based on the server limits
 	maxPeers := s.p2pServer.MaxPeers

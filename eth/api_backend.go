@@ -26,7 +26,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core"
-	"github.com/dominant-strategies/go-quai/core/bloombits"
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/core/state"
 	"github.com/dominant-strategies/go-quai/core/types"
@@ -304,17 +303,6 @@ func (b *QuaiAPIBackend) RPCGasCap() uint64 {
 
 func (b *QuaiAPIBackend) RPCTxFeeCap() float64 {
 	return b.eth.config.RPCTxFeeCap
-}
-
-func (b *QuaiAPIBackend) BloomStatus() (uint64, uint64) {
-	sections, _, _ := b.eth.bloomIndexer.Sections()
-	return params.BloomBitsBlocks, sections
-}
-
-func (b *QuaiAPIBackend) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {
-	for i := 0; i < bloomFilterThreads; i++ {
-		go session.Multiplex(bloomRetrievalBatch, bloomRetrievalWait, b.eth.bloomRequests)
-	}
 }
 
 func (b *QuaiAPIBackend) Engine() consensus.Engine {
