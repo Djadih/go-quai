@@ -31,11 +31,14 @@ import (
 	"github.com/dominant-strategies/go-quai/internal/debug"
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
+	"github.com/dominant-strategies/go-quai/log"
+	
 	"gopkg.in/urfave/cli.v1"
+	// log "github.com/sirupsen/logrus"
+	// "github.com/natefinch/lumberjack"
 )
 
 const (
@@ -47,7 +50,7 @@ var (
 	gitCommit = ""
 	gitDate   = ""
 	// The app that holds all commands and flags.
-	app = flags.NewApp(gitCommit, gitDate, "the go-ethereum command line interface")
+	app = flags.NewApp(gitCommit, gitDate, "the go-quai command line interface")
 	// flags that configure the node
 	nodeFlags = []cli.Flag{
 		utils.IdentityFlag,
@@ -229,6 +232,10 @@ func prepare(ctx *cli.Context) {
 	case !ctx.GlobalIsSet(utils.NetworkIdFlag.Name):
 		netname = "Colosseum testnet"
 	}
+
+	// Setup logger.
+	log.ConfigureLogger(ctx)
+
 	welcome := fmt.Sprintf("Starting Quai %s on %s", params.Version.Full(), netname)
 	log.Info(welcome)
 	// If we're a full node on colosseum without --cache specified, bump default cache allowance

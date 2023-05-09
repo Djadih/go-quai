@@ -38,7 +38,7 @@ include network.env
 
 # Build the base command
 # WARNING: WS_ADDR is a sensitive interface and should only be exposed to trusted networks
-BASE_CMD = nice -n -20 ./build/bin/go-quai --$(NETWORK) --syncmode $(SYNCMODE) --verbosity $(VERBOSITY) --nonce $(NONCE)
+BASE_CMD = ./build/bin/go-quai --$(NETWORK) --syncmode $(SYNCMODE) --verbosity $(VERBOSITY) --nonce $(NONCE)
 BASE_CMD += --http --http.vhosts=* --http.addr $(HTTP_ADDR) --http.api $(HTTP_API)
 BASE_CMD += --ws --ws.addr $(WS_ADDR) --ws.api $(WS_API)
 ifeq ($(ENABLE_ARCHIVE),true)
@@ -103,9 +103,9 @@ run-slice:
 ifeq (,$(wildcard nodelogs))
 	mkdir nodelogs
 endif
-	$(PRIME_CMD) >> $(PRIME_LOG_FILE) 2>&1 &
-	$(REGION_CMD) >> $(REGION_LOG_FILE) 2>&1 &
-	$(ZONE_CMD) >> $(ZONE_LOG_FILE) 2>&1 &
+	$(PRIME_CMD) 2>&1 &
+	$(REGION_CMD) 2>&1 &
+	$(ZONE_CMD) 2>&1 &
 
 run-all:
 ifeq (,$(wildcard nodelogs))

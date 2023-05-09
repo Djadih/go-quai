@@ -46,10 +46,10 @@ func ReadDatabaseVersion(db ethdb.KeyValueReader) *uint64 {
 func WriteDatabaseVersion(db ethdb.KeyValueWriter, version uint64) {
 	enc, err := rlp.EncodeToBytes(version)
 	if err != nil {
-		log.Crit("Failed to encode database version", "err", err)
+		log.Error("Failed to encode database version", "err", err)
 	}
 	if err = db.Put(databaseVersionKey, enc); err != nil {
-		log.Crit("Failed to store the database version", "err", err)
+		log.Error("Failed to store the database version", "err", err)
 	}
 }
 
@@ -74,10 +74,10 @@ func WriteChainConfig(db ethdb.KeyValueWriter, hash common.Hash, cfg *params.Cha
 	}
 	data, err := json.Marshal(cfg)
 	if err != nil {
-		log.Crit("Failed to JSON encode chain config", "err", err)
+		log.Error("Failed to JSON encode chain config", "err", err)
 	}
 	if err := db.Put(configKey(hash), data); err != nil {
-		log.Crit("Failed to store chain config", "err", err)
+		log.Error("Failed to store chain config", "err", err)
 	}
 }
 
