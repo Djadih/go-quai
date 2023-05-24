@@ -1016,9 +1016,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalIsSet(MaxPeersFlag.Name) {
 		cfg.MaxPeers = ctx.GlobalInt(MaxPeersFlag.Name)
 	}
-	ethPeers := cfg.MaxPeers
-
-	log.Info("Maximum peer count", "ETH", ethPeers, "total", cfg.MaxPeers)
+	log.Info("Maximum peer count", "Peer count", cfg.MaxPeers)
 
 	if ctx.GlobalIsSet(MaxPendingPeersFlag.Name) {
 		cfg.MaxPendingPeers = ctx.GlobalInt(MaxPendingPeersFlag.Name)

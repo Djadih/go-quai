@@ -1237,7 +1237,7 @@ func (pool *TxPool) runReorg(done chan struct{}, reset *txpoolResetRequest, dirt
 		pool.txFeed.Send(NewTxsEvent{txs})
 	}
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to runReorg in txpool", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to runReorg in txpool", "time", common.PrettyDuration(time.Since(start)))
 		pool.reOrgCounter = 0
 	}
 }
@@ -1330,7 +1330,7 @@ func (pool *TxPool) reset(oldHead, newHead *types.Header) {
 	senderCacher.recover(pool.signer, reinject)
 	pool.addTxsLocked(reinject, false)
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to resetTxPool", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to resetTxPool", "time", common.PrettyDuration(time.Since(start)))
 	}
 }
 
@@ -1402,7 +1402,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.InternalAddress) []*typ
 		}
 	}
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to promoteExecutables", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to promoteExecutables", "time", common.PrettyDuration(time.Since(start)))
 	}
 	return promoted
 }
@@ -1497,7 +1497,7 @@ func (pool *TxPool) truncatePending() {
 	}
 	pendingRateLimitMeter.Mark(int64(pendingBeforeCap - pending))
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to truncatePending", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to truncatePending", "time", common.PrettyDuration(time.Since(start)))
 	}
 }
 
@@ -1549,7 +1549,7 @@ func (pool *TxPool) truncateQueue() {
 		}
 	}
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to truncateQueue", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to truncateQueue", "time", common.PrettyDuration(time.Since(start)))
 	}
 }
 
@@ -1614,7 +1614,7 @@ func (pool *TxPool) demoteUnexecutables() {
 		}
 	}
 	if pool.reOrgCounter == c_reorgCounterThreshold {
-		log.Info("Time taken to demoteExecutables", "time", common.PrettyDuration(time.Since(start)))
+		log.Debug("Time taken to demoteExecutables", "time", common.PrettyDuration(time.Since(start)))
 	}
 }
 

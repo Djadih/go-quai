@@ -494,17 +494,10 @@ func (w *worker) GeneratePendingHeader(block *types.Block, fill bool) (*types.He
 // printPendingHeaderInfo logs the pending header information
 func (w *worker) printPendingHeaderInfo(work *environment, block *types.Block, start time.Time) {
 	work.uncleMu.RLock()
-	if w.CurrentInfo(block.Header()) {
-		log.Info("Commit new sealing work", "number", block.Number(), "sealhash", block.Header().SealHash(),
-			"uncles", len(work.uncles), "txs", work.tcount, "etxs", len(block.ExtTransactions()),
-			"gas", block.GasUsed(), "fees", totalFees(block, work.receipts),
-			"elapsed", common.PrettyDuration(time.Since(start)))
-	} else {
-		log.Debug("Commit new sealing work", "number", block.Number(), "sealhash", block.Header().SealHash(),
-			"uncles", len(work.uncles), "txs", work.tcount, "etxs", len(block.ExtTransactions()),
-			"gas", block.GasUsed(), "fees", totalFees(block, work.receipts),
-			"elapsed", common.PrettyDuration(time.Since(start)))
-	}
+	log.Debug("Commit new sealing work", "number", block.Number(), "sealhash", block.Header().SealHash(),
+		"uncles", len(work.uncles), "txs", work.tcount, "etxs", len(block.ExtTransactions()),
+		"gas", block.GasUsed(), "fees", totalFees(block, work.receipts),
+		"elapsed", common.PrettyDuration(time.Since(start)))
 	work.uncleMu.RUnlock()
 }
 
@@ -1018,7 +1011,7 @@ func (w *worker) commit(env *environment, interval func(), update bool, start ti
 		select {
 		case w.taskCh <- &task{receipts: env.receipts, state: env.state, block: block, createdAt: time.Now()}:
 			env.uncleMu.RLock()
-			log.Info("Commit new sealing work", "number", block.Number(), "sealhash", block.Header().SealHash(),
+			log.Debug("Commit new sealing work", "number", block.Number(), "sealhash", block.Header().SealHash(),
 				"uncles", len(env.uncles), "txs", env.tcount, "etxs", len(block.ExtTransactions()),
 				"gas", block.GasUsed(), "fees", totalFees(block, env.receipts),
 				"elapsed", common.PrettyDuration(time.Since(start)))

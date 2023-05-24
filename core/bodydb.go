@@ -82,7 +82,7 @@ func (bc *BodyDb) Append(batch ethdb.Batch, block *types.Block, newInboundEtxs t
 		}
 		rawdb.WriteTxLookupEntriesByBlock(batch, block)
 	}
-	log.Info("Time taken to", "apply state:", common.PrettyDuration(time.Since(stateApply)))
+	log.Debug("Time taken to", "apply state:", common.PrettyDuration(time.Since(stateApply)))
 
 	rawdb.WriteBlock(batch, block)
 	return logs, nil
