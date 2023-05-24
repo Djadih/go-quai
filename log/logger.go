@@ -192,9 +192,14 @@ func callerPrettyfier(f *runtime.Frame) (string, string) {
 }
 
 func callerPrettyfierCustom(f *runtime.Frame) (string, string) {
+	runtime.CallersFrames([]uintptr{uintptr(f.PC)}).Next()
+
+
 	filename := path.Base(f.File)
 	dir := path.Base(path.Dir(f.File))
 
 	filepath := path.Join(dir, filename)
+	
+	
 	return "", fmt.Sprintf("%s:%d", filepath, f.Line)
 }
