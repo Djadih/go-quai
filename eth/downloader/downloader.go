@@ -504,7 +504,7 @@ func (d *Downloader) fetchHead(p *peerConnection) (head *types.Header, err error
 			// and request.
 			head := headers[0]
 			if len(headers) == 1 {
-				p.log.Debug("Remote head identified", "number", head.Number(), "hash", head.Hash())
+				p.log.Trace("Remote head identified", "number", head.Number(), "hash", head.Hash())
 				return head, nil
 			}
 			return head, nil
@@ -530,7 +530,7 @@ func (d *Downloader) fetchHead(p *peerConnection) (head *types.Header, err error
 // the origin is dropped.
 func (d *Downloader) fetchHeaders(p *peerConnection, from uint64) error {
 	p.log.Debug("Directing header downloads", "origin", from)
-	defer p.log.Debug("Header download terminated")
+	defer p.log.Trace("Header download terminated")
 
 	// Create a timeout timer, and the associated header fetcher
 	skeleton := true
@@ -749,7 +749,7 @@ func (d *Downloader) fetchHeaders(p *peerConnection, from uint64) error {
 // The method returns the entire filled skeleton and also the number of headers
 // already forwarded for processing.
 func (d *Downloader) fillHeaderSkeleton(from uint64, skeleton []*types.Header) ([]*types.Header, int, error) {
-	log.Debug("Filling up skeleton", "from", from)
+	log.Trace("Filling up skeleton", "from", from)
 	d.queue.ScheduleSkeleton(from, skeleton)
 
 	var (
@@ -799,7 +799,7 @@ func (d *Downloader) fetchBodies(from uint64) error {
 		d.queue.PendingBlocks, d.queue.InFlightBlocks, d.queue.ReserveBodies,
 		d.bodyFetchHook, fetch, d.queue.CancelBodies, capacity, d.peers.BodyIdlePeers, setIdle, "bodies")
 
-	log.Debug("Block body download terminated", "err", err)
+	log.Trace("Block body download terminated", "err", err)
 	return err
 }
 

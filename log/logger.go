@@ -18,10 +18,6 @@ type Logger struct {
 
 var Log Logger = Logger{logrus.New()}
 
-func init() {
-
-}
-
 func ConfigureLogger(ctx *cli.Context) {
 	logLevel := logrus.Level(ctx.GlobalInt("verbosity"))
 	Log.SetLevel(logLevel)
@@ -74,6 +70,15 @@ func SetLevelString(level string) {
 
 func New(out_path string) Logger {
 	logger := logrus.New()
+
+	Log.Formatter = &logrus.TextFormatter{
+		ForceColors:      Log.Logger.Formatter.(*logrus.TextFormatter).ForceColors,
+		PadLevelText:     true,
+		FullTimestamp:    true,
+		TimestampFormat:  "01-02|15:04:05",
+		CallerPrettyfier: callerPrettyfier,
+	}
+
 	logger.SetOutput(&lumberjack.Logger{
 		Filename:   out_path,
 		MaxSize:    500, // megabytes
@@ -179,6 +184,14 @@ func constructLogMessage(msg string, fields ...interface{}) string {
 }
 
 func callerPrettyfier(f *runtime.Frame) (string, string) {
+	filename := path.Base(f.File)
+	dir := path.Base(path.Dir(f.File))
+
+	filepath := path.Join(dir, filename)
+	return "", fmt.Sprintf("%s:%d", filepath, f.Line)
+}
+
+func callerPrettyfierCustom(f *runtime.Frame) (string, string) {
 	filename := path.Base(f.File)
 	dir := path.Base(path.Dir(f.File))
 

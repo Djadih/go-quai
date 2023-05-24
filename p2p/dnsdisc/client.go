@@ -363,7 +363,7 @@ func (it *randomIterator) waitForRootUpdates(trees []*clientTree) bool {
 	}
 
 	sleep := nextCheck.Sub(it.c.clock.Now())
-	it.c.cfg.Logger.Debug("DNS iterator waiting for root updates", "sleep", sleep, "tree", minTree.loc.domain)
+	it.c.cfg.Logger.Trace("DNS iterator waiting for root updates", "sleep", sleep, "tree", minTree.loc.domain)
 	timeout := it.c.clock.NewTimer(sleep)
 	defer timeout.Stop()
 	select {

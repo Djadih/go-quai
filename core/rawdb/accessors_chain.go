@@ -521,7 +521,7 @@ func ReadTermini(db ethdb.Reader, hash common.Hash) []common.Hash {
 
 // WriteHeadsHashes writes the heads hashes of the blockchain.
 func WriteTermini(db ethdb.KeyValueWriter, index common.Hash, hashes []common.Hash) {
-	log.Debug("WriteTermini:", "hashes:", hashes, "index:", index)
+	log.Trace("WriteTermini:", "hashes:", hashes, "index:", index)
 	key := terminiKey(index)
 	data, err := rlp.EncodeToBytes(hashes)
 	if err != nil {
