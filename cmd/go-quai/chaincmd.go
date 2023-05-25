@@ -37,7 +37,6 @@ import (
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/node"
-	"github.com/rcrowley/go-metrics"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -230,8 +229,6 @@ func importChain(ctx *cli.Context) error {
 	}
 	// Start metrics export if enabled
 	utils.SetupMetrics(ctx)
-	// Start system runtime metrics collection
-	go metrics.CollectProcessMetrics(3 * time.Second)
 
 	stack, _ := makeConfigNode(ctx)
 	defer stack.Close()

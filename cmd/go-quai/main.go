@@ -34,7 +34,6 @@ import (
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
-	"github.com/rcrowley/go-metrics"
 
 	"gopkg.in/urfave/cli.v1"
 )
@@ -252,9 +251,6 @@ func prepare(ctx *cli.Context) {
 
 	// Start metrics export if enabled
 	utils.SetupMetrics(ctx)
-
-	// Start system runtime metrics collection
-	go metrics.CollectProcessMetrics(3 * time.Second)
 }
 
 // quai is the main entry point into the system if no special subcommand is ran.
