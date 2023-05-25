@@ -26,7 +26,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/crypto"
 	"github.com/dominant-strategies/go-quai/rlp"
-	"github.com/rcrowley/go-metrics"
 )
 
 var emptyCodeHash = crypto.Keccak256(nil)
@@ -211,20 +210,20 @@ func (s *stateObject) GetCommittedState(db Database, key common.Hash) common.Has
 		meter *time.Duration
 	)
 	readStart := time.Now()
-	if metrics.EnabledExpensive {
-		// If the snap is 'under construction', the first lookup may fail. If that
-		// happens, we don't want to double-count the time elapsed. Thus this
-		// dance with the metering.
-		defer func() {
-			if meter != nil {
-				*meter += time.Since(readStart)
-			}
-		}()
-	}
+	// if metrics.EnabledExpensive {
+	// If the snap is 'under construction', the first lookup may fail. If that
+	// happens, we don't want to double-count the time elapsed. Thus this
+	// dance with the metering.
+	// defer func() {
+	// if meter != nil {
+	// *meter += time.Since(readStart)
+	// }
+	// }()
+	// }
 	if s.db.snap != nil {
-		if metrics.EnabledExpensive {
-			meter = &s.db.SnapshotStorageReads
-		}
+		// if metrics.EnabledExpensive {
+		// meter = &s.db.SnapshotStorageReads
+		// }
 		// If the object was destructed in *this* block (and potentially resurrected),
 		// the storage has been cleared out, and we should *not* consult the previous
 		// snapshot about any storage values. The only possible alternatives are:
@@ -244,9 +243,9 @@ func (s *stateObject) GetCommittedState(db Database, key common.Hash) common.Has
 			*meter += time.Since(readStart)
 			readStart = time.Now()
 		}
-		if metrics.EnabledExpensive {
-			meter = &s.db.StorageReads
-		}
+		// if metrics.EnabledExpensive {
+		// meter = &s.db.StorageReads
+		// }
 		if enc, err = s.getTrie(db).TryGet(key.Bytes()); err != nil {
 			s.setError(err)
 			return common.Hash{}
@@ -334,9 +333,9 @@ func (s *stateObject) updateTrie(db Database) Trie {
 		return s.trie
 	}
 	// Track the amount of time wasted on updating the storage trie
-	if metrics.EnabledExpensive {
-		defer func(start time.Time) { s.db.StorageUpdates += time.Since(start) }(time.Now())
-	}
+	// if metrics.EnabledExpensive {
+	// defer func(start time.Time) { s.db.StorageUpdates += time.Since(start) }(time.Now())
+	// }
 	// The snapshot storage map for the object
 	var storage map[common.Hash][]byte
 	// Insert all the pending updates into the trie
@@ -388,9 +387,9 @@ func (s *stateObject) updateRoot(db Database) {
 		return
 	}
 	// Track the amount of time wasted on hashing the storage trie
-	if metrics.EnabledExpensive {
-		defer func(start time.Time) { s.db.StorageHashes += time.Since(start) }(time.Now())
-	}
+	// if metrics.EnabledExpensive {
+	// defer func(start time.Time) { s.db.StorageHashes += time.Since(start) }(time.Now())
+	// }
 	s.data.Root = s.trie.Hash()
 }
 
@@ -405,9 +404,9 @@ func (s *stateObject) CommitTrie(db Database) error {
 		return s.dbErr
 	}
 	// Track the amount of time wasted on committing the storage trie
-	if metrics.EnabledExpensive {
-		defer func(start time.Time) { s.db.StorageCommits += time.Since(start) }(time.Now())
-	}
+	// if metrics.EnabledExpensive {
+	// defer func(start time.Time) { s.db.StorageCommits += time.Since(start) }(time.Now())
+	// }
 	root, err := s.trie.Commit(nil)
 	if err == nil {
 		s.data.Root = root

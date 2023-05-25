@@ -216,7 +216,7 @@ func (dl *diffLayer) rebloom(origin *diskLayer) {
 	defer dl.lock.Unlock()
 
 	defer func(start time.Time) {
-		snapshotBloomIndexTimer.Update(time.Since(start))
+		// snapshotBloomIndexTimer.Update(time.Since(start))
 	}(time.Now())
 
 	// Inject the new origin that triggered the rebloom

@@ -54,16 +54,16 @@ type meteredConn struct {
 // system is disabled, function returns the original connection.
 func newMeteredConn(conn net.Conn, ingress bool, addr *net.TCPAddr) net.Conn {
 	// Short circuit if metrics are disabled
-	if !metrics.Enabled {
-		return conn
-	}
+	// if !metrics.Enabled {
+		// return conn
+	// }
 	// Bump the connection counters and wrap the connection
 	if ingress {
 		ingressConnectMeter.Mark(1)
 	} else {
 		egressConnectMeter.Mark(1)
 	}
-	activePeerGauge.Inc(1)
+	// activePeerGauge.Inc(1)
 	return &meteredConn{Conn: conn}
 }
 
@@ -87,8 +87,8 @@ func (c *meteredConn) Write(b []byte) (n int, err error) {
 // the peer from the traffic registries and emits close event.
 func (c *meteredConn) Close() error {
 	err := c.Conn.Close()
-	if err == nil {
-		activePeerGauge.Dec(1)
-	}
+	// if err == nil {
+		// activePeerGauge.Dec(1)
+	// }
 	return err
 }

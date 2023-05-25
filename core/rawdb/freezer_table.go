@@ -190,12 +190,12 @@ func newCustomTable(path string, name string, readMeter metrics.Meter, writeMete
 		return nil, err
 	}
 	// Initialize the starting size counter
-	size, err := tab.sizeNolock()
-	if err != nil {
-		tab.Close()
-		return nil, err
-	}
-	tab.sizeGauge.Inc(int64(size))
+	// size, err := tab.sizeNolock()
+	// if err != nil {
+		// tab.Close()
+		// return nil, err
+	// }
+	// tab.sizeGauge.Inc(int64(size))
 
 	return tab, nil
 }
@@ -341,10 +341,10 @@ func (t *freezerTable) truncate(items uint64) error {
 		return nil
 	}
 	// We need to truncate, save the old size for metrics tracking
-	oldSize, err := t.sizeNolock()
-	if err != nil {
-		return err
-	}
+	// oldSize, err := t.sizeNolock()
+	// if err != nil {
+		// return err
+	// }
 	// Something's out of sync, truncate the table's offset index
 	log := t.logger.Debug
 	if existing > items+1 {
@@ -385,11 +385,11 @@ func (t *freezerTable) truncate(items uint64) error {
 	atomic.StoreUint32(&t.headBytes, expected.offset)
 
 	// Retrieve the new size and update the total size counter
-	newSize, err := t.sizeNolock()
-	if err != nil {
-		return err
-	}
-	t.sizeGauge.Dec(int64(oldSize - newSize))
+	// newSize, err := t.sizeNolock()
+	// if err != nil {
+		// return err
+	// }
+	// t.sizeGauge.Dec(int64(oldSize - newSize))
 
 	return nil
 }
@@ -541,7 +541,7 @@ func (t *freezerTable) append(item uint64, encodedBlob []byte, wlock bool) (bool
 	t.index.Write(idx.marshallBinary())
 
 	t.writeMeter.Mark(int64(bLen + indexEntrySize))
-	t.sizeGauge.Inc(int64(bLen + indexEntrySize))
+	// t.sizeGauge.Inc(int64(bLen + indexEntrySize))
 
 	atomic.AddUint64(&t.items, 1)
 	return false, nil
