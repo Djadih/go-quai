@@ -30,8 +30,8 @@ import (
 	"github.com/dominant-strategies/go-quai/common/prque"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/trie"
+	"github.com/rcrowley/go-metrics"
 )
 
 const (

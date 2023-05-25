@@ -32,9 +32,9 @@ import (
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
+	"github.com/rcrowley/go-metrics"
 
 	"gopkg.in/urfave/cli.v1"
 )

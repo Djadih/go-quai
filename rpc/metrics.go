@@ -19,7 +19,7 @@ package rpc
 import (
 	"fmt"
 
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/rcrowley/go-metrics"
 )
 
 var (

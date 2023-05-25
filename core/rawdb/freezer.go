@@ -30,9 +30,9 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/prometheus/tsdb/fileutil"
+	"github.com/rcrowley/go-metrics"
 )
 
 var (

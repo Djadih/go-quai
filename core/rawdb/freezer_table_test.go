@@ -24,11 +24,12 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	sync "github.com/sasha-s/go-deadlock"
 	"testing"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/metrics"
+	sync "github.com/sasha-s/go-deadlock"
+
+	"github.com/rcrowley/go-metrics"
 )
 
 func init() {

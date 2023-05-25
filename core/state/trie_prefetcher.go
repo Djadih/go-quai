@@ -21,7 +21,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/rcrowley/go-metrics"
 )
 
 var (

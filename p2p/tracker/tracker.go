@@ -19,11 +19,12 @@ package tracker
 import (
 	"container/list"
 	"fmt"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/rcrowley/go-metrics"
 )
 
 const (
@@ -84,9 +85,9 @@ func New(protocol string, timeout time.Duration) *Tracker {
 // Track adds a network request to the tracker to wait for a response to arrive
 // or until the request it cancelled or times out.
 func (t *Tracker) Track(peer string, version uint, reqCode uint64, resCode uint64, id uint64) {
-	if !metrics.Enabled {
-		return
-	}
+	// if !metrics.Enabled {
+		// return
+	// }
 	t.lock.Lock()
 	defer t.lock.Unlock()
 

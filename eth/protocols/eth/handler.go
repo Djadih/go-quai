@@ -24,11 +24,11 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core"
 	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/params"
+	"github.com/rcrowley/go-metrics"
 )
 
 const (

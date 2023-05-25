@@ -23,13 +23,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	sync "github.com/sasha-s/go-deadlock"
 	"sync/atomic"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/golang/snappy"
+	"github.com/rcrowley/go-metrics"
 )
 
 var (

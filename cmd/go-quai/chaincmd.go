@@ -36,8 +36,8 @@ import (
 	"github.com/dominant-strategies/go-quai/crypto"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/node"
+	"github.com/rcrowley/go-metrics"
 	"gopkg.in/urfave/cli.v1"
 )
 

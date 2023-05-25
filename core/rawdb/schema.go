@@ -22,7 +22,7 @@ import (
 	"encoding/binary"
 
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/rcrowley/go-metrics"
 )
 
 // The fields below define the low level database schema prefixing.
