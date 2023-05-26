@@ -54,9 +54,9 @@ type meteredConn struct {
 // system is disabled, function returns the original connection.
 func newMeteredConn(conn net.Conn, ingress bool, addr *net.TCPAddr) net.Conn {
 	// Short circuit if metrics are disabled
-	if !metrics.Enabled {
+	// if !metrics.Enabled {
 		return conn
-	}
+	// }
 	// Bump the connection counters and wrap the connection
 	if ingress {
 		ingressConnectMeter.Mark(1)

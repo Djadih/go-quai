@@ -1502,7 +1502,7 @@ func RegisterQuaiStatsService(stack *node.Node, backend quaiapi.Backend, url str
 }
 
 func SetupMetrics(ctx *cli.Context) {
-	if metrics.Enabled {
+	// if metrics.Enabled {
 		log.Info("Enabling metrics collection")
 
 		var (
@@ -1526,7 +1526,7 @@ func SetupMetrics(ctx *cli.Context) {
 			log.Info("Enabling stand-alone metrics HTTP endpoint", "address", address)
 			exp.Setup(address)
 		}
-	}
+	// }
 }
 
 func SplitTagsFlag(tagsFlag string) map[string]string {

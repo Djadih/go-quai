@@ -78,27 +78,27 @@ func (p *triePrefetcher) close() {
 	for _, fetcher := range p.fetchers {
 		fetcher.abort() // safe to do multiple times
 
-		if metrics.Enabled {
-			if fetcher.root == p.root {
-				p.accountLoadMeter.Mark(int64(len(fetcher.seen)))
-				p.accountDupMeter.Mark(int64(fetcher.dups))
-				p.accountSkipMeter.Mark(int64(len(fetcher.tasks)))
+		// if metrics.Enabled {
+		// 	if fetcher.root == p.root {
+		// 		p.accountLoadMeter.Mark(int64(len(fetcher.seen)))
+		// 		p.accountDupMeter.Mark(int64(fetcher.dups))
+		// 		p.accountSkipMeter.Mark(int64(len(fetcher.tasks)))
 
-				for _, key := range fetcher.used {
-					delete(fetcher.seen, string(key))
-				}
-				p.accountWasteMeter.Mark(int64(len(fetcher.seen)))
-			} else {
-				p.storageLoadMeter.Mark(int64(len(fetcher.seen)))
-				p.storageDupMeter.Mark(int64(fetcher.dups))
-				p.storageSkipMeter.Mark(int64(len(fetcher.tasks)))
+		// 		for _, key := range fetcher.used {
+		// 			delete(fetcher.seen, string(key))
+		// 		}
+		// 		p.accountWasteMeter.Mark(int64(len(fetcher.seen)))
+		// 	} else {
+		// 		p.storageLoadMeter.Mark(int64(len(fetcher.seen)))
+		// 		p.storageDupMeter.Mark(int64(fetcher.dups))
+		// 		p.storageSkipMeter.Mark(int64(len(fetcher.tasks)))
 
-				for _, key := range fetcher.used {
-					delete(fetcher.seen, string(key))
-				}
-				p.storageWasteMeter.Mark(int64(len(fetcher.seen)))
-			}
-		}
+		// 		for _, key := range fetcher.used {
+		// 			delete(fetcher.seen, string(key))
+		// 		}
+		// 		p.storageWasteMeter.Mark(int64(len(fetcher.seen)))
+		// 	}
+		// }
 	}
 	// Clear out all fetchers (will crash on a second call, deliberate)
 	p.fetchers = nil

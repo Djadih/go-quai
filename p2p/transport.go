@@ -22,12 +22,12 @@ import (
 	"fmt"
 	"io"
 	"net"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/bitutil"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/p2p/rlpx"
 	"github.com/dominant-strategies/go-quai/rlp"
 )
@@ -97,11 +97,11 @@ func (t *rlpxTransport) WriteMsg(msg Msg) error {
 
 	// Set metrics.
 	msg.meterSize = size
-	if metrics.Enabled && msg.meterCap.Name != "" { // don't meter non-subprotocol messages
-		m := fmt.Sprintf("%s/%s/%d/%#02x", egressMeterName, msg.meterCap.Name, msg.meterCap.Version, msg.meterCode)
-		metrics.GetOrRegisterMeter(m, nil).Mark(int64(msg.meterSize))
-		metrics.GetOrRegisterMeter(m+"/packets", nil).Mark(1)
-	}
+	// if metrics.Enabled && msg.meterCap.Name != "" { // don't meter non-subprotocol messages
+	// m := fmt.Sprintf("%s/%s/%d/%#02x", egressMeterName, msg.meterCap.Name, msg.meterCap.Version, msg.meterCode)
+	// metrics.GetOrRegisterMeter(m, nil).Mark(int64(msg.meterSize))
+	// metrics.GetOrRegisterMeter(m+"/packets", nil).Mark(1)
+	// }
 	return nil
 }
 
