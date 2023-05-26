@@ -610,7 +610,7 @@ func (w *worker) makeEnv(parent *types.Block, header *types.Header, coinbase com
 	if err != nil {
 		return nil, err
 	}
-	state.StartPrefetcher("miner")
+	//state.StartPrefetcher("miner")
 
 	// Note the passed coinbase may be different with header.Coinbase.
 	env := &environment{
@@ -624,13 +624,13 @@ func (w *worker) makeEnv(parent *types.Block, header *types.Header, coinbase com
 		externalGasUsed: uint64(0),
 	}
 	// when 08 is processed ancestors contain 07 (quick block)
-	for _, ancestor := range w.hc.GetBlocksFromHash(parent.Hash(), 7) {
-		for _, uncle := range ancestor.Uncles() {
-			env.family.Add(uncle.Hash())
-		}
-		env.family.Add(ancestor.Hash())
-		env.ancestors.Add(ancestor.Hash())
-	}
+	// for _, ancestor := range w.hc.GetBlocksFromHash(parent.Hash(), 7) {
+	// 	for _, uncle := range ancestor.Uncles() {
+	// 		env.family.Add(uncle.Hash())
+	// 	}
+	// 	env.family.Add(ancestor.Hash())
+	// 	env.ancestors.Add(ancestor.Hash())
+	// }
 	// Keep track of transactions which return errors so they can be removed
 	env.tcount = 0
 	return env, nil
@@ -690,7 +690,6 @@ func (w *worker) commitTransactions(env *environment, txs *types.TransactionsByP
 	if env.gasPool == nil {
 		env.gasPool = new(GasPool).AddGas(gasLimit())
 	}
-	var coalescedLogs []*types.Log
 
 	for {
 		// In the following three cases, we will interrupt the execution of the transaction.
@@ -731,7 +730,7 @@ func (w *worker) commitTransactions(env *environment, txs *types.TransactionsByP
 		// Start executing the transaction
 		env.state.Prepare(tx.Hash(), env.tcount)
 
-		logs, err := w.commitTransaction(env, tx)
+		_, err := w.commitTransaction(env, tx)
 		switch {
 		case errors.Is(err, ErrGasLimitReached):
 			// Pop the current out-of-gas transaction without shifting in the next from the account
@@ -750,7 +749,6 @@ func (w *worker) commitTransactions(env *environment, txs *types.TransactionsByP
 
 		case errors.Is(err, nil):
 			// Everything ok, collect the logs and shift in the next transaction from the same account
-			coalescedLogs = append(coalescedLogs, logs...)
 			env.tcount++
 			txs.Shift(from.Bytes20(), false)
 
@@ -765,22 +763,6 @@ func (w *worker) commitTransactions(env *environment, txs *types.TransactionsByP
 			log.Debug("Transaction failed, account skipped", "hash", tx.Hash(), "err", err)
 			txs.Shift(from.Bytes20(), false)
 		}
-	}
-
-	if !w.isRunning() && len(coalescedLogs) > 0 {
-		// We don't push the pendingLogsEvent while we are sealing. The reason is that
-		// when we are sealing, the worker will regenerate a sealing block every 3 seconds.
-		// In order to avoid pushing the repeated pendingLog, we disable the pending log pushing.
-
-		// make a copy, the state caches the logs and these logs get "upgraded" from pending to mined
-		// logs by filling in the block hash when the block was mined by the local miner. This can
-		// cause a race condition if a log was "upgraded" before the PendingLogsEvent is processed.
-		cpy := make([]*types.Log, len(coalescedLogs))
-		for i, l := range coalescedLogs {
-			cpy[i] = new(types.Log)
-			*cpy[i] = *l
-		}
-		w.pendingLogsFeed.Send(cpy)
 	}
 	return false
 }
@@ -858,26 +840,26 @@ func (w *worker) prepareWork(genParams *generateParams, block *types.Block) (*en
 			return nil, err
 		}
 		// Accumulate the uncles for the sealing work.
-		commitUncles := func(blocks map[common.Hash]*types.Block) {
-			for hash, uncle := range blocks {
-				env.uncleMu.RLock()
-				if len(env.uncles) == 2 {
-					env.uncleMu.RUnlock()
-					break
-				}
-				env.uncleMu.RUnlock()
-				if err := w.commitUncle(env, uncle.Header()); err != nil {
-					log.Trace("Possible uncle rejected", "hash", hash, "reason", err)
-				} else {
-					log.Debug("Committing new uncle to block", "hash", hash)
-				}
-			}
-		}
-		w.uncleMu.RLock()
-		// Prefer to locally generated uncle
-		commitUncles(w.localUncles)
-		commitUncles(w.remoteUncles)
-		w.uncleMu.RUnlock()
+		// commitUncles := func(blocks map[common.Hash]*types.Block) {
+		// 	for hash, uncle := range blocks {
+		// 		env.uncleMu.RLock()
+		// 		if len(env.uncles) == 2 {
+		// 			env.uncleMu.RUnlock()
+		// 			break
+		// 		}
+		// 		env.uncleMu.RUnlock()
+		// 		if err := w.commitUncle(env, uncle.Header()); err != nil {
+		// 			log.Trace("Possible uncle rejected", "hash", hash, "reason", err)
+		// 		} else {
+		// 			log.Debug("Committing new uncle to block", "hash", hash)
+		// 		}
+		// 	}
+		// }
+		// w.uncleMu.RLock()
+		// // Prefer to locally generated uncle
+		// commitUncles(w.localUncles)
+		// commitUncles(w.remoteUncles)
+		// w.uncleMu.RUnlock()
 		return env, nil
 	} else {
 		return &environment{header: header}, nil

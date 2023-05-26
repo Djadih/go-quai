@@ -59,8 +59,8 @@ var (
 
 const (
 	receiptsCacheLimit = 32
-	txLookupCacheLimit = 1024
-	TriesInMemory      = 128
+	txLookupCacheLimit = 32
+	TriesInMemory      = 32
 
 	// BlockChainVersion ensures that an incompatible database forces a resync from scratch.
 	//
@@ -105,10 +105,10 @@ type CacheConfig struct {
 // defaultCacheConfig are the default caching values if none are specified by the
 // user (also used during testing).
 var defaultCacheConfig = &CacheConfig{
-	TrieCleanLimit: 256,
-	TrieDirtyLimit: 256,
+	TrieCleanLimit: 32,
+	TrieDirtyLimit: 32,
 	TrieTimeLimit:  5 * time.Minute,
-	SnapshotLimit:  256,
+	SnapshotLimit:  32,
 }
 
 // StateProcessor is a basic Processor, which takes care of transitioning

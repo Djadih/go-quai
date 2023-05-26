@@ -3,11 +3,12 @@ package core
 import (
 	"errors"
 	"fmt"
-	sync "github.com/sasha-s/go-deadlock"
 	"io"
 	"math/big"
 	"sync/atomic"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/consensus"
@@ -26,8 +27,8 @@ import (
 )
 
 const (
-	headerCacheLimit      = 512
-	numberCacheLimit      = 2048
+	headerCacheLimit      = 32
+	numberCacheLimit      = 32
 	primeHorizonThreshold = 20
 )
 
@@ -314,12 +315,19 @@ func (hc *HeaderChain) Append(batch ethdb.Batch, block *types.Block, newInboundE
 	// coincident with a higher order chain. So, this check is skipped for prime
 	// nodes.
 	if nodeCtx > common.PRIME_CTX {
-		manifest, err := hc.CollectBlockManifest(block.Header())
+		order, err := block.Header().CalcOrder()
 		if err != nil {
 			return err
 		}
-		if block.ManifestHash(nodeCtx) != types.DeriveSha(manifest, trie.NewStackTrie(nil)) {
-			return errors.New("manifest does not match hash")
+		// Only run this check on the dom block
+		if order < nodeCtx {
+			manifest, err := hc.CollectBlockManifest(block.Header())
+			if err != nil {
+				return err
+			}
+			if block.ManifestHash(nodeCtx) != types.DeriveSha(manifest, trie.NewStackTrie(nil)) {
+				return errors.New("manifest does not match hash")
+			}
 		}
 	}
 	elapsedCollectBlockManifest := common.PrettyDuration(time.Since(collectBlockManifest))
@@ -329,16 +337,16 @@ func (hc *HeaderChain) Append(batch ethdb.Batch, block *types.Block, newInboundE
 
 	blockappend := time.Now()
 	// Append block else revert header append
-	logs, err := hc.bc.Append(batch, block, newInboundEtxs)
+	_, err = hc.bc.Append(batch, block, newInboundEtxs)
 	if err != nil {
 		return err
 	}
 	log.Info("Time taken to", "collectBlockManifest", elapsedCollectBlockManifest, "Append in bc", common.PrettyDuration(time.Since(blockappend)))
 
-	hc.bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-	if len(logs) > 0 {
-		hc.bc.logsFeed.Send(logs)
-	}
+	//hc.bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+	// if len(logs) > 0 {
+	// 	hc.bc.logsFeed.Send(logs)
+	// }
 
 	return nil
 }

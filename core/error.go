@@ -41,6 +41,9 @@ var (
 	// ErrBodyNotFound is returned when body data for a given header hash cannot be found.
 	ErrBodyNotFound = errors.New("could not find the body data to match the header root hash")
 
+	// ErrBlockNotFound is returned when block for a given header hash cannot be found.
+	ErrBlockNotFound = errors.New("could not find the block to match the header")
+
 	// ErrDomClientNotUp is returned when block is trying to be appended when domClient is not up.
 	ErrDomClientNotUp = errors.New("dom client is not online")
 

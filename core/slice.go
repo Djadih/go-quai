@@ -25,7 +25,6 @@ import (
 const (
 	c_maxPendingEtxBatches            = 1024
 	c_maxPendingEtxsRollup            = 256
-	c_pendingHeaderCacheLimit         = 100
 	c_pendingHeaderChacheBufferFactor = 2
 	pendingHeaderGCTime               = 5
 	c_terminusIndex                   = 3
@@ -148,10 +147,11 @@ func (sl *Slice) Append(header *types.Header, domPendingHeader *types.Header, do
 		return nil, false, ErrDomClientNotUp
 	}
 	time2 := common.PrettyDuration(time.Since(start))
+
 	// Construct the block locally
-	block, err := sl.ConstructLocalBlock(header)
-	if err != nil {
-		return nil, false, err
+	block := sl.hc.bc.GetBlockOrCandidate(header.Hash(), header.NumberU64())
+	if block == nil {
+		return nil, false, ErrBlockNotFound
 	}
 	time3 := common.PrettyDuration(time.Since(start))
 	batch := sl.sliceDb.NewBatch()
