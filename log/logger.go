@@ -2,7 +2,6 @@ package log
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -92,6 +91,7 @@ func New(out_path string) Logger {
 func Trace(msg string, args ...interface{}) {
 	Log.Trace(constructLogMessage(msg, args...))
 }
+
 // Individual logging instances will use the following method.
 func (l Logger) Trace(msg string, args ...interface{}) {
 	l.Logger.Trace(constructLogMessage(msg, args...))
@@ -184,22 +184,44 @@ func constructLogMessage(msg string, fields ...interface{}) string {
 }
 
 func callerPrettyfier(f *runtime.Frame) (string, string) {
-	filename := path.Base(f.File)
-	dir := path.Base(path.Dir(f.File))
+	// pc := make([]uintptr, 1)
+	// // runtime.Callers(2, f.PC)
+	// pc[0] = f.PC
+	// fmt.Printf("f pc: %v\n", f.PC)
+	// callerFrames := runtime.CallersFrames(pc)
+	// tempFrame, _ := callerFrames.Next()
+	// fmt.Printf("tempFrame: %v\n", tempFrame)
+	// caller, _ := callerFrames.Next()
+	// fmt.Printf("caller: %v\n", caller)
+	// f = &caller
 
-	filepath := path.Join(dir, filename)
-	return "", fmt.Sprintf("%s:%d", filepath, f.Line)
+	// filename := path.Base(f.File)
+	// dir := path.Base(path.Dir(f.File))
+
+	// filepath := path.Join(dir, filename)
+	// return "", fmt.Sprintf("%s:%d", filepath, f.Line)
+
+	fmt.Printf("f: %v\n", f)
+
+	pc := make([]uintptr, 1)
+	pc[0] = f.PC
+
+	func_info := runtime.FuncForPC(f.PC)
+	fmt.Printf("func_info: %v\n", func_info)
+	return "", ""
+
+	// working ish but inconsistent
+	// pc := make([]uintptr, 1)
+	// runtime.Callers(10, pc)
+	// callerFrames := runtime.CallersFrames(pc)
+	// caller, _ := callerFrames.Next()
+	// return "", fmt.Sprintf("%s:%d", caller.File, caller.Line)
 }
 
-func callerPrettyfierCustom(f *runtime.Frame) (string, string) {
-	runtime.CallersFrames([]uintptr{uintptr(f.PC)}).Next()
-
-
-	filename := path.Base(f.File)
-	dir := path.Base(path.Dir(f.File))
-
-	filepath := path.Join(dir, filename)
-	
-	
-	return "", fmt.Sprintf("%s:%d", filepath, f.Line)
-}
+// func callerInfo() string {
+// 	pc := make([]uintptr, 1)
+// 	runtime.Callers(3, pc)
+// 	callerFrames := runtime.CallersFrames(pc)
+// 	caller, _ := callerFrames.Next()
+// 	return fmt.Sprintf("%s:%d", caller.File, caller.Line)
+// }
