@@ -31,9 +31,10 @@ import (
 	"github.com/dominant-strategies/go-quai/eth/protocols/eth"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
 	sync "github.com/sasha-s/go-deadlock"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -286,17 +287,14 @@ func (h *handler) removePeer(id string) {
 // unregisterPeer removes a peer from the downloader, fetchers and main peer set.
 func (h *handler) unregisterPeer(id string) {
 	// Create a custom logger to avoid printing the entire id
-	var logger log.Logger
 	if len(id) < 16 {
 		// Tests use short IDs, don't choke on them
-		logger = log.Log
 	} else {
-		logger = log.Log
 	}
 	// Abort if the peer does not exist
 	peer := h.peers.peer(id)
 	if peer == nil {
-		logger.Error("Quai peer removal failed", "err", errPeerNotRegistered)
+		log.Error("Quai peer removal failed", "err", errPeerNotRegistered)
 		return
 	}
 
@@ -307,7 +305,7 @@ func (h *handler) unregisterPeer(id string) {
 	}
 
 	if err := h.peers.unregisterPeer(id); err != nil {
-		logger.Error("Quai peer removal failed", "err", err)
+		log.Error("Quai peer removal failed", "err", err)
 	}
 }
 

@@ -48,7 +48,6 @@ import (
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/metrics/exp"
 	"github.com/dominant-strategies/go-quai/metrics/influxdb"
@@ -59,6 +58,7 @@ import (
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/dominant-strategies/go-quai/quaistats"
+	"github.com/prometheus/common/log"
 	gopsutil "github.com/shirou/gopsutil/mem"
 	"gopkg.in/urfave/cli.v1"
 )

@@ -24,7 +24,7 @@ import (
 	"os"
 	"runtime/trace"
 
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
 )
 
 // StartGoTrace turns on tracing, writing to the given file.

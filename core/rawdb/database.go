@@ -28,8 +28,8 @@ import (
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/ethdb/leveldb"
 	"github.com/dominant-strategies/go-quai/ethdb/memorydb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/olekukonko/tablewriter"
+	log "github.com/sirupsen/logrus"
 )
 
 // freezerdb is a database wrapper that enabled freezer data retrievals.

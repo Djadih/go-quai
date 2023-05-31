@@ -32,10 +32,12 @@ import (
 	"github.com/dominant-strategies/go-quai/crypto"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/ethdb/memorydb"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/rlp"
 	"github.com/dominant-strategies/go-quai/trie"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -138,7 +140,7 @@ func (gs *generatorStats) Log(msg string, root common.Hash, marker []byte) {
 			}...)
 		}
 	}
-	log.Info(msg, ctx...)
+	log.Info(msg, ctx)
 }
 
 // generateSnapshot regenerates a brand new snapshot based on an existing state
@@ -394,7 +396,7 @@ func (dl *diskLayer) generateRange(root common.Hash, prefix []byte, kind string,
 	if len(origin) > 0 {
 		logCtx = append(logCtx, "origin", hexutil.Encode(origin))
 	}
-	logger := log.Log
+	logger := logger_utils.GetLogger()
 
 	// The range prover says the range is correct, skip trie iteration
 	if result.valid() {

@@ -23,8 +23,8 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/prometheus/common/log"
 )
 
 // wipeSnapshot starts a goroutine to iterate over the entire key-value database

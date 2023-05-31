@@ -21,10 +21,11 @@ import (
 	"net"
 
 	"github.com/dominant-strategies/go-quai/common/mclock"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
+	log "github.com/sirupsen/logrus"
 )
 
 // UDPConn is a network connection on which discovery can operate.
@@ -51,7 +52,7 @@ type Config struct {
 
 func (cfg Config) withDefaults() Config {
 	if cfg.Log == nil {
-		cfg.Log = &log.Log
+		cfg.Log = logger_utils.GetLogger()
 	}
 	if cfg.ValidSchemes == nil {
 		cfg.ValidSchemes = enode.ValidSchemes

@@ -33,9 +33,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dominant-strategies/go-quai/logger_utils"
+	"github.com/prometheus/common/log"
 	sync "github.com/sasha-s/go-deadlock"
-
-	"github.com/dominant-strategies/go-quai/log"
 )
 
 // Handler is the global debugging handler.
@@ -55,7 +55,7 @@ type HandlerT struct {
 // Verbosity sets the log verbosity ceiling. The verbosity of individual packages
 // and source files can be raised using Vmodule.
 func (*HandlerT) Verbosity(level int) {
-	log.SetLevelInt(level)
+	logger_utils.SetLevelInt(level)
 }
 
 // MemStats returns detailed runtime memory statistics.

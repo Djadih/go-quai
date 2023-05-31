@@ -26,14 +26,16 @@ import (
 	"fmt"
 	"io"
 	"net"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/crypto"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/discover/v4wire"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
-	"github.com/dominant-strategies/go-quai/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Errors
@@ -67,7 +69,7 @@ const (
 // UDPv4 implements the v4 wire protocol.
 type UDPv4 struct {
 	conn        UDPConn
-	log         log.Logger
+	log         *log.Logger
 	netrestrict *netutil.Netlist
 	priv        *ecdsa.PrivateKey
 	localNode   *enode.LocalNode
@@ -140,10 +142,10 @@ func ListenV4(c UDPConn, ln *enode.LocalNode, cfg Config) (*UDPv4, error) {
 		addReplyMatcher: make(chan *replyMatcher),
 		closeCtx:        closeCtx,
 		cancelCloseCtx:  cancel,
-		log:             log.Log,
+		log:             logger_utils.GetLogger(),
 	}
 
-	tab, err := newTable(t, ln.Database(), cfg.Bootnodes, t.log)
+	tab, err := newTable(t, ln.Database(), cfg.Bootnodes, *t.log)
 	if err != nil {
 		return nil, err
 	}

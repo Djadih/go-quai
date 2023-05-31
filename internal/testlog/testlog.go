@@ -18,10 +18,9 @@
 package testlog
 
 import (
-	sync "github.com/sasha-s/go-deadlock"
 	"testing"
 
-	"github.com/dominant-strategies/go-quai/log"
+	sync "github.com/sasha-s/go-deadlock"
 )
 
 // Handler returns a log handler which logs to the unit test log of t.

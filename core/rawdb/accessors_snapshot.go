@@ -21,7 +21,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // ReadSnapshotDisabled retrieves if the snapshot maintenance is disabled.

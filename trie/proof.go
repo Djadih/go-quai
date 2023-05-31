@@ -24,8 +24,8 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/ethdb/memorydb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rlp"
+	"github.com/prometheus/common/log"
 )
 
 // Prove constructs a merkle proof for key. The result contains all encoded nodes

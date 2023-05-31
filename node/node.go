@@ -24,15 +24,18 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
 	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/rpc"
 	"github.com/prometheus/tsdb/fileutil"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Node is a container on which services can be registered.
@@ -76,7 +79,7 @@ func New(conf *Config) (*Node, error) {
 		conf.DataDir = absdatadir
 	}
 	if conf.Logger == nil {
-		conf.Logger = &log.Log
+		conf.Logger = logger_utils.GetLogger()
 	}
 
 	// Ensure that the instance name doesn't cause weird conflicts with

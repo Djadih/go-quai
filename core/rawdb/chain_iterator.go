@@ -25,8 +25,8 @@ import (
 	"github.com/dominant-strategies/go-quai/common/prque"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rlp"
+	log "github.com/sirupsen/logrus"
 )
 
 // InitDatabaseFromFreezer reinitializes an empty database from a previous batch

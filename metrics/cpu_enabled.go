@@ -20,7 +20,7 @@
 package metrics
 
 import (
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
 	"github.com/shirou/gopsutil/cpu"
 )
 

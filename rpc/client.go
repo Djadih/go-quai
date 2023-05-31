@@ -27,8 +27,7 @@ import (
 	"strconv"
 	"sync/atomic"
 	"time"
-
-	"github.com/dominant-strategies/go-quai/log"
+	log "github.com/sirupsen/logrus"
 )
 
 var (

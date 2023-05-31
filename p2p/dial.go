@@ -24,13 +24,15 @@ import (
 	"fmt"
 	mrand "math/rand"
 	"net"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/common/mclock"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -145,7 +147,7 @@ func (cfg dialConfig) withDefaults() dialConfig {
 		cfg.maxActiveDials = defaultMaxPendingPeers
 	}
 	if cfg.log == nil {
-		cfg.log = &log.Log
+		cfg.log = logger_utils.GetLogger()
 	}
 	if cfg.clock == nil {
 		cfg.clock = mclock.System{}

@@ -22,12 +22,12 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/prometheus/common/log"
 	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	bloomfilter "github.com/holiman/bloomfilter/v2"
 )

@@ -22,11 +22,12 @@ import (
 	"net"
 	"reflect"
 	"strconv"
-	sync "github.com/sasha-s/go-deadlock"
 	"sync/atomic"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
 )

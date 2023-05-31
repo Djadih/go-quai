@@ -18,15 +18,14 @@
 package msgrate
 
 import (
-	"encoding/json"
 	"errors"
 	"math"
 	"sort"
 	"time"
 
 	sync "github.com/sasha-s/go-deadlock"
-
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // measurementImpact is the impact a single measurement has on a peer's final
@@ -246,12 +245,12 @@ type Trackers struct {
 	// purpose is to allow quicker tests. Don't use them in production.
 	OverrideTTLLimit time.Duration
 
-	log  *log.Logger
+	log  *logrus.Logger
 	lock sync.RWMutex
 }
 
 // NewTrackers creates an empty set of trackers to be filled with peers.
-func NewTrackers(log *log.Logger) *Trackers {
+func NewTrackers(log *logrus.Logger) *Trackers {
 	return &Trackers{
 		trackers:         make(map[string]*Tracker),
 		roundtrip:        rttMaxEstimate,
@@ -422,10 +421,10 @@ func (t *Trackers) tune() {
 
 	t.tuned = time.Now()
 	log.Debug("Recalculated msgrate QoS values", "rtt", t.roundtrip, "confidence", t.confidence, "ttl", t.targetTimeout(), "next", t.tuned.Add(t.roundtrip))
-	log.Lazy(func() string {
-		b, _ := json.Marshal(t.meanCapacities())
-		return string(b)
-	}, "trace")
+	// logger_utils.Lazy(func() string {
+	// b, _ := json.Marshal(t.meanCapacities())
+	// return string(b)
+	// }, "trace")
 }
 
 // detune reduces the tracker's confidence in order to make fresh measurements

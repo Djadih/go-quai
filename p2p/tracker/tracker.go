@@ -19,10 +19,11 @@ package tracker
 import (
 	"container/list"
 	"fmt"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/metrics"
 )
 

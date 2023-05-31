@@ -31,8 +31,10 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/eth/protocols/eth"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/msgrate"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -65,7 +67,7 @@ type peerConnection struct {
 	peer Peer
 
 	version uint       // Eth protocol version number to switch strategies
-	log     log.Logger // Contextual logger to add extra infos to peer logs
+	log     *log.Logger // Contextual logger to add extra infos to peer logs
 	lock    sync.RWMutex
 }
 
@@ -84,7 +86,7 @@ type Peer interface {
 }
 
 // newPeerConnection creates a new downloader peer.
-func newPeerConnection(id string, version uint, peer Peer, logger log.Logger) *peerConnection {
+func newPeerConnection(id string, version uint, peer Peer, logger *log.Logger) *peerConnection {
 	return &peerConnection{
 		id:      id,
 		lacking: make(map[common.Hash]struct{}),
@@ -297,7 +299,7 @@ type peerSet struct {
 func newPeerSet() *peerSet {
 	return &peerSet{
 		peers: make(map[string]*peerConnection),
-		rates: msgrate.NewTrackers(&log.Log),
+		rates: msgrate.NewTrackers(logger_utils.GetLogger()),
 	}
 }
 

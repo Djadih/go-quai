@@ -11,13 +11,15 @@ import (
 	"math/rand"
 	"net/http"
 	"runtime"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/hexutil"
 	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -123,14 +125,13 @@ func (blake3pow *Blake3pow) mine(header *types.Header, id int, seed uint64, abor
 		nonce     = seed
 		powBuffer = new(big.Int)
 	)
-	logger := log.Log
-	logger.Trace("Started blake3pow search for new nonces", "seed", seed)
+	log.Trace("Started blake3pow search for new nonces", "seed", seed)
 search:
 	for {
 		select {
 		case <-abort:
 			// Mining terminated, update stats and abort
-			logger.Trace("Blake3pow nonce search aborted", "attempts", nonce-seed)
+			log.Trace("Blake3pow nonce search aborted", "attempts", nonce-seed)
 			blake3pow.hashrate.Mark(attempts)
 			break search
 
@@ -151,9 +152,9 @@ search:
 				// Seal and return a block (if still needed)
 				select {
 				case found <- header:
-					logger.Trace("Blake3pow nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
+					log.Trace("Blake3pow nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
 				case <-abort:
-					logger.Trace("Blake3pow nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
+					log.Trace("Blake3pow nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
 				}
 				break search
 			}

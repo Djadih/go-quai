@@ -19,7 +19,7 @@ package rawdb
 import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // ReadPreimage retrieves a single preimage of the provided hash.

@@ -21,6 +21,7 @@ package filters
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	sync "github.com/sasha-s/go-deadlock"
@@ -31,7 +32,6 @@ import (
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rpc"
 )
 

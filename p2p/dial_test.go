@@ -23,15 +23,16 @@ import (
 	"math/rand"
 	"net"
 	"reflect"
-	sync "github.com/sasha-s/go-deadlock"
 	"testing"
 	"time"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/common/mclock"
 	"github.com/dominant-strategies/go-quai/internal/testlog"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
+	log "github.com/sirupsen/logrus"
 )
 
 // This test checks that dynamic dials are launched from discovery results.

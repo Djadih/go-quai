@@ -29,9 +29,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rpc"
 	"github.com/rs/cors"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // httpConfig is the JSON-RPC/HTTP configuration.

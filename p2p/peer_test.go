@@ -28,7 +28,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 )

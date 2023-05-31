@@ -22,8 +22,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/prometheus/common/log"
 )
 
 // Handler returns an HTTP handler which dump metrics in Prometheus format.

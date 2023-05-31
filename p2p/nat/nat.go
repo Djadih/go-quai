@@ -22,11 +22,13 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
+	sync "github.com/sasha-s/go-deadlock"
+
 	natpmp "github.com/jackpal/go-nat-pmp"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // An implementation of nat.Interface can map local ports to ports
@@ -97,7 +99,6 @@ const (
 // Map adds a port mapping on m and keeps it alive until c is closed.
 // This function is typically invoked in its own goroutine.
 func Map(m Interface, c <-chan struct{}, protocol string, extport, intport int, name string) {
-	log := log.Log
 	refresh := time.NewTimer(mapTimeout)
 	defer func() {
 		refresh.Stop()

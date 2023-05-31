@@ -31,12 +31,14 @@ import (
 	"github.com/dominant-strategies/go-quai/internal/debug"
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 
 	"gopkg.in/urfave/cli.v1"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -266,7 +268,7 @@ func quai(ctx *cli.Context) error {
 	}
 
 	// Setup logger.
-	log.ConfigureLogger(ctx)
+	logger_utils.ConfigureDefaultLogger(ctx)
 
 	prepare(ctx)
 	stack, backend := makeFullNode(ctx)

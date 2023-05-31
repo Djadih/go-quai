@@ -24,18 +24,21 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -113,7 +116,7 @@ func NewCustom(file string, namespace string, customize func(options *opt.Option
 	if options.ReadOnly {
 		logCtx = append(logCtx, "readonly", "true")
 	}
-	log.Info("Allocated cache and file handles", logCtx...)
+	log.Info("Allocated cache and file handles", logCtx)
 
 	// Open the db and recover any potential corruptions
 	db, err := leveldb.OpenFile(file, options)
@@ -127,7 +130,7 @@ func NewCustom(file string, namespace string, customize func(options *opt.Option
 	ldb := &Database{
 		fn:       file,
 		db:       db,
-		log:      log.Log,
+		log:      *logger_utils.GetLogger(),
 		quitChan: make(chan chan error),
 	}
 	ldb.compTimeMeter = metrics.NewRegisteredMeter(namespace+"compact/time", nil)

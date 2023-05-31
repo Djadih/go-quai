@@ -23,13 +23,16 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	sync "github.com/sasha-s/go-deadlock"
 	"sync/atomic"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/golang/snappy"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -99,7 +102,7 @@ type freezerTable struct {
 	writeMeter metrics.Meter // Meter for measuring the effective amount of data written
 	sizeGauge  metrics.Gauge // Gauge for tracking the combined size of all freezer tables
 
-	logger log.Logger   // Logger with database path and table name ambedded
+	logger *log.Logger   // Logger with database path and table name ambedded
 	lock   sync.RWMutex // Mutex protecting the data file descriptors
 }
 
@@ -180,7 +183,7 @@ func newCustomTable(path string, name string, readMeter metrics.Meter, writeMete
 		sizeGauge:     sizeGauge,
 		name:          name,
 		path:          path,
-		logger:        log.Log,
+		logger:        logger_utils.GetLogger(),
 		noCompression: noCompression,
 		maxFileSize:   maxFilesize,
 	}

@@ -27,8 +27,8 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/ethdb"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rlp"
+	"github.com/prometheus/common/log"
 )
 
 var ErrCommitDisabled = errors.New("no database for committing")

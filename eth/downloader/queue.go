@@ -29,9 +29,10 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/prque"
 	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/trie"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -389,7 +390,7 @@ func (q *queue) Results(block bool) []*fetchResult {
 		q.lastStatLog = time.Now()
 		info := q.Stats()
 		info = append(info, "throttle", throttleThreshold)
-		log.Info("Downloader queue stats", info...)
+		log.Info("Downloader queue stats", info)
 	}
 	return results
 }
@@ -693,12 +694,9 @@ func (q *queue) DeliverHeaders(id string, headers []*types.Header, headerProcCh 
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
-	var logger log.Logger
 	if len(id) < 16 {
 		// Tests use short IDs, don't choke on them
-		logger = log.Log
 	} else {
-		logger = log.Log
 	}
 	// Short circuit if the data was never requested
 	request := q.headerPendPool[id]
@@ -724,11 +722,11 @@ func (q *queue) DeliverHeaders(id string, headers []*types.Header, headerProcCh 
 
 	if accepted {
 		if headers[len(headers)-1].Number().Uint64() != request.From {
-			logger.Info("First header broke chain ordering", "number", headers[0].Number(), "hash", headers[0].Hash(), "expected", request.From)
+			log.Info("First header broke chain ordering", "number", headers[0].Number(), "hash", headers[0].Hash(), "expected", request.From)
 			accepted = false
 		} else if headers[0].NumberU64() != targetTo {
 			if targetTo != 0 {
-				logger.Info("Last header broke skeleton structure ", "number", headers[0].Number(), "expected", targetTo)
+				log.Info("Last header broke skeleton structure ", "number", headers[0].Number(), "expected", targetTo)
 				accepted = false
 			}
 		}
@@ -745,12 +743,12 @@ func (q *queue) DeliverHeaders(id string, headers []*types.Header, headerProcCh 
 				want = targetTo + 2 + uint64(i)
 			}
 			if header.Number().Uint64() != want {
-				logger.Warn("Header broke chain ordering", "number", header.Number(), "hash", hash, "expected", want)
+				log.Warn("Header broke chain ordering", "number", header.Number(), "hash", hash, "expected", want)
 				accepted = false
 				break
 			}
 			if parentHash != header.ParentHash() {
-				logger.Warn("Header broke chain ancestry", "number", header.Number(), "hash", hash)
+				log.Warn("Header broke chain ancestry", "number", header.Number(), "hash", hash)
 				accepted = false
 				break
 			}
@@ -760,7 +758,7 @@ func (q *queue) DeliverHeaders(id string, headers []*types.Header, headerProcCh 
 	}
 	// If the batch of headers wasn't accepted, mark as unavailable
 	if !accepted {
-		logger.Trace("Skeleton filling not accepted", "from", request.From)
+		log.Trace("Skeleton filling not accepted", "from", request.From)
 
 		miss := q.headerPeerMiss[id]
 		if miss == nil {
@@ -788,7 +786,7 @@ func (q *queue) DeliverHeaders(id string, headers []*types.Header, headerProcCh 
 
 		select {
 		case headerProcCh <- process:
-			logger.Trace("Pre-scheduled new headers", "count", len(process), "from", process[0].Number())
+			log.Trace("Pre-scheduled new headers", "count", len(process), "from", process[0].Number())
 			q.headerProced += len(process)
 		default:
 		}

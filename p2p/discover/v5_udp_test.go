@@ -29,11 +29,11 @@ import (
 	"time"
 
 	"github.com/dominant-strategies/go-quai/internal/testlog"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/discover/v5wire"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/rlp"
+	log "github.com/sirupsen/logrus"
 )
 
 // Real sockets, real crypto: this test checks end-to-end connectivity for UDPv5.

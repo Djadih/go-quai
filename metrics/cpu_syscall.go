@@ -20,9 +20,8 @@
 package metrics
 
 import (
+	"github.com/prometheus/common/log"
 	syscall "golang.org/x/sys/unix"
-
-	"github.com/dominant-strategies/go-quai/log"
 )
 
 // getProcessCPUTime retrieves the process' CPU time since program startup.

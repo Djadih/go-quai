@@ -13,7 +13,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/internal/testlog"
-	"github.com/dominant-strategies/go-quai/log"
 )
 
 // Tests whether remote HTTP servers are correctly notified of new work.

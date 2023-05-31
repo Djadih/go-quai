@@ -28,10 +28,12 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/crypto"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/rpc"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -354,7 +356,7 @@ func (c *Config) warnOnce(w *bool, format string, args ...interface{}) {
 	}
 	l := c.Logger
 	if l == nil {
-		l = &log.Log
+		l = logger_utils.GetLogger()
 	}
 	l.Warn(fmt.Sprintf(format, args...))
 	*w = true

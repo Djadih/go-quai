@@ -23,10 +23,10 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	sync "github.com/sasha-s/go-deadlock"
 	"unicode"
 
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
+	sync "github.com/sasha-s/go-deadlock"
 )
 
 var (

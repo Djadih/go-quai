@@ -25,10 +25,10 @@ import (
 	"math/rand"
 	"net"
 	"sort"
+
 	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/crypto"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 )

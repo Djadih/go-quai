@@ -30,7 +30,9 @@ import (
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // ChainIndexerBackend defines the methods needed to process chain segments in
@@ -91,7 +93,7 @@ type ChainIndexer struct {
 
 	throttling time.Duration // Disk throttling to prevent a heavy upgrade from hogging resources
 
-	log  log.Logger
+	log  *log.Logger
 	lock sync.Mutex
 }
 
@@ -108,7 +110,7 @@ func NewChainIndexer(chainDb ethdb.Database, indexDb ethdb.Database, backend Cha
 		sectionSize: section,
 		confirmsReq: confirm,
 		throttling:  throttling,
-		log:         log.Log,
+		log:         logger_utils.GetLogger(),
 	}
 	// Initialize database dependent fields and start the updater
 	c.loadValidSections()

@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/tests/fuzzers/vflux"
 )
 

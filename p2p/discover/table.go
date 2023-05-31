@@ -34,9 +34,11 @@ import (
 	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -306,7 +308,7 @@ func (tab *Table) loadSeedNodes() {
 	seeds = append(seeds, tab.nursery...)
 	for i := range seeds {
 		seed := seeds[i]
-		log.Lazy(func() string { return time.Since(tab.db.LastPongReceived(seed.ID(), seed.IP())).String() }, "trace")
+		logger_utils.Lazy(func() string { return time.Since(tab.db.LastPongReceived(seed.ID(), seed.IP())).String() }, "trace")
 		log.Trace("Found seed node in database", "id", seed.ID(), "addr", seed.addr())
 		tab.addSeenNode(seed)
 	}

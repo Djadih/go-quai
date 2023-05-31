@@ -26,15 +26,17 @@ import (
 	"io"
 	"math"
 	"net"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
+	sync "github.com/sasha-s/go-deadlock"
+
 	"github.com/dominant-strategies/go-quai/common/mclock"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/p2p/discover/v5wire"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -145,7 +147,7 @@ func newUDPv5(conn UDPConn, ln *enode.LocalNode, cfg Config) (*UDPv5, error) {
 		db:           ln.Database(),
 		netrestrict:  cfg.NetRestrict,
 		priv:         cfg.PrivateKey,
-		log:          &log.Log,
+		log:          logger_utils.GetLogger(),
 		validSchemes: cfg.ValidSchemes,
 		clock:        cfg.Clock,
 		trhandlers:   make(map[string]TalkRequestHandler),

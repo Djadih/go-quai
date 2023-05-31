@@ -24,11 +24,12 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	sync "github.com/sasha-s/go-deadlock"
 	"time"
 
+	"github.com/prometheus/common/log"
+	sync "github.com/sasha-s/go-deadlock"
+
 	mapset "github.com/deckarep/golang-set"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/gorilla/websocket"
 )
 

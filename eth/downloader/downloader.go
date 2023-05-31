@@ -34,8 +34,12 @@ import (
 	"github.com/dominant-strategies/go-quai/eth/protocols/eth"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/event"
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/logger_utils"
+
+	// "github.com/dominant-strategies/go-quai/logger_utils"
 	"github.com/dominant-strategies/go-quai/metrics"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -214,10 +218,9 @@ func (d *Downloader) Synchronising() bool {
 // RegisterPeer injects a new download peer into the set of block source to be
 // used for fetching hashes and blocks from.
 func (d *Downloader) RegisterPeer(id string, version uint, peer Peer) error {
-	logger := log.Log
-	logger.Trace("Registering sync peer")
-	if err := d.peers.Register(newPeerConnection(id, version, peer, logger)); err != nil {
-		logger.Error("Failed to register sync peer", "err", err)
+	log.Trace("Registering sync peer")
+	if err := d.peers.Register(newPeerConnection(id, version, peer, logger_utils.GetLogger())); err != nil {
+		log.Error("Failed to register sync peer", "err", err)
 		return err
 	}
 	return nil
@@ -233,10 +236,9 @@ func (d *Downloader) HeadEntropy() *big.Int {
 // the queue.
 func (d *Downloader) UnregisterPeer(id string) error {
 	// Unregister the peer from the active peer set and revoke any fetch tasks
-	logger := log.Log
-	logger.Trace("Unregistering sync peer")
+	log.Trace("Unregistering sync peer")
 	if err := d.peers.Unregister(id); err != nil {
-		logger.Error("Failed to unregister sync peer", "err", err)
+		log.Error("Failed to unregister sync peer", "err", err)
 		return err
 	}
 	d.queue.Revoke(id)

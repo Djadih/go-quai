@@ -25,7 +25,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/common/log"
 )
 
 const (

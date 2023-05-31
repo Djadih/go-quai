@@ -26,7 +26,6 @@ import (
 	"testing"
 
 	"github.com/dominant-strategies/go-quai/internal/testlog"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rpc"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
