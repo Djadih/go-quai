@@ -23,7 +23,7 @@ import (
 	"sort"
 
 	"github.com/dominant-strategies/go-quai/metrics"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Handler returns an HTTP handler which dump metrics in Prometheus format.

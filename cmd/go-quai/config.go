@@ -35,7 +35,8 @@ import (
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/naoina/toml"
-	"github.com/prometheus/common/log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (

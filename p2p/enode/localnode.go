@@ -25,8 +25,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/prometheus/common/log"
 	sync "github.com/sasha-s/go-deadlock"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/dominant-strategies/go-quai/p2p/enr"
 	"github.com/dominant-strategies/go-quai/p2p/netutil"

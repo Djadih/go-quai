@@ -24,8 +24,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/prometheus/common/log"
 	sync "github.com/sasha-s/go-deadlock"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/VictoriaMetrics/fastcache"
 	"github.com/dominant-strategies/go-quai/common"

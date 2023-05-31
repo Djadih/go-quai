@@ -7,7 +7,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/influxdata/influxdb/client"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type reporter struct {

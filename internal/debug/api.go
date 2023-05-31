@@ -34,8 +34,8 @@ import (
 	"time"
 
 	"github.com/dominant-strategies/go-quai/logger_utils"
-	"github.com/prometheus/common/log"
 	sync "github.com/sasha-s/go-deadlock"
+	log "github.com/sirupsen/logrus"
 )
 
 // Handler is the global debugging handler.

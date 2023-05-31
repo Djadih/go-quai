@@ -20,8 +20,8 @@
 package metrics
 
 import (
-	"github.com/prometheus/common/log"
 	"github.com/shirou/gopsutil/cpu"
+	log "github.com/sirupsen/logrus"
 )
 
 // ReadCPUStats retrieves the current CPU stats.

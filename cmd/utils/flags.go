@@ -58,8 +58,8 @@ import (
 	"github.com/dominant-strategies/go-quai/p2p/netutil"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/dominant-strategies/go-quai/quaistats"
-	"github.com/prometheus/common/log"
 	gopsutil "github.com/shirou/gopsutil/mem"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 )
 

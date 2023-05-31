@@ -20,7 +20,7 @@
 package metrics
 
 import (
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 	syscall "golang.org/x/sys/unix"
 )
 

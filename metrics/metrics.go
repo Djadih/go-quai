@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Enabled is checked by the constructor functions for all of the

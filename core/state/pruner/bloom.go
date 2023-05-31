@@ -24,7 +24,7 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/rawdb"
 	bloomfilter "github.com/holiman/bloomfilter/v2"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // stateBloomHasher is a wrapper around a byte blob to satisfy the interface API

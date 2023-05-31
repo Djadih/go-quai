@@ -25,7 +25,8 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/rpc"
-	"github.com/prometheus/common/log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var exponentialBackoffCeilingSecs int64 = 60 // 1 minute

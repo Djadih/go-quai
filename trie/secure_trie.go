@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // SecureTrie wraps a trie with key hashing. In a secure trie, all
