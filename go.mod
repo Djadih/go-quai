@@ -2,6 +2,8 @@ module github.com/dominant-strategies/go-quai
 
 go 1.20
 
+replace github.com/dominant-strategies/go-quai => ../go-quai
+
 require (
 	github.com/Azure/azure-storage-blob-go v0.7.0
 	github.com/VictoriaMetrics/fastcache v1.6.0
