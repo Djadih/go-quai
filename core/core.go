@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"sort"
@@ -160,6 +161,7 @@ func (c *Core) procAppendQueue() {
 	// blocks will be aged out of the append queue after the retry threhsold
 	var hashNumberList []types.HashAndNumber
 	var hashNumberPriorityList []types.HashAndNumber
+	fmt.Println("size of appendQueue:", len(c.appendQueue.Keys()), common.NodeLocation.Name())
 	for _, hash := range c.appendQueue.Keys() {
 		if value, exist := c.appendQueue.Peek(hash); exist {
 			hashNumber := types.HashAndNumber{Hash: hash.(common.Hash), Number: value.(blockNumberAndRetryCounter).number}
