@@ -1160,8 +1160,8 @@ func (d *Downloader) importBlockResults(results []*fetchResult) error {
 		if d.core.IsBlockHashABadHash(block.Hash()) {
 			return errBadBlockFound
 		}
-		d.headNumber = block.NumberU64()
-		d.headEntropy = d.core.TotalLogS(block.Header())
+		//	d.headNumber = block.NumberU64()
+		//	d.headEntropy = d.core.TotalLogS(block.Header())
 		d.core.WriteBlock(block)
 	}
 	return nil
