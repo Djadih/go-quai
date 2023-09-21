@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"math/big"
 	"sort"
@@ -140,7 +139,7 @@ func (c *Core) InsertChain(blocks types.Blocks) (int, error) {
 				log.Info("Append failed.", "hash", block.Hash(), "err", err)
 			}
 			if err != nil && strings.Contains(err.Error(), "connection refused") {
-				log.Error("Append failed because of conenction refused error")
+				log.Error("Append failed because of connection refused error")
 			} else {
 				c.removeFromAppendQueue(block)
 			}
@@ -154,6 +153,9 @@ func (c *Core) procAppendQueue() {
 
 	if c.procCounter > c_normalListProcCounter {
 		c.procCounter = 0
+		if len(c.appendQueue.Keys()) == 0 {
+			log.Info("No blocks waiting to be appended in: " + common.NodeLocation.Name())
+		}
 	} else {
 		c.procCounter++
 	}
@@ -161,7 +163,6 @@ func (c *Core) procAppendQueue() {
 	// blocks will be aged out of the append queue after the retry threhsold
 	var hashNumberList []types.HashAndNumber
 	var hashNumberPriorityList []types.HashAndNumber
-	fmt.Println("size of appendQueue:", len(c.appendQueue.Keys()), common.NodeLocation.Name())
 	for _, hash := range c.appendQueue.Keys() {
 		if value, exist := c.appendQueue.Peek(hash); exist {
 			hashNumber := types.HashAndNumber{Hash: hash.(common.Hash), Number: value.(blockNumberAndRetryCounter).number}
