@@ -23,6 +23,7 @@ import (
 	"runtime"
 
 	"github.com/dominant-strategies/go-quai/p2p"
+	"github.com/dominant-strategies/go-quai/p2p/nat"
 	"github.com/dominant-strategies/go-quai/rpc"
 )
 
@@ -45,6 +46,7 @@ var DefaultConfig = Config{
 	P2P: p2p.Config{
 		ListenAddr: ":30303",
 		MaxPeers:   50,
+		NAT:        nat.Any(),
 	},
 	DBEngine: "",
 }

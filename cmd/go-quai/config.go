@@ -34,7 +34,6 @@ import (
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/node"
-	"github.com/dominant-strategies/go-quai/p2p/nat"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/naoina/toml"
 )
@@ -104,11 +103,8 @@ func loadConfig(file string, cfg *quaiConfig) error {
 	return err
 }
 
-func defaultNodeConfig(ctx *cli.Context) node.Config {
+func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
-	if !ctx.GlobalBool(utils.LocalFlag.Name) {
-		cfg.P2P.NAT = nat.Any()
-	}
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit, gitDate)
 	cfg.HTTPModules = append(cfg.HTTPModules, "eth")
@@ -122,7 +118,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, quaiConfig) {
 	// Load defaults.
 	cfg := quaiConfig{
 		Eth:     ethconfig.Defaults,
-		Node:    defaultNodeConfig(ctx),
+		Node:    defaultNodeConfig(),
 		Metrics: metrics.DefaultConfig,
 	}
 
