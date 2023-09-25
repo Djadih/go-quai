@@ -956,7 +956,7 @@ func (pool *TxPool) addTxs(txs []*types.Transaction, local, sync bool) []error {
 			_, err = sender.InternalAddress()
 			if err != nil {
 				errs[i] = err
-				invalidTxMeter.Mark(1)
+				// invalidTxMeter.Mark(1)
 				continue
 			}
 		} else if _, found := pool.GetSender(tx.Hash()); found {
@@ -965,13 +965,13 @@ func (pool *TxPool) addTxs(txs []*types.Transaction, local, sync bool) []error {
 			from, err := types.Sender(pool.signer, tx)
 			if err != nil {
 				errs[i] = ErrInvalidSender
-				invalidTxMeter.Mark(1)
+				// invalidTxMeter.Mark(1)
 				continue
 			}
 			_, err = from.InternalAddress()
 			if err != nil {
 				errs[i] = ErrInvalidSender
-				invalidTxMeter.Mark(1)
+				// invalidTxMeter.Mark(1)
 				continue
 			}
 		}

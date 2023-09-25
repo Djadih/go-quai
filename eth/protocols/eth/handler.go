@@ -24,7 +24,7 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core"
 	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/metrics"
+
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/enode"
 	"github.com/dominant-strategies/go-quai/p2p/enr"
@@ -196,18 +196,6 @@ func handleMessage(backend Backend, peer *Peer) error {
 		handlers = quai1
 	} else {
 		return fmt.Errorf("protocol version not supported")
-	}
-	// Track the amount of time it takes to serve the request and run the handler
-	if metrics.Enabled {
-		h := fmt.Sprintf("%s/%s/%d/%#02x", p2p.HandleHistName, c_ProtocolName, peer.Version(), msg.Code)
-		defer func(start time.Time) {
-			sampler := func() metrics.Sample {
-				return metrics.ResettingSample(
-					metrics.NewExpDecaySample(1028, 0.015),
-				)
-			}
-			metrics.GetOrRegisterHistogramLazy(h, nil, sampler).Update(time.Since(start).Microseconds())
-		}(time.Now())
 	}
 	if handler := handlers[msg.Code]; handler != nil {
 		return handler(backend, msg, peer)
