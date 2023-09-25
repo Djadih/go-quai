@@ -32,7 +32,7 @@ import (
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics_config"
+	// "github.com/dominant-strategies/go-quai/metrics_config"
 	"github.com/dominant-strategies/go-quai/node"
 
 	"gopkg.in/urfave/cli.v1"
@@ -263,11 +263,11 @@ func quai(ctx *cli.Context) error {
 	defer stack.Close()
 
 	// Start system runtime metrics collection
-	if ctx.GlobalIsSet(utils.MetricsEnabledFlag.Name) {
-		log.Info("Starting metrics")
-		metrics_config.EnableMetrics()
-		go metrics_config.StartProcessMetrics()
-	}
+	// if ctx.GlobalIsSet(utils.MetricsEnabledFlag.Name) {
+	// log.Info("Starting metrics")
+	// metrics_config.EnableMetrics()
+	// go metrics_config.StartProcessMetrics()
+	// }
 
 	startNode(ctx, stack, backend)
 	stack.Wait()

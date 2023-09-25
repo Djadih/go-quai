@@ -28,7 +28,7 @@ func init() {
 }
 
 func EnableMetrics() {
-	enabled = true
+	enabled = false
 }
 
 func MetricsEnabled() bool {
@@ -100,7 +100,6 @@ func NewTimer(name string, help string) *prometheus.Timer {
 	prometheus.MustRegister(timeHistogram)
 
 	return timer
-	
 }
 
 func initializeHttpMetrics(metricsMap map[string]*prometheus.GaugeVec) {
