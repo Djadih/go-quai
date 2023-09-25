@@ -32,7 +32,7 @@ import (
 	"github.com/dominant-strategies/go-quai/eth/ethconfig"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/dominant-strategies/go-quai/metrics_config"
 	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/p2p/nat"
 	"github.com/dominant-strategies/go-quai/params"
@@ -86,7 +86,7 @@ type quaiConfig struct {
 	Eth      ethconfig.Config
 	Node     node.Config
 	Ethstats quaistatsConfig
-	Metrics  metrics.Config
+	Metrics  metrics_config.Config
 }
 
 func loadConfig(file string, cfg *quaiConfig) error {
@@ -123,7 +123,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, quaiConfig) {
 	cfg := quaiConfig{
 		Eth:     ethconfig.Defaults,
 		Node:    defaultNodeConfig(ctx),
-		Metrics: metrics.DefaultConfig,
+		Metrics: metrics_config.DefaultConfig,
 	}
 
 	// Load config file.
