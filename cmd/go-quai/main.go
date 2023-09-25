@@ -156,15 +156,9 @@ var (
 	}
 
 	metricsFlags = []cli.Flag{
-		utils.MetricsEnableInfluxDBFlag,
 		utils.MetricsEnabledExpensiveFlag,
 		utils.MetricsEnabledFlag,
 		utils.MetricsHTTPFlag,
-		utils.MetricsInfluxDBDatabaseFlag,
-		utils.MetricsInfluxDBEndpointFlag,
-		utils.MetricsInfluxDBPasswordFlag,
-		utils.MetricsInfluxDBTagsFlag,
-		utils.MetricsInfluxDBUsernameFlag,
 		utils.MetricsPortFlag,
 	}
 )
