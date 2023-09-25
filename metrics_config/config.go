@@ -43,3 +43,4 @@ var DefaultConfig = Config{
 	InfluxDBPassword: "test",
 	InfluxDBTags:     "host=localhost",
 }
+

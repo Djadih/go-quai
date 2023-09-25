@@ -32,7 +32,7 @@ import (
 	"github.com/dominant-strategies/go-quai/internal/flags"
 	"github.com/dominant-strategies/go-quai/internal/quaiapi"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
+	"github.com/dominant-strategies/go-quai/metrics_config"
 	"github.com/dominant-strategies/go-quai/node"
 
 	"gopkg.in/urfave/cli.v1"
@@ -251,14 +251,6 @@ func prepare(ctx *cli.Context) {
 		log.Info("Dropping default light client cache", "provided", ctx.GlobalInt(utils.CacheFlag.Name), "updated", 128)
 		ctx.GlobalSet(utils.CacheFlag.Name, strconv.Itoa(128))
 	}
-
-	// Start metrics export if enabled
-	utils.SetupMetrics(ctx)
-
-	// Start system runtime metrics collection
-	if ctx.GlobalBool(utils.MetricsEnabledFlag.Name) {
-		go metrics.CollectProcessMetrics(3 * time.Second)
-	}
 }
 
 // quai is the main entry point into the system if no special subcommand is ran.
@@ -275,6 +267,13 @@ func quai(ctx *cli.Context) error {
 	prepare(ctx)
 	stack, backend := makeFullNode(ctx)
 	defer stack.Close()
+
+	// Start system runtime metrics collection
+	if ctx.GlobalIsSet(utils.MetricsEnabledFlag.Name) {
+		log.Info("Starting metrics")
+		metrics_config.EnableMetrics()
+		go metrics_config.StartProcessMetrics()
+	}
 
 	startNode(ctx, stack, backend)
 	stack.Wait()

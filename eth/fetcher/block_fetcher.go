@@ -27,7 +27,7 @@ import (
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
+
 	"github.com/dominant-strategies/go-quai/trie"
 )
 
@@ -46,24 +46,7 @@ const (
 	MaxStaleBroadcastDist = 3500 // Drop peers who broadcast new blocks that are more than 3500 blocks stale
 )
 
-var (
-	blockAnnounceInMeter   = metrics.NewRegisteredMeter("eth/fetcher/block/announces/in", nil)
-	blockAnnounceOutTimer  = metrics.NewRegisteredTimer("eth/fetcher/block/announces/out", nil)
-	blockAnnounceDropMeter = metrics.NewRegisteredMeter("eth/fetcher/block/announces/drop", nil)
-	blockAnnounceDOSMeter  = metrics.NewRegisteredMeter("eth/fetcher/block/announces/dos", nil)
-
-	blockBroadcastInMeter   = metrics.NewRegisteredMeter("eth/fetcher/block/broadcasts/in", nil)
-	blockBroadcastOutTimer  = metrics.NewRegisteredTimer("eth/fetcher/block/broadcasts/out", nil)
-	blockBroadcastDropMeter = metrics.NewRegisteredMeter("eth/fetcher/block/broadcasts/drop", nil)
-
-	headerFetchMeter = metrics.NewRegisteredMeter("eth/fetcher/block/headers", nil)
-	bodyFetchMeter   = metrics.NewRegisteredMeter("eth/fetcher/block/bodies", nil)
-
-	headerFilterInMeter  = metrics.NewRegisteredMeter("eth/fetcher/block/filter/headers/in", nil)
-	headerFilterOutMeter = metrics.NewRegisteredMeter("eth/fetcher/block/filter/headers/out", nil)
-	bodyFilterInMeter    = metrics.NewRegisteredMeter("eth/fetcher/block/filter/bodies/in", nil)
-	bodyFilterOutMeter   = metrics.NewRegisteredMeter("eth/fetcher/block/filter/bodies/out", nil)
-)
+var ()
 
 var errTerminated = errors.New("terminated")
 
@@ -348,19 +331,16 @@ func (f *BlockFetcher) loop() {
 
 		case notification := <-f.notify:
 			// A block was announced, make sure the peer isn't DOSing us
-			blockAnnounceInMeter.Mark(1)
 
 			count := f.announces[notification.origin] + 1
 			if count > hashLimit {
 				log.Debug("Peer exceeded outstanding announces", "peer", notification.origin, "limit", hashLimit)
-				blockAnnounceDOSMeter.Mark(1)
 				break
 			}
 			// If we have a valid block number, check that it's potentially useful
 			if notification.number > 0 {
 				if dist := int64(notification.number) - int64(f.chainHeight()); dist < -maxUncleDist || dist > maxQueueDist {
 					log.Debug("Peer discarded announcement", "peer", notification.origin, "number", notification.number, "hash", notification.hash, "distance", dist)
-					blockAnnounceDropMeter.Mark(1)
 					break
 				}
 			}
@@ -382,7 +362,6 @@ func (f *BlockFetcher) loop() {
 
 		case op := <-f.inject:
 			// A direct block insertion was requested, try and fill any pending gaps
-			blockBroadcastInMeter.Mark(1)
 
 			f.enqueue(op.origin, nil, op.block)
 
@@ -422,7 +401,6 @@ func (f *BlockFetcher) loop() {
 						f.fetchingHook(hashes)
 					}
 					for _, hash := range hashes {
-						headerFetchMeter.Mark(1)
 						fetchHeader(hash) // Suboptimal, but protocol doesn't allow batch header retrievals
 					}
 				}()
@@ -453,7 +431,6 @@ func (f *BlockFetcher) loop() {
 				if f.completingHook != nil {
 					f.completingHook(hashes)
 				}
-				bodyFetchMeter.Mark(int64(len(hashes)))
 				go f.completing[hashes[0]].fetchBodies(hashes)
 			}
 			// Schedule the next fetch if blocks are still pending
@@ -469,7 +446,6 @@ func (f *BlockFetcher) loop() {
 			case <-f.quit:
 				return
 			}
-			headerFilterInMeter.Mark(int64(len(task.headers)))
 
 			// Split the batch of headers into unknown ones (to return to the caller),
 			// known incomplete ones (requiring body retrievals) and completed blocks.
@@ -513,7 +489,6 @@ func (f *BlockFetcher) loop() {
 					unknown = append(unknown, header)
 				}
 			}
-			headerFilterOutMeter.Mark(int64(len(unknown)))
 			select {
 			case filter <- &headerFilterTask{headers: unknown, time: task.time}:
 			case <-f.quit:
@@ -549,7 +524,6 @@ func (f *BlockFetcher) loop() {
 			case <-f.quit:
 				return
 			}
-			bodyFilterInMeter.Mark(int64(len(task.transactions)))
 			blocks := []*types.Block{}
 			// abort early if there's nothing explicitly requested
 			if len(f.completing) > 0 {
@@ -611,7 +585,6 @@ func (f *BlockFetcher) loop() {
 					}
 				}
 			}
-			bodyFilterOutMeter.Mark(int64(len(task.transactions)))
 			select {
 			case filter <- task:
 			case <-f.quit:
@@ -724,7 +697,7 @@ func (f *BlockFetcher) ImportBlocks(peer string, block *types.Block, relay bool)
 		// block through and broadcast the block.
 		if err == nil || err.Error() == consensus.ErrUnknownAncestor.Error() {
 			// All ok, quickly propagate to our peers
-			blockBroadcastOutTimer.UpdateSince(block.ReceivedAt)
+			// blockBroadcastOutTimer.UpdateSince(block.ReceivedAt)
 
 			// Only relay the Mined Blocks that meet the depth criteria
 			if relay {
@@ -741,7 +714,7 @@ func (f *BlockFetcher) ImportBlocks(peer string, block *types.Block, relay bool)
 		// TODO: verify the Headers work to be in a certain threshold window
 		f.writeBlock(block)
 		// If import succeeded, broadcast the block
-		blockAnnounceOutTimer.UpdateSince(block.ReceivedAt)
+		// blockAnnounceOutTimer.UpdateSince(block.ReceivedAt)
 
 		// Only relay the Mined Blocks that meet the depth criteria
 		if relay {

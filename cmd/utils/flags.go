@@ -1637,43 +1637,43 @@ func RegisterQuaiStatsService(stack *node.Node, backend quaiapi.Backend, url str
 	}
 }
 
-func SetupMetrics(ctx *cli.Context) {
-	if metrics_config.Enabled {
-		log.Info("Enabling metrics collection")
-
-		var (
-			enableExport = ctx.GlobalBool(MetricsEnableInfluxDBFlag.Name)
-			endpoint     = ctx.GlobalString(MetricsInfluxDBEndpointFlag.Name)
-			database     = ctx.GlobalString(MetricsInfluxDBDatabaseFlag.Name)
-			username     = ctx.GlobalString(MetricsInfluxDBUsernameFlag.Name)
-			password     = ctx.GlobalString(MetricsInfluxDBPasswordFlag.Name)
-		)
-
-		if enableExport {
-			tagsMap := SplitTagsFlag(ctx.GlobalString(MetricsInfluxDBTagsFlag.Name))
-
-			log.Info("Enabling metrics export to InfluxDB")
-
-			go influxdb.InfluxDBWithTags(metrics.DefaultRegistry, 10*time.Second, endpoint, database, username, password, "quai.", tagsMap, false)
-		}
-
-		if ctx.GlobalIsSet(MetricsHTTPFlag.Name) {
-			address := fmt.Sprintf("%s:%d", ctx.GlobalString(MetricsHTTPFlag.Name), ctx.GlobalInt(MetricsPortFlag.Name))
-			log.Info("Enabling stand-alone metrics HTTP endpoint", "address", address)
-			exp.Setup(address)
-			m := http.NewServeMux()
-			m.Handle("/debug/metrics", exp.ExpHandler(metrics.DefaultRegistry))
-			m.Handle("/debug/metrics/prometheus", prometheus.Handler(metrics.DefaultRegistry))
-			m.Handle("/debug/metrics/prometheus", prometheus.Handler())
-			log.Info("Starting metrics server", "addr", fmt.Sprintf("http://%s/debug/metrics", address))
-			go func() {
-				if err := http.ListenAndServe(address, m); err != nil {
-					log.Error("Failure in running metrics server", "err", err)
-				}
-			}()
-		}
-	}
-}
+// func SetupMetrics(ctx *cli.Context) {
+// 	if ctx.GlobalBool(MetricsEnabledFlag.Name) {
+// 		log.Info("Enabling metrics collection")
+//
+// 		var (
+// 			enableExport = ctx.GlobalBool(MetricsEnableInfluxDBFlag.Name)
+// 			endpoint     = ctx.GlobalString(MetricsInfluxDBEndpointFlag.Name)
+// 			database     = ctx.GlobalString(MetricsInfluxDBDatabaseFlag.Name)
+// 			username     = ctx.GlobalString(MetricsInfluxDBUsernameFlag.Name)
+// 			password     = ctx.GlobalString(MetricsInfluxDBPasswordFlag.Name)
+// 		)
+//
+// 		if enableExport {
+// 			tagsMap := SplitTagsFlag(ctx.GlobalString(MetricsInfluxDBTagsFlag.Name))
+//
+// 			log.Info("Enabling metrics export to InfluxDB")
+//
+// 			go influxdb.InfluxDBWithTags(metrics.DefaultRegistry, 10*time.Second, endpoint, database, username, password, "quai.", tagsMap, false)
+// 		}
+//
+// 		if ctx.GlobalIsSet(MetricsHTTPFlag.Name) {
+// 			address := fmt.Sprintf("%s:%d", ctx.GlobalString(MetricsHTTPFlag.Name), ctx.GlobalInt(MetricsPortFlag.Name))
+// 			log.Info("Enabling stand-alone metrics HTTP endpoint", "address", address)
+// 			exp.Setup(address)
+// 			m := http.NewServeMux()
+// 			m.Handle("/debug/metrics", exp.ExpHandler(metrics.DefaultRegistry))
+// 			m.Handle("/debug/metrics/prometheus", prometheus.Handler(metrics.DefaultRegistry))
+// 			m.Handle("/debug/metrics/prometheus", prometheus.Handler())
+// 			log.Info("Starting metrics server", "addr", fmt.Sprintf("http://%s/debug/metrics", address))
+// 			go func() {
+// 				if err := http.ListenAndServe(address, m); err != nil {
+// 					log.Error("Failure in running metrics server", "err", err)
+// 				}
+// 			}()
+// 		}
+// 	}
+// }
 
 func SplitTagsFlag(tagsFlag string) map[string]string {
 	tags := strings.Split(tagsFlag, ",")

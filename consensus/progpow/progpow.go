@@ -18,7 +18,6 @@ import (
 	"github.com/dominant-strategies/go-quai/common/hexutil"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/metrics"
 	"github.com/dominant-strategies/go-quai/rpc"
 	mmap "github.com/edsrzf/mmap-go"
 	"github.com/hashicorp/golang-lru/simplelru"
@@ -174,11 +173,11 @@ type Progpow struct {
 	caches *lru // In memory caches to avoid regenerating too often
 
 	// Mining related fields
-	rand     *rand.Rand    // Properly seeded random source for nonces
-	threads  int           // Number of threads to mine on if mining
-	update   chan struct{} // Notification channel to update mining parameters
-	hashrate metrics.Meter // Meter tracking the average hashrate
-	remote   *remoteSealer
+	rand    *rand.Rand    // Properly seeded random source for nonces
+	threads int           // Number of threads to mine on if mining
+	update  chan struct{} // Notification channel to update mining parameters
+	// hashrate metrics.Meter // Meter tracking the average hashrate
+	remote *remoteSealer
 
 	// The fields below are hooks for testing
 	shared    *Progpow      // Shared PoW verifier to avoid cache regeneration
@@ -204,10 +203,10 @@ func New(config Config, notify []string, noverify bool) *Progpow {
 		config.Log.Info("Disk storage enabled for ethash caches", "dir", config.CacheDir, "count", config.CachesOnDisk)
 	}
 	progpow := &Progpow{
-		config:   config,
-		caches:   newlru("cache", config.CachesInMem, newCache),
-		update:   make(chan struct{}),
-		hashrate: metrics.NewMeterForced(),
+		config: config,
+		caches: newlru("cache", config.CachesInMem, newCache),
+		update: make(chan struct{}),
+		// hashrate: metrics.NewMeterForced(),
 	}
 	if config.PowMode == ModeShared {
 		progpow.shared = sharedProgpow
@@ -482,7 +481,8 @@ func (progpow *Progpow) SetThreads(threads int) {
 func (progpow *Progpow) Hashrate() float64 {
 	// Short circuit if we are run the progpow in normal/test mode.
 	if progpow.config.PowMode != ModeNormal && progpow.config.PowMode != ModeTest {
-		return progpow.hashrate.Rate1()
+		// return progpow.hashrate.Rate1()
+		return -1
 	}
 	var res = make(chan uint64, 1)
 
@@ -490,11 +490,13 @@ func (progpow *Progpow) Hashrate() float64 {
 	case progpow.remote.fetchRateCh <- res:
 	case <-progpow.remote.exitCh:
 		// Return local hashrate only if progpow is stopped.
-		return progpow.hashrate.Rate1()
+		// return progpow.hashrate.Rate1()
+		return -1
 	}
 
 	// Gather total submitted hash rate of remote sealers.
-	return progpow.hashrate.Rate1() + float64(<-res)
+	// return progpow.hashrate.Rate1() + float64(<-res)
+	return -1
 }
 
 // SubmitHashrate can be used for remote miners to submit their hash rate.
