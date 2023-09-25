@@ -18,10 +18,6 @@
 
 package downloader
 
-import (
-	"github.com/dominant-strategies/go-quai/metrics"
-)
-
 var (
 	headerInMeter      = metrics.NewRegisteredMeter("eth/downloader/headers/in", nil)
 	headerReqTimer     = metrics.NewRegisteredTimer("eth/downloader/headers/req", nil)
