@@ -199,12 +199,12 @@ func (cs *chainSyncer) loop() {
 	defer cs.handler.downloader.Terminate()
 
 	for {
-		// Checking whether to sync doesn't need to happen so aggressively,
-		// Adding 10 Millisecond of sleep, because Prime chain which is affected by
-		// this change has a block time of 10 Minutes
-		time.Sleep(10 * time.Millisecond)
 
 		if nodeCtx == common.PRIME_CTX {
+			// Checking whether to sync doesn't need to happen so aggressively,
+			// Adding 10 Millisecond of sleep, because Prime chain which is affected by
+			// this change has a block time of 10 Minutes
+			time.Sleep(10 * time.Millisecond)
 			if op := cs.nextSyncOp(); op != nil {
 				cs.startSync(op)
 			}
