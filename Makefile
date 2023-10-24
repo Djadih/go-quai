@@ -119,11 +119,11 @@ endif
 stop:
 ifeq ($(shell uname -s), $(filter $(shell uname -s), Darwin Linux))
 	@-pkill -f ./build/bin/go-quai;
-	@while pgrep quai >/dev/null; do \
+	@while pgrep ./build/bin/quai >/dev/null; do \
 		echo "Stopping all Quai Network nodes, please wait until terminated."; \
 		sleep 3; \
 	done;
 else
 	@echo "Stopping all Quai Network nodes, please wait until terminated.";
-	@if pgrep quai; then killall -w quai; fi
+	@if pgrep -f ./build/bin/quai; then killall -w quai; fi
 endif
