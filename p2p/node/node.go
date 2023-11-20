@@ -162,7 +162,6 @@ func (p *P2PNode) bootstrap() error {
 				log.Warnf("error pinging boot peer %s: %s", addr, res.Error)
 			} else {
 				log.Warnf("pinged boot peer %s in %s", addr, res.RTT)
-				break
 			}
 		}
 	}
