@@ -10,6 +10,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
+	"github.com/libp2p/go-libp2p/p2p/protocol/ping"
 	"github.com/libp2p/go-libp2p/p2p/security/noise"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/spf13/viper"
@@ -125,6 +126,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		log.Fatalf("error creating libp2p host: %s", err)
 		return nil, err
 	}
+
 	log.Debugf("host created")
 
 	// log the p2p node's ID
@@ -151,6 +153,17 @@ func (p *P2PNode) bootstrap() error {
 		log.Debugf("dialing boot peer: %s", addr)
 		if err := p.Host.Connect(p.ctx, addr); err != nil {
 			log.Warnf("error dialing boot peer %s: %s", addr, err)
+		}
+
+		ch := ping.Ping(context.Background(), p.Host, addr.ID)
+		for i := 0; i < 3; i++ {
+			res := <-ch
+			if res.Error != nil {
+				log.Warnf("error pinging boot peer %s: %s", addr, res.Error)
+			} else {
+				log.Warnf("pinged boot peer %s in %s", addr, res.RTT)
+				break
+			}
 		}
 	}
 
