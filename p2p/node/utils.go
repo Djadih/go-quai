@@ -71,5 +71,6 @@ func loadBootPeers() ([]peer.AddrInfo, error) {
 		}
 		bootpeers = append(bootpeers, *info)
 	}
+	log.Info("bootpeers: ", bootpeers)
 	return bootpeers, nil
 }
