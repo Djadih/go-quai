@@ -95,6 +95,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 
 		// If publicly reachable, provide a relay service for other peers
 		libp2p.EnableRelayService(),
+		libp2p.EnableRelay(),
 
 		// If behind NAT, automatically advertise relay address through relay peers
 		// TODO: today the bootnodes act as static relays. In the future we should dynamically select relays from publicly reachable peers.
