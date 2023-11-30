@@ -10,6 +10,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	"github.com/libp2p/go-libp2p/p2p/security/noise"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/spf13/viper"
@@ -17,6 +18,7 @@ import (
 	"github.com/dominant-strategies/go-quai/cmd/options"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/p2p/protocol"
 )
 
 // P2PNode represents a libp2p node
@@ -119,18 +121,34 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		log.Fatalf("error creating libp2p host: %s", err)
 		return nil, err
 	}
+	
+	idOpts := []identify.Option{
+		identify.UserAgent("go-quai-libp2p"),
+		identify.ProtocolVersion(protocol.ProtocolVersion),
+	}
+	// Create the identity service
+	idServ, err := identify.NewIDService(host, idOpts...)
+	if err != nil {
+		log.Fatalf("error creating libp2p identity service: %s", err)
+		return nil, err
+	}
+	// Register the identity service with the host
+	idServ.Start()
+
 	log.Debugf("host created")
 
 	// log the p2p node's ID
 	nodeID := host.ID()
 	log.Infof("node created: %s", nodeID)
 
-	return &P2PNode{
+	node := &P2PNode{
 		ctx:       ctx,
 		Host:      host,
 		bootpeers: bootpeers,
 		dht:       dht,
-	}, nil
+	}
+
+	return node, nil
 }
 
 // Get the full multi-address to reach our node
