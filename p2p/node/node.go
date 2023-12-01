@@ -121,7 +121,11 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		log.Fatalf("error creating libp2p host: %s", err)
 		return nil, err
 	}
-	
+
+	if err := dht.Bootstrap(ctx); err != nil {
+		log.Fatalf("error bootstrapping libp2p host: %s", err)
+	}
+
 	idOpts := []identify.Option{
 		identify.UserAgent("go-quai-libp2p"),
 		identify.ProtocolVersion(protocol.ProtocolVersion),
