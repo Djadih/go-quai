@@ -145,14 +145,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	nodeID := host.ID()
 	log.Infof("node created: %s", nodeID)
 
-	closestPeers, err := dht.GetClosestPeers(ctx, string(host.ID()))
-	for _, p := range closestPeers {
-		routing.PublishQueryEvent(ctx, &routing.QueryEvent{
-			ID:   p,
-			Type: routing.FinalPeer,
-		})
-	}
-
 	node := &P2PNode{
 		ctx:       ctx,
 		Host:      host,
@@ -174,6 +166,16 @@ func (p *P2PNode) bootstrap() error {
 	if err := p.dht.Bootstrap(p.ctx); err != nil {
 		log.Warnf("error bootstrapping DHT: %s", err)
 		return err
+	}
+	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string(p.Host.ID()))
+	if err != nil {
+		return err
+	}
+	for _, peer := range closestPeers {
+		routing.PublishQueryEvent(p.ctx, &routing.QueryEvent{
+			ID:   peer,
+			Type: routing.FinalPeer,
+		})
 	}
 	return nil
 }
