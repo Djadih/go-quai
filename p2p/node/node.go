@@ -152,6 +152,8 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		dht:       dht,
 	}
 
+	node.bootstrap()
+
 	return node, nil
 }
 
@@ -168,7 +170,9 @@ func (p *P2PNode) bootstrap() error {
 		return err
 	}
 	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string(p.Host.ID()))
+	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
+		log.Warnf("ERROR GETTING PEERS")
 		return err
 	}
 	for _, peer := range closestPeers {
