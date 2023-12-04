@@ -116,7 +116,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
 				kaddht.RoutingTableRefreshPeriod(time.Minute),
 				kaddht.Resiliency(1),
-				kaddht.DisableProviders(),
 				kaddht.ProtocolPrefix("quai"),
 			)
 			return dht, err
@@ -176,7 +175,7 @@ func (p *P2PNode) bootstrap() error {
 		return err
 	}
 
-	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string(p.Host.ID()))
+	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string("teehee"))
 	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
 		log.Warnf("ERROR GETTING PEERS: %s", err)

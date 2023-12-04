@@ -19,7 +19,6 @@ func (p *P2PNode) statsLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			p.bootstrap()
 			routingTableSize, numConnected := p.connectionStats()
 			log.Infof("Routing Table Size: %d, Number of Connected Peers: %d", routingTableSize, numConnected)
 		case <-p.ctx.Done():
