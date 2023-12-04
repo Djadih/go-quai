@@ -111,7 +111,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			dht, err = kaddht.New(ctx, h,
 				kaddht.Mode(kaddht.ModeServer),
-				kaddht.BootstrapPeers(bootpeers...),
+				kaddht.BootstrapPeers(),
 				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
 			)
 			return dht, err
@@ -170,6 +170,7 @@ func (p *P2PNode) bootstrap() error {
 		log.Warnf("error bootstrapping DHT: %s", err)
 		return err
 	}
+
 	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string(p.Host.ID()))
 	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
