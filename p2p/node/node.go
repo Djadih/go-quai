@@ -164,6 +164,7 @@ func (p *P2PNode) p2pAddress() (multiaddr.Multiaddr, error) {
 
 // Dial bootpeers and bootstrap the DHT
 func (p *P2PNode) bootstrap() error {
+	log.Warn("We are bootstrapping")
 	// Bootstrap the dht
 	if err := p.dht.Bootstrap(p.ctx); err != nil {
 		log.Warnf("error bootstrapping DHT: %s", err)
@@ -172,7 +173,7 @@ func (p *P2PNode) bootstrap() error {
 	closestPeers, err := p.dht.GetClosestPeers(p.ctx, string(p.Host.ID()))
 	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
-		log.Warnf("ERROR GETTING PEERS")
+		log.Warnf("ERROR GETTING PEERS: %s", err)
 		return err
 	}
 	for _, peer := range closestPeers {

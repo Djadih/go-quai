@@ -53,10 +53,6 @@ func (p *P2PNode) Start() error {
 	// Register the Quai protocol handler
 	p.SetStreamHandler(quaiprotocol.ProtocolVersion, quaiprotocol.QuaiProtocolHandler)
 
-	// Bootstrap the node
-	if err := p.bootstrap(); err != nil {
-		log.Warnf("error bootstrapping the node: %s", err)
-	}
 	return nil
 }
 
