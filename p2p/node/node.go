@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/libp2p/go-libp2p"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
@@ -111,8 +112,9 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			dht, err = kaddht.New(ctx, h,
 				kaddht.Mode(kaddht.ModeServer),
-				kaddht.BootstrapPeers(),
+				kaddht.BootstrapPeers(bootpeers...),
 				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
+				kaddht.RoutingTableRefreshPeriod(time.Minute),
 			)
 			return dht, err
 		}),
