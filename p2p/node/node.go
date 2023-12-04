@@ -115,6 +115,9 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 				kaddht.BootstrapPeers(bootpeers...),
 				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
 				kaddht.RoutingTableRefreshPeriod(time.Minute),
+				kaddht.Resiliency(1),
+				kaddht.DisableProviders(),
+				kaddht.ProtocolPrefix("quai"),
 			)
 			return dht, err
 		}),
