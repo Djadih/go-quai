@@ -24,8 +24,6 @@ func (p *P2PNode) statsLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			// p.bootstrap("12D3KooWCCueXNT8qnrUVq78KEVg9xhKiFkrmH2nk4K49741kqUx")
-			p.dht.WAN.GetClosestPeers(p.ctx, "12D3KooWHsJ73d4G9gKtL7VnBfSQBWeSEnpBaDFvr7QiX1JoeGjB") 
 			WANsize, LANsize, numConnected := p.connectionStats()
 			log.Infof("Routing Table Size: WAN-%d, LAN-%d, Number of Connected Peers: %d", WANsize, LANsize, numConnected)
 		case <-p.ctx.Done():
