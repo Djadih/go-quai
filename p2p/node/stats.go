@@ -8,10 +8,15 @@ import (
 
 // Returns the number of peers in the routing table, as well as how many active
 // connections we currently have.
-func (p *P2PNode) connectionStats() (int, int) {
-	routingTableSize := p.dht.RoutingTable().Size()
-	numConnected := len(p.Host.Network().Peers())
-	return routingTableSize, numConnected
+func (p *P2PNode) connectionStats() (int, int, int) {
+	WANroutingTableSize := p.dht.WAN.RoutingTable().Size()
+	LANroutingTableSize := p.dht.LAN.RoutingTable().Size()
+	peers := p.Host.Network().Peers()
+	numConnected := len(peers)
+
+	log.Info("Connected peers: %s", peers)
+
+	return WANroutingTableSize, LANroutingTableSize, numConnected
 }
 
 func (p *P2PNode) statsLoop() {
@@ -19,9 +24,9 @@ func (p *P2PNode) statsLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			p.bootstrap("12D3KooWCCueXNT8qnrUVq78KEVg9xhKiFkrmH2nk4K49741kqUx")
-			routingTableSize, numConnected := p.connectionStats()
-			log.Infof("Routing Table Size: %d, Number of Connected Peers: %d", routingTableSize, numConnected)
+			// p.bootstrap("12D3KooWCCueXNT8qnrUVq78KEVg9xhKiFkrmH2nk4K49741kqUx")
+			WANsize, LANsize, numConnected := p.connectionStats()
+			log.Infof("Routing Table Size: WAN-%d, LAN-%d, Number of Connected Peers: %d", WANsize, LANsize, numConnected)
 		case <-p.ctx.Done():
 			log.Warnf("Context cancelled. Stopping stats loop...")
 			return

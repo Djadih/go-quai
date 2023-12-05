@@ -7,6 +7,7 @@ import (
 
 	"github.com/libp2p/go-libp2p"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
+	dual "github.com/libp2p/go-libp2p-kad-dht/dual"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/routing"
@@ -34,7 +35,7 @@ type P2PNode struct {
 	bootpeers []peer.AddrInfo
 
 	// DHT instance
-	dht *kaddht.IpfsDHT
+	dht *dual.DHT
 
 	// runtime context
 	ctx context.Context
@@ -64,7 +65,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	}
 
 	// Create the libp2p host
-	var dht *kaddht.IpfsDHT
+	var dht *dual.DHT
 	host, err := libp2p.New(
 		// use a private key for persistent identity
 		libp2p.Identity(GetNodeKey()),
@@ -110,13 +111,13 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 
 		// Let this host use the DHT to find other hosts
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
-			dht, err = kaddht.New(ctx, h,
-				kaddht.Mode(kaddht.ModeServer),
-				kaddht.BootstrapPeers(bootpeers...),
-				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
-				kaddht.RoutingTableRefreshPeriod(time.Minute),
-				kaddht.Resiliency(1),
-				kaddht.ProtocolPrefix("quai"),
+			dht, err = dual.New(ctx, h,
+				dual.WanDHTOption(
+					kaddht.Mode(kaddht.ModeServer),
+					kaddht.BootstrapPeers(bootpeers...),
+					kaddht.RoutingTableRefreshPeriod(time.Minute),
+					kaddht.Resiliency(1),
+				),
 			)
 			return dht, err
 		}),
@@ -175,7 +176,7 @@ func (p *P2PNode) bootstrap(key string) error {
 		return err
 	}
 
-	closestPeers, err := p.dht.GetClosestPeers(p.ctx, key)
+	closestPeers, err := p.dht.WAN.GetClosestPeers(p.ctx, key)
 	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
 		log.Warnf("ERROR GETTING PEERS: %s", err)
