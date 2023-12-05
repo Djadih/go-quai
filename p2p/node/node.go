@@ -154,6 +154,8 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	nodeID := host.ID()
 	log.Infof("node created: %s", nodeID)
 
+	dht.Bootstrap(ctx)
+
 	node := &P2PNode{
 		ctx:       ctx,
 		Host:      host,

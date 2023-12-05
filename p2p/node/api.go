@@ -46,7 +46,6 @@ func (p *P2PNode) Start() error {
 
 	// Start any async processes belonging to this node
 	log.Debugf("starting node processes...")
-	p.bootstrap()
 	go p.eventLoop()
 	go p.statsLoop()
 
