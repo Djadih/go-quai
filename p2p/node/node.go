@@ -157,8 +157,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		dht:       dht,
 	}
 
-	node.bootstrap(bootpeers[0].ID.String())
-
 	return node, nil
 }
 
@@ -168,7 +166,7 @@ func (p *P2PNode) p2pAddress() (multiaddr.Multiaddr, error) {
 }
 
 // Dial bootpeers and bootstrap the DHT
-func (p *P2PNode) bootstrap(key string) error {
+func (p *P2PNode) bootstrap() error {
 	log.Warn("We are bootstrapping")
 	// Bootstrap the dht
 	if err := p.dht.Bootstrap(p.ctx); err != nil {
@@ -176,7 +174,14 @@ func (p *P2PNode) bootstrap(key string) error {
 		return err
 	}
 
-	closestPeers, err := p.dht.WAN.GetClosestPeers(p.ctx, key)
+	// Load bootpeers
+	bootpeers, err := loadBootPeers()
+	if err != nil {
+		log.Errorf("error loading bootpeers: %s", err)
+		return err
+	}
+
+	closestPeers, err := p.dht.WAN.GetClosestPeers(p.ctx, bootpeers[0].ID.String())
 	log.Warnf("closest peers: %v", closestPeers)
 	if err != nil {
 		log.Warnf("ERROR GETTING PEERS: %s", err)
