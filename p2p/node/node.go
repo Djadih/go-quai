@@ -116,8 +116,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 					kaddht.Mode(kaddht.ModeServer),
 					kaddht.BootstrapPeers(bootpeers...),
 					kaddht.RoutingTableRefreshPeriod(time.Minute),
-					kaddht.Resiliency(1),
-					kaddht.BucketSize(2),
 					kaddht.ProtocolPrefix("quai"),
 				),
 			)
