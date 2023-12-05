@@ -120,6 +120,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 					kaddht.RoutingTableRefreshPeriod(time.Minute),
 					kaddht.ProtocolPrefix("quai"),
 					kaddht.RoutingTableRefreshPeriod(30 * time.Second),
+					kaddht.BucketSize(20),
 				),
 			)
 			return dht, err
