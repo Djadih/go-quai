@@ -118,7 +118,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 						return bootpeers
 					}),
 					kaddht.RoutingTableRefreshPeriod(time.Minute),
-					kaddht.ProtocolPrefix("quai"),
+					kaddht.ProtocolPrefix("/quai"),
 					kaddht.RoutingTableRefreshPeriod(30 * time.Second),
 					kaddht.BucketSize(20),
 				),
@@ -155,6 +155,10 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	log.Infof("node created: %s", nodeID)
 
 	dht.Bootstrap(ctx)
+	_, err = dht.WAN.GetClosestPeers(ctx, host.ID().String())
+	if err != nil {
+		log.Warnf("error getting closest peers: %s", err)
+	}
 
 	node := &P2PNode{
 		ctx:       ctx,

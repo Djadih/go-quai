@@ -15,8 +15,8 @@ func (p *P2PNode) connectionStats() {
 	numConnected := len(peers)
 
 	log.Warnf("Routing Table Size: WAN-%d, LAN-%d, Number of Connected Peers: %d", len(WANroutingTable), len(LANroutingTable), numConnected)
-	log.Warnf("Entries in WAN table: %v", WANroutingTable)
-	log.Warnf("Entries in LAN table: %v", LANroutingTable)
+	log.Infof("Entries in WAN table: %v", WANroutingTable)
+	log.Infof("Entries in LAN table: %v", LANroutingTable)
 }
 
 func (p *P2PNode) statsLoop() {
@@ -25,6 +25,14 @@ func (p *P2PNode) statsLoop() {
 		select {
 		case <-ticker.C:
 			p.connectionStats()
+			peers, err := p.dht.WAN.GetClosestPeers(p.ctx, p.Host.ID().String())
+			if err != nil {
+				log.Warnf("error getting closest peers: %s", err)
+			}
+
+			for _, peer := range peers {
+				log.Infof("Peer: %s", peer)
+			}
 		case <-p.ctx.Done():
 			log.Warnf("Context cancelled. Stopping stats loop...")
 			return
