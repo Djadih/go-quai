@@ -2,11 +2,8 @@ package common
 
 var (
 	BootstrapPeers = []string{
-		// "/ip4/35.232.36.100/tcp/4001/p2p/12D3KooWKa7MFEtQx3CayUHdE31xzaDgurzhaBH9MKaGw4x3n9RN",
-		// "/ip4/35.223.198.14/tcp/4001/p2p/12D3KooWDWPz7ghZzBXfygv5Q62ijk3XFZYYjgSXfQkXgQPBGtA8",
-		// "/ip4/34.31.144.9/tcp/4001/p2p/12D3KooWAsr23smoj51VxUrLM7LvjSjCvwzarB6DMaa5eAcs9qeH",
-		"/ip4/35.226.76.0/tcp/4001/p2p/12D3KooWHsJ73d4G9gKtL7VnBfSQBWeSEnpBaDFvr7QiX1JoeGjB",
-		"/ip4/34.31.180.127/tcp/4001/p2p/12D3KooWPVv6PjBwkNho1qR8TH5K3kt4TGVqAg2P2PVuav9rakrE",
-		"/ip4/34.41.131.24/tcp/4001/p2p/12D3KooWRF9RQB29izoCTPfGuFpygexaHreXwM6dqdunhntGBbA2",
+		"/ip4/35.226.76.0/tcp/4001/p2p/12D3KooWBS6iiRnokwdDbrJRNfxAmpUPhZF9Ns8ofoh7WrYMUaTk",
+		"/ip4/34.68.124.139/tcp/4001/p2p/12D3KooWJr13DAjGkrstCEpYG2F5F15rCugwtyp5G1VLe1gxSDja",
+		"/ip4/34.41.131.24/tcp/4001/p2p/12D3KooWE2fcnqsTwUpe72C7ryYqsBds1KVqwd3Jk6besbuyFg3j",
 	}
 )
