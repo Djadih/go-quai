@@ -115,6 +115,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 				dual.WanDHTOption(
 					kaddht.Mode(kaddht.ModeServer),
 					kaddht.BootstrapPeersFunc(func() []peer.AddrInfo {
+						log.Warnf("Running bootstrap peers func: %v", bootpeers)
 						return bootpeers
 					}),
 					kaddht.RoutingTableRefreshPeriod(time.Minute),
