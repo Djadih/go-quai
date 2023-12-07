@@ -20,7 +20,7 @@ func (p *P2PNode) connectionStats() {
 }
 
 func (p *P2PNode) statsLoop() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 	for {
 		select {
 		case <-ticker.C:
