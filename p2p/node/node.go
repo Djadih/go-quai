@@ -119,8 +119,11 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 						return bootpeers
 					}),
 					kaddht.ProtocolPrefix("/quai"),
-					kaddht.RoutingTableRefreshPeriod(30 * time.Second),
+					kaddht.RoutingTableRefreshPeriod(30*time.Second),
 					kaddht.BucketSize(20),
+					kaddht.RoutingTableFilter(func(dht interface{}, p peer.ID) bool {
+						return true
+					}),
 				),
 			)
 			return dht, err
