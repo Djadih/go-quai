@@ -3,7 +3,6 @@ package node
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/libp2p/go-libp2p"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
@@ -121,12 +120,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 						return bootpeers
 					}),
 					kaddht.ProtocolPrefix("/quai"),
-					kaddht.RoutingTableRefreshPeriod(30*time.Second),
-					kaddht.BucketSize(20),
-					kaddht.RoutingTableFilter(func(dht interface{}, p peer.ID) bool {
-						return true
-					}),
-					kaddht.RoutingTablePeerDiversityFilter(kaddht.NewRTPeerDiversityFilter(h, 10, 10)),
 				),
 			)
 			return dht, err
