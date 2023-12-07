@@ -118,7 +118,6 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 						log.Warnf("Running bootstrap peers func: %v", bootpeers)
 						return bootpeers
 					}),
-					kaddht.RoutingTableRefreshPeriod(time.Minute),
 					kaddht.ProtocolPrefix("/quai"),
 					kaddht.RoutingTableRefreshPeriod(30 * time.Second),
 					kaddht.BucketSize(20),
