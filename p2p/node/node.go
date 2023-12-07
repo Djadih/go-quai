@@ -64,6 +64,8 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		return nil, err
 	}
 
+
+
 	// Create the libp2p host
 	var dht *dual.DHT
 	host, err := libp2p.New(
@@ -124,6 +126,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 					kaddht.RoutingTableFilter(func(dht interface{}, p peer.ID) bool {
 						return true
 					}),
+					kaddht.RoutingTablePeerDiversityFilter(kaddht.NewRTPeerDiversityFilter(h, 10, 10)),
 				),
 			)
 			return dht, err
