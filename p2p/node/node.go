@@ -6,10 +6,12 @@ import (
 
 	"github.com/libp2p/go-libp2p"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
+	dual "github.com/libp2p/go-libp2p-kad-dht/dual"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	"github.com/libp2p/go-libp2p/p2p/security/noise"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/spf13/viper"
@@ -17,6 +19,7 @@ import (
 	"github.com/dominant-strategies/go-quai/cmd/options"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/p2p/protocol"
 )
 
 // P2PNode represents a libp2p node
@@ -31,7 +34,7 @@ type P2PNode struct {
 	bootpeers []peer.AddrInfo
 
 	// DHT instance
-	dht *kaddht.IpfsDHT
+	dht *dual.DHT
 
 	// runtime context
 	ctx context.Context
@@ -61,7 +64,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	}
 
 	// Create the libp2p host
-	var dht *kaddht.IpfsDHT
+	var dht *dual.DHT
 	host, err := libp2p.New(
 		// use a private key for persistent identity
 		libp2p.Identity(GetNodeKey()),
@@ -106,10 +109,15 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 
 		// Let this host use the DHT to find other hosts
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
-			dht, err = kaddht.New(ctx, h,
-				kaddht.Mode(kaddht.ModeServer),
-				kaddht.BootstrapPeers(bootpeers...),
-				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo { return bootpeers }),
+			dht, err = dual.New(ctx, h,
+				dual.WanDHTOption(
+					kaddht.Mode(kaddht.ModeServer),
+					kaddht.BootstrapPeersFunc(func() []peer.AddrInfo {
+						log.Warnf("Running bootstrap peers func: %v", bootpeers)
+						return bootpeers
+					}),
+					kaddht.ProtocolPrefix("/quai"),
+				),
 			)
 			return dht, err
 		}),
@@ -118,18 +126,42 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		log.Fatalf("error creating libp2p host: %s", err)
 		return nil, err
 	}
-	log.Debugf("host created")
+
+	if err := dht.Bootstrap(ctx); err != nil {
+		log.Fatalf("error bootstrapping libp2p host: %s", err)
+	}
+
+	idOpts := []identify.Option{
+		identify.UserAgent("go-quai-libp2p"),
+		identify.ProtocolVersion(protocol.ProtocolVersion),
+	}
+
+	// Create the identity service
+	idServ, err := identify.NewIDService(host, idOpts...)
+	if err != nil {
+		log.Fatalf("error creating libp2p identity service: %s", err)
+		return nil, err
+	}
+	// Register the identity service with the host
+	idServ.Start()
 
 	// log the p2p node's ID
 	nodeID := host.ID()
 	log.Infof("node created: %s", nodeID)
 
-	return &P2PNode{
+	// _, err = dht.WAN.GetClosestPeers(ctx, host.ID().String())
+	// if err != nil {
+	// 	log.Warnf("error getting closest peers: %s", err)
+	// }
+
+	node := &P2PNode{
 		ctx:       ctx,
 		Host:      host,
 		bootpeers: bootpeers,
 		dht:       dht,
-	}, nil
+	}
+
+	return node, nil
 }
 
 // Get the full multi-address to reach our node
@@ -144,5 +176,25 @@ func (p *P2PNode) bootstrap() error {
 		log.Warnf("error bootstrapping DHT: %s", err)
 		return err
 	}
+
+	// // Load bootpeers
+	// bootpeers, err := loadBootPeers()
+	// if err != nil {
+	// 	log.Errorf("error loading bootpeers: %s", err)
+	// 	return err
+	// }
+
+	// closestPeers, err := p.dht.WAN.GetClosestPeers(p.ctx, bootpeers[0].ID.String())
+	// log.Warnf("closest peers: %v", closestPeers)
+	// if err != nil {
+	// 	log.Warnf("ERROR GETTING PEERS: %s", err)
+	// 	return err
+	// }
+	// for _, peer := range closestPeers {
+	// 	routing.PublishQueryEvent(p.ctx, &routing.QueryEvent{
+	// 		ID:   peer,
+	// 		Type: routing.FinalPeer,
+	// 	})
+	// }
 	return nil
 }
