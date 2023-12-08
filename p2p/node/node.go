@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/libp2p/go-libp2p"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
@@ -117,6 +118,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 						return bootpeers
 					}),
 					kaddht.ProtocolPrefix("/quai"),
+					kaddht.RoutingTableRefreshPeriod(1 * time.Minute),
 				),
 			)
 			return dht, err
