@@ -25,14 +25,14 @@ func (p *P2PNode) statsLoop() {
 		select {
 		case <-ticker.C:
 			p.connectionStats()
-			peers, err := p.dht.WAN.GetClosestPeers(p.ctx, p.Host.ID().String())
-			if err != nil {
-				log.Warnf("error getting closest peers: %s", err)
-			}
+			// peers, err := p.dht.WAN.GetClosestPeers(p.ctx, p.Host.ID().String())
+			// if err != nil {
+				// log.Warnf("error getting closest peers: %s", err)
+			// }
 
-			for _, peer := range peers {
-				log.Infof("Peer: %s", peer)
-			}
+			// for _, peer := range peers {
+				// log.Infof("Peer: %s", peer)
+			// }
 		case <-p.ctx.Done():
 			log.Warnf("Context cancelled. Stopping stats loop...")
 			return

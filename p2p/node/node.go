@@ -127,9 +127,9 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		return nil, err
 	}
 
-	if err := dht.Bootstrap(ctx); err != nil {
-		log.Fatalf("error bootstrapping libp2p host: %s", err)
-	}
+	// if err := dht.Bootstrap(ctx); err != nil {
+		// log.Fatalf("error bootstrapping libp2p host: %s", err)
+	// }
 
 	idOpts := []identify.Option{
 		identify.UserAgent("go-quai-libp2p"),
@@ -172,10 +172,10 @@ func (p *P2PNode) p2pAddress() (multiaddr.Multiaddr, error) {
 // Dial bootpeers and bootstrap the DHT
 func (p *P2PNode) bootstrap() error {
 	// Bootstrap the dht
-	if err := p.dht.Bootstrap(p.ctx); err != nil {
-		log.Warnf("error bootstrapping DHT: %s", err)
-		return err
-	}
+	// if err := p.dht.Bootstrap(p.ctx); err != nil {
+		// log.Warnf("error bootstrapping DHT: %s", err)
+		// return err
+	// }
 
 	// // Load bootpeers
 	// bootpeers, err := loadBootPeers()
