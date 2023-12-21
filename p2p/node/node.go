@@ -52,6 +52,9 @@ type P2PNode struct {
 	// - C_transactionTopicName
 	topics map[types.SliceID]map[string]*pubsub.Topic
 
+	// Routing table per slice.
+	routingTables map[types.SliceID][]peer.AddrInfo
+
 	// cache of received blocks
 	blockCache *lru.Cache[types.Hash, *types.Block]
 	// cache of received transactions
@@ -176,7 +179,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	}
 
 	// Create a new LRU cache for blocks and transactions
-	const cacheSize = 10
+	const cacheSize = 100
 	blockCache, err := lru.New[types.Hash, *types.Block](cacheSize)
 	if err != nil {
 		return nil, err
@@ -188,14 +191,15 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 	}
 
 	return &P2PNode{
-		ctx:        ctx,
-		Host:       host,
-		bootpeers:  bootpeers,
-		dht:        dht,
-		pubsub:     ps,
-		topics:     make(map[types.SliceID]map[string]*pubsub.Topic),
-		blockCache: blockCache,
-		txCache:    txCache,
+		ctx:           ctx,
+		Host:          host,
+		bootpeers:     bootpeers,
+		dht:           dht,
+		pubsub:        ps,
+		topics:        make(map[types.SliceID]map[string]*pubsub.Topic),
+		routingTables: make(map[types.SliceID][]peer.AddrInfo),
+		blockCache:    blockCache,
+		txCache:       txCache,
 	}, nil
 }
 
