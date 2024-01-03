@@ -14,6 +14,11 @@ type QuaiP2PNode interface {
 	Connect(pi peer.AddrInfo) error
 	NewStream(peerID peer.ID, protocolID protocol.ID) (network.Stream, error)
 	Network() network.Network
+
 	// Checks if the cache has a block with the given hash. If the block is not found, returns nil.
 	GetBlock(hash types.Hash) *types.Block
+	// Looks up the requested header. Check local cache first, then request from peers. Return nil if not found.
+	GetHeader(hash types.Hash) *types.Header
+	// Looks up the requested transaction. Check local cache first, then request from peers. Return nil if not found.
+	LookupTransaction(hash types.Hash) *types.Transaction
 }

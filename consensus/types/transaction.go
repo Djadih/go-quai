@@ -1,3 +1,5 @@
 package types
 
-type Transaction struct{}
+type Transaction struct{
+	Hash Hash
+}

@@ -54,6 +54,8 @@ type P2PNode struct {
 
 	// cache of received blocks
 	blockCache *lru.Cache[types.Hash, *types.Block]
+	// cache of known headers
+	headerCache *lru.Cache[types.Hash, *types.Header]
 	// cache of received transactions
 	txCache *lru.Cache[types.Hash, *types.Transaction]
 

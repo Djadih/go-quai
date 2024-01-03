@@ -105,62 +105,57 @@ func (p *P2PNode) BroadcastTransaction(tx types.Transaction) error {
 	panic("todo")
 }
 
+func (p *P2PNode) BroadcastHeader(slice types.SliceID, header types.Header) error {
+	panic("todo")
+}
+
+func (p *P2PNode) requestDHT(slice types.SliceID, hash types.Hash, reqFunc func(types.Hash, peer.ID)(*types.Block, error)) (chan interface{}, error) {
+	resultChan := make(chan interface{}, 1)
+	const (
+		maxDHTQueryRetries    = 3  // Maximum number of retries for DHT queries
+		peersPerDHTQuery      = 10 // Number of peers to query per DHT attempt
+		dhtQueryRetryInterval = 5  // Time to wait between DHT query retries
+	)
+	// create a Cid from the slice ID
+	shardCid := shardToCid(slice)
+	for retries := 0; retries < maxDHTQueryRetries; retries++ {
+		log.Debugf("Querying DHT for slice Cid %s (retry %d)", shardCid, retries)
+		// query the DHT for peers in the slice
+		peerChan := p.dht.FindProvidersAsync(p.ctx, shardCid, peersPerDHTQuery)
+		for peerInfo := range peerChan {
+			block, err := p.requestBlockFromPeer(hash, peerInfo.ID)
+			if err == nil {
+				log.Debugf("Received block %s from peer %s", block.Hash, peerInfo.ID)
+				p.blockCache.Add(hash, block)
+				resultChan <- block
+				return resultChan, nil
+			}
+		}
+		// if the block is not found, wait for a bit and try again
+		log.Debugf("Block %s not found in slice %s. Retrying...", hash, slice)
+		time.Sleep(dhtQueryRetryInterval * time.Second)
+	}
+	return nil, errors.New("item not found")
+}
+
 // Request a block from the network for the specified slice
 func (p *P2PNode) RequestBlock(hash types.Hash, slice types.SliceID) chan *types.Block {
-	resultChan := make(chan *types.Block, 1)
-	go func() {
-		defer close(resultChan)
-		var block *types.Block
-		// 1. Check if the block is in the local cache
-		block, ok := p.blockCache.Get(hash)
-		if ok {
-			log.Debugf("Block %s found in cache", hash)
-			resultChan <- block
-			return
-		}
-		// 2. If not, query the topic peers for the block
-		peers := p.topics[slice][p2p.C_blockTopicName].ListPeers()
-		for _, peerID := range peers {
-			block, err := p.requestBlockFromPeer(hash, peerID)
-			if err == nil {
-				log.Debugf("Received block %s from peer %s", block.Hash, peerID)
-				// add the block to the cache
-				p.blockCache.Add(hash, block)
-				// send the block to the result channel
-				resultChan <- block
-				return
-			}
-		}
+	resultChan, err := p.requestDHT(slice, hash, p.requestBlockFromPeer)
+	if err != nil {
+		log.Errorf("error requesting block from DHT: %s", err)
+		return nil
+	}
+	return resultChan.(chan *types.Block)
 
-		// 3. If block is not found, query the DHT for peers in the slice
-		// TODO: evaluate making this configurable
-		const (
-			maxDHTQueryRetries    = 3  // Maximum number of retries for DHT queries
-			peersPerDHTQuery      = 10 // Number of peers to query per DHT attempt
-			dhtQueryRetryInterval = 5  // Time to wait between DHT query retries
-		)
-		// create a Cid from the slice ID
-		shardCid := shardToCid(slice)
-		for retries := 0; retries < maxDHTQueryRetries; retries++ {
-			log.Debugf("Querying DHT for slice Cid %s (retry %d)", shardCid, retries)
-			// query the DHT for peers in the slice
-			peerChan := p.dht.FindProvidersAsync(p.ctx, shardCid, peersPerDHTQuery)
-			for peerInfo := range peerChan {
-				block, err := p.requestBlockFromPeer(hash, peerInfo.ID)
-				if err == nil {
-					log.Debugf("Received block %s from peer %s", block.Hash, peerInfo.ID)
-					p.blockCache.Add(hash, block)
-					resultChan <- block
-					return
-				}
-			}
-			// if the block is not found, wait for a bit and try again
-			log.Debugf("Block %s not found in slice %s. Retrying...", hash, slice)
-			time.Sleep(dhtQueryRetryInterval * time.Second)
-		}
-		log.Debugf("Block %s not found in slice %s", hash, slice)
-	}()
-	return resultChan
+	value := <-resultChan
+	block := value.(*types.Block)
+
+	return block
+}
+
+// Request a header from the network for the specified slice
+func (p *P2PNode) RequestHeader(hash types.Hash, slice types.SliceID) chan *types.Header {
+	panic("todo")
 }
 
 func (p *P2PNode) RequestTransaction(hash types.Hash, loc types.SliceID) chan *types.Transaction {
@@ -217,4 +212,20 @@ func (p *P2PNode) GetBlock(hash types.Hash) *types.Block {
 		return nil
 	}
 	return block
+}
+
+func (p *P2PNode) GetHeader(hash types.Hash) *types.Header {
+	tx, ok := p.headerCache.Get(hash)
+	if !ok {
+		return nil
+	}
+	return tx
+}
+
+func (p *P2PNode) LookupTransaction(hash types.Hash) *types.Transaction {
+	tx, ok := p.txCache.Get(hash)
+	if !ok {
+		return nil
+	}
+	return tx
 }
