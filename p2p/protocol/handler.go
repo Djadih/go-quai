@@ -74,6 +74,8 @@ func QuaiProtocolHandler(stream network.Stream, node QuaiP2PNode) {
 
 		case *pb.QuaiProtocolMessage:
 			// TODO: handle quai protocol message
+
+			// TODO if ID packet requested, then respond with your ID info
 		default:
 			log.Errorf("unknown message type received: %s", msg)
 			// TODO: handle unknown message type

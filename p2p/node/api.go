@@ -12,6 +12,7 @@ import (
 	"github.com/dominant-strategies/go-quai/consensus/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
+	"github.com/dominant-strategies/go-quai/p2p/pb"
 	quaiprotocol "github.com/dominant-strategies/go-quai/p2p/protocol"
 
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -169,6 +170,54 @@ func (p *P2PNode) RequestTransaction(hash types.Hash, loc types.SliceID) chan *t
 
 func (p *P2PNode) ReportBadPeer(peer p2p.PeerID) {
 	panic("todo")
+}
+
+func (p *P2PNode) RequestPeerID(peerID p2p.PeerID, protoID protocol.ID) chan *types.PeerID {
+	resultChan := make(chan *types.PeerID, 1)
+	go func() {
+		// Open a stream to the peer using a specific protocol for block requests
+		stream, err := p.NewStream(peerID, protoID)
+		if err != nil {
+			log.Errorf("error opening stream to peer: %s", err)
+			return 
+		}
+		defer stream.Close()
+		
+
+		peerReq := pb.CreateQuaiMessage(pb.REQUEST_ID, nil)
+		peerReqBytes, err := pb.MarshalProtoMessage(peerReq)
+		if err != nil {
+			log.Errorf("error marshalling peer request: %s", err)
+			return 
+		}
+
+		err = common.WriteMessageToStream(stream, peerReqBytes)
+		if err != nil {
+			log.Errorf("error sending peer request: %s", err)
+			return
+		}
+
+		// Read the response from the peer
+		peerResponseBytes, err := common.ReadMessageFromStream(stream)
+		if err != nil {
+			log.Errorf("error reading peer response: %s", err)
+			return
+		}
+
+		// Unmarshal the response into a block
+		var pbPeerResponse pb.PeerID
+		err = pb.UnmarshalProtoMessage(peerResponseBytes, &pbPeerResponse)
+		if err != nil {
+			log.Errorf("error unmarshalling block response: %s", err)
+			return
+		}
+
+		peer := pb.ConvertFromProtoPeerID(&pbPeerResponse)
+		resultChan <- &peer
+
+	}()	
+
+	return resultChan
 }
 
 // Returns the list of bootpeers

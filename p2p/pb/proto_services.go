@@ -115,3 +115,14 @@ func CreateProtoBlockRequest(hash types.Hash, slice types.SliceID) *BlockRequest
 		SliceId: pbSlice,
 	}
 }
+
+// Converts a protocol buffer peerID type (pb.PeerID) to a custom go peerID type (types.PeerID)
+func ConvertFromProtoPeerID(pbPeerID *PeerID) types.PeerID {
+	sliceID := ConvertFromProtoSlice(pbPeerID.Location)
+	return types.PeerID{
+		Location:    &sliceID,
+		Entropy:     pbPeerID.Entropy,
+		Zone_height: pbPeerID.ZoneHeight,
+		User_agent:  pbPeerID.UserAgent,
+	}
+}

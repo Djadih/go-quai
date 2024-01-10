@@ -2,6 +2,7 @@ package node
 
 import (
 	"github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/libp2p/go-libp2p/core/event"
 )
 
@@ -69,6 +70,10 @@ func (p *P2PNode) eventLoop() {
 				}
 				// get the peer addresses
 				peerAddresses := p.Peerstore().Addrs(peerID)
+
+				// gather application level information
+				pb.CreateQuaiMessage(pb.REQUEST_ID, nil)
+
 				log.Debugf("Event: 'Peer connectedness change' - Peer %s (peerInfo: %+v) is now %s, protocols: %v, addresses: %v", peerID.String(), peerInfo, e.Connectedness, peerProtocols, peerAddresses)
 			case *event.EvtNATDeviceTypeChanged:
 				log.Debugf("Event `NAT device type changed` - DeviceType %v, transport: %v", e.NatDeviceType.String(), e.TransportProtocol.String())

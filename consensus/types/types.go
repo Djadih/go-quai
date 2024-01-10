@@ -42,7 +42,7 @@ type SliceID struct {
 
 type PeerID struct {
 	// TODO: Evaluate if entropy and zone_height should stay as uint32 or need to be big.int
-	SliceID     SliceID
+	Location    *SliceID
 	Entropy     uint32
 	Zone_height uint32
 	User_agent  string
