@@ -18,7 +18,7 @@ import (
 // If a block is not found, an error is returned
 func (p *P2PNode) requestBlockFromPeer(hash types.Hash, slice types.SliceID, peerID peer.ID) (*types.Block, error) {
 	// Open a stream to the peer using a specific protocol for block requests
-	stream, err := p.NewStream(peerID, protocol.ProtocolVersion)
+	stream, err := p.Host.NewStream(p.ctx, peerID, protocol.ProtocolVersion)
 	if err != nil {
 		return nil, err
 	}

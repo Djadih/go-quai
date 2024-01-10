@@ -176,16 +176,6 @@ func (p *P2PNode) GetBootPeers() []peer.AddrInfo {
 	return p.bootpeers
 }
 
-// Opens a new stream to the given peer using the given protocol ID
-func (p *P2PNode) NewStream(peerID peer.ID, protocolID protocol.ID) (network.Stream, error) {
-	return p.Host.NewStream(p.ctx, peerID, protocolID)
-}
-
-// Connects to the given peer
-func (p *P2PNode) Connect(pi peer.AddrInfo) error {
-	return p.Host.Connect(p.ctx, pi)
-}
-
 // Start gossipsub protocol
 func (p *P2PNode) StartGossipSub(ctx context.Context) error {
 	for _, slice := range p.consensus.GetRunningSlices() {
