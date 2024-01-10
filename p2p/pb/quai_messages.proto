@@ -34,6 +34,14 @@ message SliceID {
     uint32 zone = 3;
 }
 
+// Define structure for a peer identification packet
+message PeerID {
+    SliceID location = 1;
+    uint32 entropy = 2;
+    uint32 zone_height = 3;
+    string user_agent = 4;
+}
+
 // Define a block structure
 message Block {
     string hash = 1;               // Unique identifier of the block

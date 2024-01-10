@@ -40,6 +40,14 @@ type SliceID struct {
 	Zone    uint32
 }
 
+type PeerID struct {
+	// TODO: Evaluate if entropy and zone_height should stay as uint32 or need to be big.int
+	SliceID     SliceID
+	Entropy     uint32
+	Zone_height uint32
+	User_agent  string
+}
+
 func (sliceID SliceID) String() string {
 	return strconv.Itoa(int(sliceID.Region)) + "." + strconv.Itoa(int(sliceID.Zone))
 }
