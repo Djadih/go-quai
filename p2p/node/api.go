@@ -134,6 +134,11 @@ func (p *P2PNode) RequestBlock(hash types.Hash, slice types.SliceID) chan *types
 				p.blockCache.Add(hash, block)
 				// send the block to the result channel
 				resultChan <- block
+				// announce ourselves as a provider of the block topic
+				err = p.announceToDHT(slice, types.Block{}, block)
+				if err != nil {
+					log.Errorf("Error announcing block: ", err)
+				}
 				return
 			}
 		}
@@ -146,17 +151,27 @@ func (p *P2PNode) RequestBlock(hash types.Hash, slice types.SliceID) chan *types
 			dhtQueryRetryInterval = 5  // Time to wait between DHT query retries
 		)
 		// create a Cid from the slice ID
-		shardCid := shardToCid(slice)
+		topic, err := p.pubsub.TopicName(slice, types.Block{})
+		cid := topicToCid(topic)
+		if err != nil {
+			log.Errorf("Error creating Cid from slice ID: ", err)
+			return
+		}
 		for retries := 0; retries < maxDHTQueryRetries; retries++ {
-			log.Debugf("Querying DHT for slice Cid %s (retry %d)", shardCid, retries)
+			log.Debugf("Querying DHT for slice Cid %s (retry %d)", cid, retries)
 			// query the DHT for peers in the slice
-			peerChan := p.dht.FindProvidersAsync(p.ctx, shardCid, peersPerDHTQuery)
+			peerChan := p.dht.FindProvidersAsync(p.ctx, cid, peersPerDHTQuery)
 			for peerInfo := range peerChan {
 				block, err := p.requestBlockFromPeer(hash, slice, peerInfo.ID)
 				if err == nil {
 					log.Debugf("Received block %s from peer %s", block.Hash, peerInfo.ID)
 					p.blockCache.Add(hash, block)
 					resultChan <- block
+					// announce ourselves as a provider of the block topic
+					err = p.announceToDHT(slice, types.Block{}, block)
+					if err != nil {
+						log.Errorf("Error announcing block: ", err)
+					}
 					return
 				}
 			}
