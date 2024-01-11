@@ -74,6 +74,14 @@ var (
 	ZONE_CTX   = Context{"zone", 2}
 )
 
+// *Definitions and implementations for a custom PeerID type*//
+type PeerID struct {
+	Location    SliceID
+	Entropy     uint32
+	Zone_height uint32
+	User_agent  string
+}
+
 //*Definitions and implementations for a SliceID type*//
 
 type SliceID struct {
