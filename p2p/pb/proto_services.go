@@ -5,6 +5,20 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	REQUEST_BLOCK QuaiProtocolMessage_ActionType = iota
+	REQUEST_TRANSACTION
+	REQUEST_ID
+)
+
+// Creates a custom quai protocol message
+func CreateQuaiMessage(msgType QuaiProtocolMessage_ActionType, data []byte) *QuaiProtocolMessage {
+	return &QuaiProtocolMessage{
+		Action: msgType,
+		Data:   data,
+	}
+}
+
 // Unmarshals a serialized protobuf slice of bytes into a protocol buffer type
 func UnmarshalProtoMessage(data []byte, msg proto.Message) error {
 	if err := proto.Unmarshal(data, msg); err != nil {

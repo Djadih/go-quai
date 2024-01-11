@@ -17,6 +17,7 @@ message QuaiProtocolMessage {
     enum ActionType {
         REQUEST_BLOCK = 0;
         REQUEST_TRANSACTION = 1;
+        REQUEST_ID = 2;
     }
 
     ActionType action = 1;
