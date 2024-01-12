@@ -2,11 +2,9 @@ package protocol
 
 import (
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/consensus/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/libp2p/go-libp2p/core/network"
-	"google.golang.org/protobuf/proto"
 )
 
 func QuaiProtocolHandler(stream network.Stream, node QuaiP2PNode) {
@@ -31,63 +29,63 @@ func QuaiProtocolHandler(stream network.Stream, node QuaiP2PNode) {
 
 		log.Warn("Received message: %s", data)
 
-		var protoMessage proto.Message
-		blockMessage := &pb.GenericMessage{}
-		// protoMessage := proto.Message(nil)
-		err = pb.UnmarshalProtoMessage(data, blockMessage)
+		protoMessage := &pb.GenericMessage{}
+		err = pb.UnmarshalProtoMessage(data, protoMessage)
 		if err != nil {
 			log.Errorf("error unmarshalling message: %s", err)
 			return
 		}
 
-		log.Warn("Received message 2: %s", blockMessage)
+		log.Warn("Received message 2: %s", protoMessage)
 
-		switch msg := protoMessage.(type) {
-		case *pb.BlockRequest:
+		switch msg := protoMessage.Message.(type) {
+		case *pb.GenericMessage_Block:
 			// get the hash from the block request
-			hash := types.Hash{}
-			pbHash := msg.GetHash()
-			if pbHash == nil {
-				log.Errorf("block request did not contain a hash")
-				// handle error
-				return
-			}
-			hash.FromProto(pbHash)
+			log.Warn("Block request received")
+		// 	block := msg.Block
+		// 	hash := types.Hash{}
+		// 	pbHash := block.GetHash()
+		// 	if pbHash == nil {
+		// 		log.Errorf("block request did not contain a hash")
+		// 		// handle error
+		// 		return
+		// 	}
+		// 	hash.FromProto(pbHash)
 
-			// get the slice from the block request
-			slice := types.SliceID{}
-			pbSlice := msg.GetSliceId()
-			if pbSlice == nil {
-				log.Errorf("block request did not contain a slice")
-				// handle error
-				return
-			}
-			slice.FromProto(pbSlice)
+		// 	// get the slice from the block request
+		// 	slice := types.SliceID{}
+		// 	pbSlice := block.GetSliceId()
+		// 	if pbSlice == nil {
+		// 		log.Errorf("block request did not contain a slice")
+		// 		// handle error
+		// 		return
+		// 	}
+		// 	slice.FromProto(pbSlice)
 
-			// check if we have the block in our cache
-			block := node.GetBlock(hash, slice)
-			if block == nil {
-				// TODO: handle block not found
-				log.Warnf("block not found")
-				return
-			}
-			// convert the block to a protocol buffer and send it back to the peer
-			data, err := pb.ConvertAndMarshal(block)
-			if err != nil {
-				log.Errorf("error marshalling block: %s", err)
-				// TODO: handle error
-				return
-			}
-			err = common.WriteMessageToStream(stream, data)
-			if err != nil {
-				log.Errorf("error writing message to stream: %s", err)
-				// TODO: handle error
-				return
-			}
-			log.Debugf("Sent block %s to peer %s", block.Hash, stream.Conn().RemotePeer())
+		// 	// check if we have the block in our cache
+		// 	block := node.GetBlock(hash, slice)
+		// 	if block == nil {
+		// 		// TODO: handle block not found
+		// 		log.Warnf("block not found")
+		// 		return
+		// 	}
+		// 	// convert the block to a protocol buffer and send it back to the peer
+		// 	data, err := pb.ConvertAndMarshal(block)
+		// 	if err != nil {
+		// 		log.Errorf("error marshalling block: %s", err)
+		// 		// TODO: handle error
+		// 		return
+		// 	}
+		// 	err = common.WriteMessageToStream(stream, data)
+		// 	if err != nil {
+		// 		log.Errorf("error writing message to stream: %s", err)
+		// 		// TODO: handle error
+		// 		return
+		// 	}
+		// 	log.Debugf("Sent block %s to peer %s", block.Hash, stream.Conn().RemotePeer())
 
-		case *pb.QuaiProtocolMessage:
-			// TODO: handle quai protocol message
+		// case *pb.QuaiProtocolMessage:
+		// 	// TODO: handle quai protocol message
 		default:
 			log.Errorf("unknown message type received: %s", msg)
 			// TODO: handle unknown message type

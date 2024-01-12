@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bufio"
 	"io"
 	"net"
 	"time"
@@ -25,7 +26,9 @@ func ReadMessageFromStream(stream network.Stream) ([]byte, error) {
 	}
 
 	// Read the message from the stream
-	msg, err := io.ReadAll(stream)
+	// msg, err := io.ReadAll(stream)
+	buf := bufio.NewReader(stream)
+	response, err := buf.ReadString('\n')
 	if err != nil {
 		if err == io.EOF {
 			// the stream is closed
@@ -39,7 +42,7 @@ func ReadMessageFromStream(stream network.Stream) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to read message from stream")
 	}
 
-	return msg, nil
+	return []byte(response), nil
 }
 
 // Writes the message to the stream.
