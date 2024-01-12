@@ -12,6 +12,14 @@ message GossipTransaction {
     Transaction transaction = 1;
 }
 
+message GenericMessage {
+    oneof message {
+        Block block = 1;
+        Transaction transaction = 2;
+        BlockRequest block_request = 3;
+    }
+}
+
 // Stream-based request-response messages
 message QuaiProtocolMessage {
     enum ActionType {
