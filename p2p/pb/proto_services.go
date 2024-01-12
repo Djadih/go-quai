@@ -78,7 +78,7 @@ func CreateProtoBlockRequest(hash ProtoConvertable[*Hash], slice ProtoConvertabl
 // Unmarhsalls a protobuf block response message, and returns a boolean indicating whether the block was found.
 // If the block was found, it returns a *pb.Block, otherwise it returns nil.
 func UnmarshalProtoBlockResponse(data []byte) (bool, *Block, error) {
-	var blockResponse BlockResponse
+	blockResponse := BlockResponse{}
 	err := UnmarshalProtoMessage(data, &blockResponse)
 	if err != nil {
 		return false, nil, err

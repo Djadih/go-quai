@@ -29,12 +29,18 @@ func QuaiProtocolHandler(stream network.Stream, node QuaiP2PNode) {
 			return
 		}
 
+		log.Warn("Received message: %s", data)
+
 		var protoMessage proto.Message
-		err = pb.UnmarshalProtoMessage(data, protoMessage)
+		blockMessage := &pb.Block{}
+		// protoMessage := proto.Message(nil)
+		err = pb.UnmarshalProtoMessage(data, blockMessage)
 		if err != nil {
 			log.Errorf("error unmarshalling message: %s", err)
 			return
 		}
+
+		log.Warn("Received message 2: %s", blockMessage)
 
 		switch msg := protoMessage.(type) {
 		case *pb.BlockRequest:
