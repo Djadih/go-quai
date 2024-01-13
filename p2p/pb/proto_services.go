@@ -14,7 +14,7 @@ func MarshalData(data interface{}) []byte {
 	var bytes []byte
 	var err error
 	switch v := data.(type) {
-	case *types.Block:
+	case *BlockHash:
 		bytes, err = MarshalBlock(v)
 	default:
 		return nil
@@ -45,16 +45,16 @@ func MarshalProtoMessage(pbMsg proto.Message) ([]byte, error) {
 }
 
 // converts a custom go Block type (types.Block) to a protocol buffer Block type (pb.Block)
-func ConvertToProtoBlock(block types.Block) *Block {
-	return &Block{
-		Hash: hex.EncodeToString(block.Hash().Bytes()),
+func ConvertToProtoBlock(block *BlockHash) *BlockHash {
+	return &BlockHash{
+		Hash: block.Hash,
 		// ... map other fields
 	}
 
 }
 
 // converts a protocol buffer Block type (pb.Block) to a custom go Block type (types.Block)
-func ConvertFromProtoBlock(pbBlock *Block) types.Block {
+func ConvertFromProtoBlock(pbBlock *BlockHash) types.Block {
 	var hash common.Hash
 	copy(hash[:], pbBlock.Hash)
 	// ... map other fields
@@ -65,7 +65,7 @@ func ConvertFromProtoBlock(pbBlock *Block) types.Block {
 
 // Unmarshals a received serialized protobuf slice of bytes into a custom *types.Block type
 func UnmarshalBlock(data []byte) (*types.Block, error) {
-	var pbBlock Block
+	var pbBlock BlockHash
 	err := UnmarshalProtoMessage(data, &pbBlock)
 	if err != nil {
 		return nil, err
@@ -76,8 +76,8 @@ func UnmarshalBlock(data []byte) (*types.Block, error) {
 
 // Marshals a custom *types.Block type into a serialized protobuf slice of bytes
 // to be sent over the wire
-func MarshalBlock(block *types.Block) ([]byte, error) {
-	pbBlock := ConvertToProtoBlock(*block)
+func MarshalBlock(block *BlockHash) ([]byte, error) {
+	pbBlock := ConvertToProtoBlock(block)
 	data, err := MarshalProtoMessage(pbBlock)
 	if err != nil {
 		return nil, err

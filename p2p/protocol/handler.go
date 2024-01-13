@@ -2,7 +2,6 @@ package protocol
 
 import (
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/gogo/protobuf/proto"
@@ -38,39 +37,39 @@ func QuaiProtocolHandler(stream network.Stream, node QuaiP2PNode) {
 
 		switch msg := protoMessage.(type) {
 		case *pb.BlockRequest:
-			// get the hash from the block request
-			blockReq := msg
-			hash, err := types.NewHashFromString(blockReq.Hash)
-			if err != nil {
-				log.Errorf("error converting hash from string: %s", err)
-				// TODO: handle error
-				return
-			}
-			// get the sliceID from the block request
-			protoSlice := blockReq.SliceId
-			slice := pb.ConvertFromProtoSlice(protoSlice)
+			// // get the hash from the block request
+			// blockReq := msg
+			// hash, err := types.NewHashFromString(blockReq.Hash)
+			// if err != nil {
+			// 	log.Errorf("error converting hash from string: %s", err)
+			// 	// TODO: handle error
+			// 	return
+			// }
+			// // get the sliceID from the block request
+			// protoSlice := blockReq.SliceId
+			// slice := pb.ConvertFromProtoSlice(protoSlice)
 
-			// check if we have the block in our cache
-			block := node.GetBlock(hash, slice)
-			if block == nil {
-				// TODO: handle block not found
-				log.Warnf("block not found")
-				return
-			}
-			// convert the block to a protocol buffer and send it back to the peer
-			data, err := pb.MarshalBlock(block)
-			if err != nil {
-				log.Errorf("error marshalling block: %s", err)
-				// TODO: handle error
-				return
-			}
-			err = common.WriteMessageToStream(stream, data)
-			if err != nil {
-				log.Errorf("error writing message to stream: %s", err)
-				// TODO: handle error
-				return
-			}
-			log.Debugf("Sent block %s to peer %s", block.Hash, stream.Conn().RemotePeer())
+			// // check if we have the block in our cache
+			// block := node.GetBlock(hash, slice)
+			// if block == nil {
+			// 	// TODO: handle block not found
+			// 	log.Warnf("block not found")
+			// 	return
+			// }
+			// // convert the block to a protocol buffer and send it back to the peer
+			// data, err := pb.MarshalBlock(block)
+			// if err != nil {
+			// 	log.Errorf("error marshalling block: %s", err)
+			// 	// TODO: handle error
+			// 	return
+			// }
+			// err = common.WriteMessageToStream(stream, data)
+			// if err != nil {
+			// 	log.Errorf("error writing message to stream: %s", err)
+			// 	// TODO: handle error
+			// 	return
+			// }
+			// log.Debugf("Sent block %s to peer %s", block.Hash, stream.Conn().RemotePeer())
 
 		case *pb.QuaiProtocolMessage:
 			// TODO: handle quai protocol message

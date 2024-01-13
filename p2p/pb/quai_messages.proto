@@ -4,7 +4,7 @@ package quaiprotocol;
 option go_package = "github.com/dominant-strategies/go-quai/p2p/pb";
 
 // GossipSub messages for broadcasting blocks and transactions
-message GossipBlock { Block block = 1; }
+message GossipBlock { BlockHash block = 1; }
 
 message GossipTransaction { Transaction transaction = 1; }
 
@@ -31,7 +31,7 @@ message SliceID {
 }
 
 // Define a block structure
-message Block {
+message BlockHash {
   string hash = 1; // Unique identifier of the block
   // TODO: evaluate adding additional fields like miner, difficulty,
   // totalDifficulty, extraData, size, gasLimit, gasUsed, timestamp, etc.
@@ -59,7 +59,7 @@ message BlockRequest {
 
 message BlockResponse {
   bool found = 1;
-  Block block = 2;
+  BlockHash block = 2;
 }
 
 message TransactionRequest { string hash = 1; }
