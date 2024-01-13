@@ -90,7 +90,7 @@ func (g *PubsubManager) Broadcast(slice types.SliceID, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	return g.topics[topicName].Publish(g.ctx, pb.MarshalData(common.BlockHash{Hash: "block"}))
+	return g.topics[topicName].Publish(g.ctx, pb.MarshalData(pb.ConvertToProtoBlock(common.BlockHash{Hash: "block"})))
 }
 
 // lists our peers which provide the associated topic
