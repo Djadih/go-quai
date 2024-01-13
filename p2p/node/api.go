@@ -234,6 +234,8 @@ func (p *P2PNode) GetBlock(hash common.Hash, slice types.SliceID) *types.Block {
 
 func (p *P2PNode) handleBroadcast(data interface{}) {
 	switch v := data.(type) {
+	case common.BlockHash:
+		log.Infof("received block broadcast for block %s", v.Hash)
 	case types.Block:
 		p.blockCache.Add(v.Hash(), &v)
 	// TODO: send it to consensus
