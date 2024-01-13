@@ -57,7 +57,7 @@ func (p *P2PNode) Start() error {
 }
 
 func (p *P2PNode) Subscribe(data interface{}, location common.Location) error {
-	log.Warn("Subscribed to Blocks", "location", location)
+	log.Warn("Subscribed to Blocks", "location", LocationToSliceID(location).Context)
 	return p.pubsub.Subscribe(LocationToSliceID(location), data)
 }
 
@@ -236,6 +236,7 @@ func (p *P2PNode) handleBroadcast(data interface{}) {
 	switch v := data.(type) {
 	case types.Block:
 		p.blockCache.Add(v.Hash(), &v)
+		log.Warn("Received Block", "block", v)
 	// TODO: send it to consensus
 	default:
 		log.Debugf("received unsupported block broadcast")

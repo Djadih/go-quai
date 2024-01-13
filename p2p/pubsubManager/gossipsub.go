@@ -72,6 +72,7 @@ func (g *PubsubManager) Subscribe(slice types.SliceID, data interface{}) error {
 		return err
 	}
 	g.topics[topicName] = topic
+	log.Warn("Subscribed to Blocks", "topic", topicName)
 
 	// subscribe to the topic
 	subscription, err := topic.Subscribe()
