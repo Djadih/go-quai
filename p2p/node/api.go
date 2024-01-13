@@ -223,6 +223,7 @@ func (p *P2PNode) GetBlock(hash types.Hash, slice types.SliceID) *types.Block {
 }
 
 func (p *P2PNode) handleBroadcast(data interface{}) {
+	log.Debugf("received data to broadcast: %+v", data)
 	switch v := data.(type) {
 	case types.Block:
 		p.blockCache.Add(v.Hash, &v)
