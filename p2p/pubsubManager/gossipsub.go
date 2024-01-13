@@ -30,7 +30,7 @@ type PubsubManager struct {
 // gets the name of the topic for the given type of data
 func TopicName(slice types.SliceID, data interface{}) (string, error) {
 	switch data.(type) {
-	case types.Block:
+	case common.BlockHash:
 		return slice.String() + "/blocks", nil
 	default:
 		return "", ErrUnsupportedType
@@ -90,7 +90,11 @@ func (g *PubsubManager) Broadcast(slice types.SliceID, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	return g.topics[topicName].Publish(g.ctx, pb.MarshalData(pb.ConvertToProtoBlock(common.BlockHash{Hash: "block"})))
+	blockHash, err := pb.MarshalBlock(data.(common.BlockHash))
+	if err != nil {
+		return err
+	}
+	return g.topics[topicName].Publish(g.ctx, blockHash)
 }
 
 // lists our peers which provide the associated topic

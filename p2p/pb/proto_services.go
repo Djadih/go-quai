@@ -6,7 +6,7 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 // converts a custom go Block type (types.Block) to a protocol buffer Block type (pb.Block)
@@ -14,8 +14,8 @@ func MarshalData(data interface{}) []byte {
 	var bytes []byte
 	var err error
 	switch v := data.(type) {
-	case *common.BlockHash:
-		bytes, err = MarshalBlock(*v)
+	case common.BlockHash:
+		bytes, err = MarshalBlock(v)
 	default:
 		return nil
 	}
