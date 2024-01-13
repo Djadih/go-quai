@@ -24,5 +24,5 @@ type SliceID struct {
 }
 
 func (sliceID SliceID) String() string {
-	return strconv.Itoa(int(sliceID.Region)) + "." + strconv.Itoa(int(sliceID.Zone))
+	return strconv.Itoa(int(sliceID.Region)) + "." + strconv.Itoa(int(sliceID.Zone)) + "/" + sliceID.Context.Location
 }
