@@ -37,7 +37,7 @@ type PubsubManager struct {
 // gets the name of the topic for the given type of data
 func (g *PubsubManager) TopicName(slice types.SliceID, data interface{}) (string, error) {
 	switch data.(type) {
-	case *types.Block:
+	case types.Block:
 		return slice.String() + "/" + C_blockType, nil
 	case *types.Transaction:
 		return slice.String() + "/" + C_transactionType, nil
@@ -98,8 +98,8 @@ func (g *PubsubManager) Subscribe(slice types.SliceID, data interface{}) error {
 }
 
 // broadcasts data to subscribing peers
-func (g *PubsubManager) Broadcast(slice types.SliceID, data interface{}) error {
-	topicName, err := g.TopicName(slice, data)
+func (g *PubsubManager) Broadcast(slice types.SliceID, data *types.Block) error {
+	topicName, err := g.TopicName(slice, *data)
 	if err != nil {
 		return err
 	}

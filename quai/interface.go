@@ -39,7 +39,7 @@ type NetworkingAPI interface {
 	Subscribe(interface{}, common.Location) error
 
 	// Method to broadcast data to the network
-	Broadcast(interface{}, common.Location) error
+	Broadcast(*types.Block, common.Location) error
 
 	// Methods to lookup specific data from the network. Each request method
 	// returns a result channel. If the result is found, it will be put into the

@@ -1,6 +1,9 @@
 package pb
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
@@ -89,7 +92,7 @@ func DecodeQuaiRequest(data []byte) (action QuaiRequestMessage_ActionType, slice
 		}
 
 	default:
-		return QuaiRequestMessage_UNKNOWN, nil, nil, errors.Errorf("unsupported action type: %v", action)
+		return QuaiRequestMessage_UNKNOWN, nil, nil, fmt.Errorf("unsupported action type: %v", action)
 	}
 
 	return action, slice, hash, nil
@@ -148,7 +151,7 @@ func DecodeQuaiResponse(data []byte) (action QuaiResponseMessage_ActionType, res
 		}
 		response = transaction
 	default:
-		return QuaiResponseMessage_UNKNOWN, nil, errors.Errorf("unsupported action type: %v", action)
+		return QuaiResponseMessage_UNKNOWN, nil, fmt.Errorf("unsupported action type: %v", action)
 	}
 
 	return action, response, nil

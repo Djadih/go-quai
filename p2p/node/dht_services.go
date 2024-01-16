@@ -1,7 +1,7 @@
 package node
 
 import (
-	"github.com/dominant-strategies/go-quai/consensus/types"
+	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/ipfs/go-cid"
 	"github.com/multiformats/go-multihash"
 )

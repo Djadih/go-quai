@@ -62,7 +62,7 @@ func (p *P2PNode) Subscribe(data interface{}, location common.Location) error {
 	return p.pubsub.Subscribe(LocationToSliceID(location), data)
 }
 
-func (p *P2PNode) Broadcast(data interface{}, location common.Location) error {
+func (p *P2PNode) Broadcast(data *types.Block, location common.Location) error {
 	log.Warn("Broadcast Block", "block", data)
 	return p.pubsub.Broadcast(LocationToSliceID(location), data)
 }
