@@ -114,7 +114,7 @@ func (g *PubsubManager) Broadcast(slice types.SliceID, data *types.Block) error 
 	if err != nil {
 		return err
 	}
-	log.Debugf("publishing data to topic: %s", topicName)
+	log.Warnf("publishing data to topic: %s", topicName)
 	return g.topics[topicName].Publish(g.ctx, pbData)
 }
 
