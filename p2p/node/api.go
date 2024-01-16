@@ -224,6 +224,11 @@ func (p *P2PNode) GetBlock(hash common.Hash, slice types.SliceID) *types.Block {
 	return p.consensus.LookupBlock(hash, slice)
 }
 
+// Search for a header in the node's cache, or query the consensus backend if it's not found in cache.
+func (p *P2PNode) GetHeader(hash common.Hash, slice types.SliceID) *types.Header {
+	panic("TODO: implement")
+}
+
 func (p *P2PNode) handleBroadcast(data interface{}) {
 	switch v := data.(type) {
 	case types.Block:
