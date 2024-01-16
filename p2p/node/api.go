@@ -254,6 +254,7 @@ func (p *P2PNode) GetHeader(hash common.Hash, slice types.SliceID) *types.Header
 }
 
 func (p *P2PNode) handleBroadcast(data interface{}) {
+	log.Warn("Received Broadcast", "data", data)
 	switch v := data.(type) {
 	case types.Block:
 		p.blockCache.Add(v.Hash(), &v)
