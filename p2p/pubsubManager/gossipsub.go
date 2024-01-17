@@ -134,7 +134,7 @@ func (g *PubsubManager) handleSubscriptions() {
 	for _, sub := range g.subscriptions {
 		log.Warn("Subscribing to Blocks", "topic", sub.Topic())
 		go func(sub *pubsub.Subscription) {
-			log.Debugf("waiting for next message on subscription: %s", sub.Topic())
+			log.Infof("waiting for next message on subscription: %s", sub.Topic())
 			msg, err := sub.Next(g.ctx)
 			if err != nil {
 				// if context was cancelled, then we are shutting down

@@ -116,7 +116,14 @@ func New(stack *node.Node, p2p NetworkingAPI, config *quaiconfig.Config, nodeCtx
 		gasPrice:          config.Miner.GasPrice,
 		etherbase:         config.Miner.Etherbase,
 		bloomRequests:     make(chan chan *bloombits.Retrieval),
+		p2p:               p2p,
 	}
+
+	// Subscribe to the Blocks subscription
+	err = quai.p2p.Subscribe(types.Block{}, config.NodeLocation)
+	if err != nil {
+		log.Error("Failed to subscribe to topic", "error", err, "topic")
+	}	
 
 	// Copy the chainConfig
 	newChainConfig := params.ChainConfig{
@@ -194,15 +201,6 @@ func New(stack *node.Node, p2p NetworkingAPI, config *quaiconfig.Config, nodeCtx
 	if quai.core.ProcessingState() && nodeCtx == common.ZONE_CTX {
 		quai.bloomIndexer = core.NewBloomIndexer(chainDb, params.BloomBitsBlocks, params.BloomConfirms, chainConfig.Location.Context())
 		quai.bloomIndexer.Start(quai.Core().Slice().HeaderChain())
-	}
-
-	// Set the p2p Networking API
-	quai.p2p = p2p
-
-	// Subscribe to the Blocks subscription
-	err = quai.p2p.Subscribe(types.Block{}, config.NodeLocation)
-	if err != nil {
-		log.Error("Failed to subscribe to topic", "error", err, "topic", )
 	}
 
 	quai.APIBackend = &QuaiAPIBackend{stack.Config().ExtRPCEnabled(), quai, nil}
