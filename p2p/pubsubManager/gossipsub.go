@@ -129,9 +129,11 @@ func (g *PubsubManager) PeersForTopic(slice types.SliceID, data interface{}) ([]
 
 // handles any data received on any of our subscribed topics
 func (g *PubsubManager) handleSubscriptions() {
-	for {
-		//! TODO: consider using a context with a timeout here or goroutines with select
-		for _, sub := range g.subscriptions {
+	errorChan := make(chan error)
+	//! TODO: consider using a context with a timeout here or goroutines with select
+	for _, sub := range g.subscriptions {
+		log.Warn("Subscribing to Blocks", "topic", sub.Topic())
+		go func(sub *pubsub.Subscription) {
 			log.Debugf("waiting for next message on subscription: %s", sub.Topic())
 			msg, err := sub.Next(g.ctx)
 			if err != nil {
@@ -140,7 +142,7 @@ func (g *PubsubManager) handleSubscriptions() {
 					return
 				}
 				log.Errorf("error getting next message from subscription: %s", err)
-				continue
+				errorChan <- err
 			}
 
 			var data interface{}
@@ -153,7 +155,7 @@ func (g *PubsubManager) handleSubscriptions() {
 				err = pb.UnmarshalAndConvert(msg.Data, &block)
 				if err != nil {
 					log.Errorf("error unmarshalling block: %s", err)
-					continue
+					errorChan <- err
 				}
 				log.Tracef("received block: %+v", block)
 				data = block
@@ -162,19 +164,18 @@ func (g *PubsubManager) handleSubscriptions() {
 				err = pb.UnmarshalAndConvert(msg.Data, &header)
 				if err != nil {
 					log.Errorf("error unmarshalling header: %s", err)
-					continue
+					errorChan <- err
 				}
 				log.Tracef("received header: %+v", header)
 				data = header
 			default:
 				log.Errorf("unknown topic type: %s", topicType)
-				continue
 			}
 
 			// handle the received data
 			if g.onReceived != nil {
 				g.onReceived(data)
 			}
-		}
+		}(sub)
 	}
 }
