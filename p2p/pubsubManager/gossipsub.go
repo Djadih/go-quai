@@ -68,7 +68,6 @@ func NewGossipSubManager(ctx context.Context, h host.Host) (*PubsubManager, erro
 
 func (g *PubsubManager) Start(receiveCb func(interface{})) {
 	g.onReceived = receiveCb
-	go g.handleSubscriptions()
 }
 
 // subscribe to broadcasts of the given type of data
@@ -93,6 +92,48 @@ func (g *PubsubManager) Subscribe(slice types.SliceID, data interface{}) error {
 		return err
 	}
 	g.subscriptions[topicName] = subscription
+
+	go func(sub *pubsub.Subscription) {
+		log.Infof("waiting for next message on subscription: %s", sub.Topic())
+		msg, err := sub.Next(g.ctx)
+		if err != nil {
+			// if context was cancelled, then we are shutting down
+			if g.ctx.Err() != nil {
+				return
+			}
+			log.Errorf("error getting next message from subscription: %s", err)
+		}
+
+		var data interface{}
+		// unmarshal the received data depending on the topic's type
+		topicType := getTopicType(*msg.Topic)
+		log.Debugf("received message on topic: %s", *msg.Topic)
+		switch topicType {
+		case C_blockType:
+			block := types.Block{}
+			err = pb.UnmarshalAndConvert(msg.Data, &block)
+			if err != nil {
+				log.Errorf("error unmarshalling block: %s", err)
+			}
+			log.Tracef("received block: %+v", block)
+			data = block
+		case C_headerType:
+			header := types.Header{}
+			err = pb.UnmarshalAndConvert(msg.Data, &header)
+			if err != nil {
+				log.Errorf("error unmarshalling header: %s", err)
+			}
+			log.Tracef("received header: %+v", header)
+			data = header
+		default:
+			log.Errorf("unknown topic type: %s", topicType)
+		}
+
+		// handle the received data
+		if g.onReceived != nil {
+			g.onReceived(data)
+		}
+	}(subscription)
 
 	return nil
 }
@@ -125,57 +166,4 @@ func (g *PubsubManager) PeersForTopic(slice types.SliceID, data interface{}) ([]
 		return nil, err
 	}
 	return g.topics[topicName].ListPeers(), nil
-}
-
-// handles any data received on any of our subscribed topics
-func (g *PubsubManager) handleSubscriptions() {
-	errorChan := make(chan error)
-	//! TODO: consider using a context with a timeout here or goroutines with select
-	for _, sub := range g.subscriptions {
-		log.Warn("Subscribing to Blocks", "topic", sub.Topic())
-		go func(sub *pubsub.Subscription) {
-			log.Infof("waiting for next message on subscription: %s", sub.Topic())
-			msg, err := sub.Next(g.ctx)
-			if err != nil {
-				// if context was cancelled, then we are shutting down
-				if g.ctx.Err() != nil {
-					return
-				}
-				log.Errorf("error getting next message from subscription: %s", err)
-				errorChan <- err
-			}
-
-			var data interface{}
-			// unmarshal the received data depending on the topic's type
-			topicType := getTopicType(*msg.Topic)
-			log.Debugf("received message on topic: %s", *msg.Topic)
-			switch topicType {
-			case C_blockType:
-				block := types.Block{}
-				err = pb.UnmarshalAndConvert(msg.Data, &block)
-				if err != nil {
-					log.Errorf("error unmarshalling block: %s", err)
-					errorChan <- err
-				}
-				log.Tracef("received block: %+v", block)
-				data = block
-			case C_headerType:
-				header := types.Header{}
-				err = pb.UnmarshalAndConvert(msg.Data, &header)
-				if err != nil {
-					log.Errorf("error unmarshalling header: %s", err)
-					errorChan <- err
-				}
-				log.Tracef("received header: %+v", header)
-				data = header
-			default:
-				log.Errorf("unknown topic type: %s", topicType)
-			}
-
-			// handle the received data
-			if g.onReceived != nil {
-				g.onReceived(data)
-			}
-		}(sub)
-	}
 }
