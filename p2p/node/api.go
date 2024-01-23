@@ -49,6 +49,13 @@ func (p *P2PNode) Start() error {
 	// Start the pubsub manager
 	p.pubsub.Start(p.handleBroadcast)
 
+	go func(){
+		time.Sleep(10 * time.Second)
+		for _, peer := range p.Network().Peers() {
+			p.ReportBadPeer(peer)
+		}
+	}()
+
 	return nil
 }
 
