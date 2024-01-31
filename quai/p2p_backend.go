@@ -87,5 +87,14 @@ func (qbe *QuaiBackend) GetHeight(location common.Location) uint64 {
 }
 
 func (qbe *QuaiBackend) LookupBlock(hash common.Hash, location common.Location) *types.Block {
-	panic("todo")
+	backend := *qbe.GetBackend(location)
+	if backend == nil {
+		log.Error("no backend found")
+		return nil
+	}
+	block := backend.BlockOrCandidateByHash(hash)
+	if block != nil {
+		log.Warn("Peer requested for a block and found it in the database", block.Hash())
+	}
+	return block
 }

@@ -607,6 +607,9 @@ func (c *Core) WriteBlock(block *types.Block) {
 			}
 		}
 	}
+
+	c.sl.missingBlockFeed.Send(types.BlockRequest{Hash: block.Hash()})
+
 	if c.GetHeaderOrCandidateByHash(block.Hash()) == nil {
 		c.sl.WriteBlock(block)
 	}
