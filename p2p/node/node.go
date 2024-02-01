@@ -14,6 +14,8 @@ import (
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	"github.com/libp2p/go-libp2p/p2p/security/noise"
+	quic "github.com/libp2p/go-libp2p/p2p/transport/quic"
+
 	"github.com/multiformats/go-multiaddr"
 	"github.com/spf13/viper"
 
@@ -93,7 +95,8 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		),
 
 		// support all transports
-		libp2p.DefaultTransports,
+		// libp2p.DefaultTransports,
+		libp2p.Transport(quic.NewTransport),
 
 		// support Noise connections
 		libp2p.Security(noise.ID, noise.New),
