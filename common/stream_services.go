@@ -21,6 +21,7 @@ func ReadMessageFromStream(stream network.Stream) ([]byte, error) {
 	if err := stream.SetReadDeadline(time.Now().Add(C_STREAM_TIMEOUT)); err != nil {
 		return nil, errors.Wrap(err, "failed to set read deadline")
 	}
+	// look here for the read deadline io wait crap
 
 	// First read the length of the incoming message
 	lenBytes := make([]byte, 4)
