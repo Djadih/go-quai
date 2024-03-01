@@ -187,14 +187,17 @@ func (pm *BasicPeerManager) prunePeerConnection(peerID p2p.PeerID) error {
 	if ok {
 		log.Global.WithField("peerID", peerID).Debug("Pruned connection with peer")
 		severStream(peerID, stream)
-		return nil
+		pm.streamCache.Remove(peerID)
 	}
 	return errStreamNotFound
 }
 
 func severStream(key interface{}, value interface{}) {
 	stream := value.(network.Stream)
-	stream.Close()
+	err := stream.Close()
+	if err != nil {
+		log.Global.WithField("err", err).Error("Failed to close stream")
+	}
 }
 
 func (pm *BasicPeerManager) SetP2PBackend(host quaiprotocol.QuaiP2PNode) {
@@ -215,7 +218,7 @@ func (pm *BasicPeerManager) GetStream(peerID p2p.PeerID) (network.Stream, error)
 		go quaiprotocol.QuaiProtocolHandler(stream.(network.Stream), pm.p2pBackend)
 		log.Global.Debug("Had to create new stream")
 	} else {
-		log.Global.Debug("Requested stream was found in cache")
+		log.Global.Trace("Requested stream was found in cache")
 	}
 
 	return stream.(network.Stream), err

@@ -311,7 +311,6 @@ func HasHeader(db ethdb.Reader, hash common.Hash, number uint64) bool {
 func ReadHeader(db ethdb.Reader, hash common.Hash, number uint64) *types.Header {
 	data := ReadHeaderProto(db, hash, number)
 	if len(data) == 0 {
-		log.Global.Warn("proto header is nil")
 		return nil
 	}
 	protoHeader := new(types.ProtoHeader)
@@ -635,7 +634,7 @@ func ReadPendingHeader(db ethdb.Reader, hash common.Hash) *types.PendingHeader {
 	key := pendingHeaderKey(hash)
 	data, _ := db.Get(key)
 	if len(data) == 0 {
-		log.Global.WithField("key", key).Debug("Pending Header is nil")
+		log.Global.WithField("hash", hash).Debug("Pending Header is nil")
 		return nil
 	}
 

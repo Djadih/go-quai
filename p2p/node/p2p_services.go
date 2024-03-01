@@ -36,6 +36,9 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, location common.Location, data
 	// Get a new request ID
 	id := p.requestManager.CreateRequest()
 
+	// Remove request ID from the map of pending requests when cleaning up
+	defer p.requestManager.CloseRequest(id)
+
 	// Create the corresponding data request
 	requestBytes, err := pb.EncodeQuaiRequest(id, location, data, datatype)
 	if err != nil {
@@ -55,8 +58,9 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, location common.Location, data
 	}
 	recvdType := <-dataChan
 
-	// Remove request ID from the map of pending requests
-	p.requestManager.CloseRequest(id)
+	if recvdType == nil {
+		return nil, nil
+	}
 
 	// Check the received data type & hash matches the request
 	switch datatype.(type) {
