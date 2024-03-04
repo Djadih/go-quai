@@ -12,6 +12,7 @@ import (
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/pb"
+	"github.com/dominant-strategies/go-quai/p2p/propagationManager"
 	"github.com/dominant-strategies/go-quai/p2p/requestManager"
 	"github.com/dominant-strategies/go-quai/trie"
 )
@@ -91,6 +92,10 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, location common.Location, data
 
 func (p *P2PNode) GetRequestManager() requestManager.RequestManager {
 	return p.requestManager
+}
+
+func (p *P2PNode) GetPropagationManager() propagationManager.PropagationManager {
+	return p.propagationManager
 }
 
 func (p *P2PNode) GetHostBackend() host.Host {

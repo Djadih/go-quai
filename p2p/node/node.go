@@ -24,6 +24,7 @@ import (
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/peerManager"
+	"github.com/dominant-strategies/go-quai/p2p/propagationManager"
 	"github.com/dominant-strategies/go-quai/p2p/protocol"
 	"github.com/dominant-strategies/go-quai/p2p/pubsubManager"
 	"github.com/dominant-strategies/go-quai/p2p/requestManager"
@@ -58,6 +59,9 @@ type P2PNode struct {
 
 	// Request management interface instance
 	requestManager requestManager.RequestManager
+
+	// Propagation management decides when to propagate or suppress work objects
+	propagationManager propagationManager.PropagationManager
 
 	// Caches for each type of data we may receive
 	cache map[string]*lru.Cache[common.Hash, interface{}]
