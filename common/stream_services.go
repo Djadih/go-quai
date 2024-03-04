@@ -24,6 +24,10 @@ func ReadMessageFromStream(stream network.Stream) ([]byte, error) {
 	}
 	msgLen := binary.BigEndian.Uint32(lenBytes)
 
+	if msgLen == 0 {
+		return nil, nil
+	}
+
 	// Now read the message
 	data := make([]byte, msgLen)
 	if _, err := io.ReadFull(stream, data); err != nil {
@@ -42,6 +46,9 @@ func WriteMessageToStream(stream network.Stream, msg []byte) error {
 
 	// Get the length of the message and convert it into 4 bytes
 	msgLen := uint32(len(msg))
+	if msgLen == 0 {
+		return nil
+	}
 	lenBytes := make([]byte, 4)
 	binary.BigEndian.PutUint32(lenBytes, msgLen)
 
