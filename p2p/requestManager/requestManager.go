@@ -8,6 +8,10 @@ import (
 	"github.com/dominant-strategies/go-quai/log"
 )
 
+const (
+	c_maxConcurrentRequests = 10000
+)
+
 var (
 	errRequestNotFound = errors.New("request not found")
 )
@@ -41,6 +45,7 @@ func (m *requestIDMap) delete(id uint32) {
 // RequestIDManager is a singleton that manages request IDs
 type requestIDManager struct {
 	mu             sync.Mutex
+	requestSem     chan struct{}
 	activeRequests *requestIDMap
 }
 
@@ -48,6 +53,7 @@ type requestIDManager struct {
 func NewManager() RequestManager {
 	return &requestIDManager{
 		mu:             sync.Mutex{},
+		requestSem:     make(chan struct{}, c_maxConcurrentRequests),
 		activeRequests: &requestIDMap{},
 	}
 }
@@ -77,6 +83,10 @@ func (m *requestIDManager) addRequestID(id uint32, dataChan chan interface{}) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.activeRequests.store(id, dataChan)
+	
+	log.Global.WithField("chanLen", len(m.requestSem)).Warn("Creating new request")
+	// Add a value to the request semaphore channel
+	m.requestSem <- struct{}{}
 }
 
 // Removes a request ID from the active requests map
@@ -86,6 +96,7 @@ func (m *requestIDManager) CloseRequest(id uint32) {
 	dataChan, _ := m.activeRequests.load(id)
 	close(dataChan)
 	m.activeRequests.delete(id)
+	<-m.requestSem
 }
 
 // Checks if a request ID exists in the active requests map
