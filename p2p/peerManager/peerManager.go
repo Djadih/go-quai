@@ -205,7 +205,7 @@ func (pm *BasicPeerManager) prunePeerConnection(peerID p2p.PeerID) error {
 	if ok {
 		log.Global.WithField("peerID", peerID).Debug("Pruned connection with peer")
 		severStream(peerID, stream)
-		return nil
+		pm.streamCache.Remove(peerID)
 	}
 	return errStreamNotFound
 }
