@@ -189,7 +189,7 @@ var (
 	LocalDurationLimit                = big.NewInt(2)     // The decision boundary on the blocktime duration used to determine whether difficulty should go up or not.
 	TimeFactor                        = big.NewInt(7)
 	BlocksPerDay               uint64 = 7200 // BlocksPerDay is the number of blocks per day assuming 12 second block time
-	TimeToStartTx              uint64 = 5 * BlocksPerDay
+	TimeToStartTx              uint64 = 0 * BlocksPerDay
 	PrimeEntropyTarget                = big.NewInt(441) // This is TimeFactor*TimeFactor*common.NumZonesInRegion*common.NumRegionsInPrime
 	RegionEntropyTarget               = big.NewInt(21)  // This is TimeFactor*common.NumZonesInRegion
 	DifficultyAdjustmentPeriod        = big.NewInt(360) // This is the number of blocks over which the average has to be taken
