@@ -196,6 +196,10 @@ func CreateProgpowConsensusEngine(stack *node.Node, nodeLocation common.Location
 		logger.Warn("Progpow used in test mode")
 	case progpow.ModeShared:
 		logger.Warn("Progpow used in shared mode")
+	case progpow.ModeFull:
+		logger.Warn("Progpow used in full mode")
+	case progpow.ModeLight:
+		logger.Warn("Progpow used in light mode")
 	}
 	engine := progpow.New(progpow.Config{
 		PowMode:       config.PowMode,

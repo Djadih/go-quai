@@ -514,6 +514,33 @@ func (progpow *Progpow) ComputePowLight(header *types.Header) (mixHash, powHash 
 	return mixHash, powHash
 }
 
+func (progpow *Progpow) ComputePowFull(header *types.Header) (mixHash, powHash common.Hash) {
+	nodeCtx := progpow.config.NodeLocation.Context()
+	powFull := func(cache []uint32, hash []byte, nonce uint64, blockNumber uint64) ([]byte, []byte) {
+		epoch := blockNumber / epochLength
+		ethashCache := progpow.cache(blockNumber)
+		if ethashCache.cDag == nil {
+			cDag := make([]uint32, progpowCacheWords)
+			generateCDag(cDag, cache, epoch) // Use epoch directly
+			ethashCache.cDag = cDag
+		}
+		// Use the generated dataset
+		return progpowFull(progpow.dag, hash, nonce, blockNumber) // 'dataset' now contains the full dataset
+	}
+	cache := progpow.cache(header.NumberU64(nodeCtx))
+	digest, result := powFull(cache.cache, header.SealHash().Bytes(), header.NonceU64(), header.NumberU64(common.ZONE_CTX))
+	mixHash = common.BytesToHash(digest)
+	powHash = common.BytesToHash(result)
+	header.PowDigest.Store(mixHash)
+	header.PowHash.Store(powHash)
+
+	// Caches are unmapped in a finalizer. Ensure that the cache stays alive
+	// until after the call to hashimotoLight so it's not unmapped while being used.
+	runtime.KeepAlive(cache)
+
+	return mixHash, powHash
+}
+
 // VerifySeal returns the PowHash and the verifySeal output
 func (progpow *Progpow) VerifySeal(header *types.Header) (common.Hash, error) {
 	return progpow.verifySeal(header)
@@ -544,7 +571,11 @@ func (progpow *Progpow) verifySeal(header *types.Header) (common.Hash, error) {
 	mixHash := header.PowDigest.Load()
 	powHash := header.PowHash.Load()
 	if powHash == nil || mixHash == nil {
-		mixHash, powHash = progpow.ComputePowLight(header)
+		if progpow.config.PowMode == ModeLight {
+			mixHash, powHash = progpow.ComputePowLight(header)
+		} else if progpow.config.PowMode == ModeFull {
+			mixHash, powHash = progpow.ComputePowFull(header)
+		}
 	}
 	// Verify the calculated values against the ones provided in the header
 	if !bytes.Equal(header.MixHash().Bytes(), mixHash.(common.Hash).Bytes()) {

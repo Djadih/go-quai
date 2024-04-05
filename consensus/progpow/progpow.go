@@ -137,6 +137,8 @@ const (
 	ModeTest
 	ModeFake
 	ModeFullFake
+	ModeFull
+	ModeLight
 )
 
 // Config are the configuration parameters of the progpow.
@@ -172,6 +174,9 @@ type Progpow struct {
 	update  chan struct{} // Notification channel to update mining parameters
 	remote  *remoteSealer
 
+	// DAG used for the full verifier
+	dag []uint32
+
 	// The fields below are hooks for testing
 	shared    *Progpow      // Shared PoW verifier to avoid cache regeneration
 	fakeFail  uint64        // Block number which fails PoW check even in fake mode
@@ -201,9 +206,13 @@ func New(config Config, notify []string, noverify bool, logger *log.Logger) *Pro
 		config: config,
 		caches: newlru("cache", config.CachesInMem, newCache, logger),
 		update: make(chan struct{}),
+		dag:    make([]uint32, datasetSize(0)/4), // Assuming datasetSize returns the size in bytes
 		logger: logger,
 	}
-	if config.PowMode == ModeShared {
+	if config.PowMode == ModeFull {
+		progpow.dag = make([]uint32, datasetSize(0)/4)          // Assuming datasetSize returns the size in bytes
+		generateDataset(progpow.dag, 0, progpow.cache(0).cache) // Fill the dataset
+	} else if config.PowMode == ModeShared {
 		progpow.shared = sharedProgpow
 	}
 	progpow.remote = startRemoteSealer(progpow, notify, noverify)
