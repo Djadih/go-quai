@@ -499,9 +499,14 @@ func (progpow *Progpow) ComputePowLight(header *types.Header) (mixHash, powHash 
 		}
 		return progpowLight(size, cache, hash, nonce, blockNumber, ethashCache.cDag)
 	}
+	start := time.Now()
 	cache := progpow.cache(header.NumberU64(nodeCtx))
 	size := datasetSize(header.NumberU64(nodeCtx))
 	digest, result := powLight(size, cache.cache, header.SealHash().Bytes(), header.NonceU64(), header.NumberU64(common.ZONE_CTX))
+
+	elapsed := time.Since(start)
+	log.Global.WithField("elapsed", elapsed).Info("ComputePowLight")
+
 	mixHash = common.BytesToHash(digest)
 	powHash = common.BytesToHash(result)
 	header.PowDigest.Store(mixHash)
