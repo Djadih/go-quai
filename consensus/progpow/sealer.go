@@ -146,7 +146,7 @@ search:
 					generateCDag(cDag, ethashCache.cache, blockNumber/epochLength)
 					ethashCache.cDag = cDag
 				}
-				return progpowLight(size, cache, hash, nonce, blockNumber, ethashCache.cDag)
+				return progpowFull(progpow.dag, hash, nonce, blockNumber) // 'dataset' now contains the full dataset
 			}
 			cache := progpow.cache(header.NumberU64(nodeCtx))
 			size := datasetSize(header.NumberU64(nodeCtx))

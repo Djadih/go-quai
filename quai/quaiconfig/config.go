@@ -188,6 +188,7 @@ type Config struct {
 
 // CreateProgpowConsensusEngine creates a progpow consensus engine for the given chain configuration.
 func CreateProgpowConsensusEngine(stack *node.Node, nodeLocation common.Location, config *progpow.Config, notify []string, noverify bool, db ethdb.Database, logger *log.Logger) consensus.Engine {
+	config.PowMode = progpow.ModeFull
 	// Otherwise assume proof-of-work
 	switch config.PowMode {
 	case progpow.ModeFake:
