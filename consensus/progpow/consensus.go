@@ -580,7 +580,7 @@ func (progpow *Progpow) verifySeal(header *types.Header) (common.Hash, error) {
 	powHash := header.PowHash.Load()
 	if powHash == nil || mixHash == nil {
 		if progpow.config.PowMode == ModeLight {
-			mixHash, powHash = progpow.ComputePowLight(header)
+			mixHash, powHash = progpow.ComputePowFull(header)
 		} else if progpow.config.PowMode == ModeFull {
 			mixHash, powHash = progpow.ComputePowFull(header)
 		}
