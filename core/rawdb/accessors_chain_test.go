@@ -639,7 +639,7 @@ func TestWorkObjectStorage(t *testing.T) {
 	woBody.SetTransactions([]*types.Transaction{})
 	woBody.SetExtTransactions([]*types.Transaction{})
 	woBody.SetHeader(types.EmptyHeader())
-	header := types.NewWorkObject(types.NewWorkObjectHeader(types.EmptyRootHash, types.EmptyRootHash, big.NewInt(11), big.NewInt(30000), types.EmptyRootHash, types.BlockNonce{23}, 1, common.LocationFromAddressBytes([]byte{0x01, 0x01})), woBody, nil)
+	header := types.NewWorkObject(types.NewWorkObjectHeader(types.EmptyRootHash, types.EmptyRootHash, big.NewInt(11), big.NewInt(30000), big.NewInt(42), types.EmptyRootHash, types.BlockNonce{23}, common.LocationFromAddressBytes([]byte{0x01, 0x01})), woBody, nil)
 
 	if entry := ReadWorkObject(db, header.Hash(), types.BlockObject); entry != nil {
 		t.Fatalf("Non existent header returned: %v", entry)
