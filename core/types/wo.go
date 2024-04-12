@@ -29,15 +29,16 @@ type WorkObject struct {
 }
 
 type WorkObjectHeader struct {
-	headerHash common.Hash
-	parentHash common.Hash
-	number     *big.Int
-	difficulty *big.Int
-	txHash     common.Hash
-	location   common.Location
-	mixHash    common.Hash
-	time       uint64
-	nonce      BlockNonce
+	headerHash          common.Hash
+	parentHash          common.Hash
+	number              *big.Int
+	primeTerminusNumber *big.Int
+	difficulty          *big.Int
+	txHash              common.Hash
+	location            common.Location
+	mixHash             common.Hash
+	time                uint64
+	nonce               BlockNonce
 
 	PowHash   atomic.Value
 	PowDigest atomic.Value
@@ -143,6 +144,10 @@ func (wo *WorkObject) HeaderHash() common.Hash {
 
 func (wo *WorkObject) Difficulty() *big.Int {
 	return wo.WorkObjectHeader().Difficulty()
+}
+
+func (wo *WorkObject) PrimeTerminusNumber() *big.Int {
+	return wo.WorkObjectHeader().PrimeTerminusNumber()
 }
 
 func (wo *WorkObject) TxHash() common.Hash {
@@ -407,6 +412,10 @@ func (wh *WorkObjectHeader) NumberU64() uint64 {
 	return wh.number.Uint64()
 }
 
+func (wh *WorkObjectHeader) PrimeTerminusNumber() *big.Int {
+	return wh.primeTerminusNumber
+}
+
 func (wh *WorkObjectHeader) Difficulty() *big.Int {
 	return wh.difficulty
 }
@@ -449,6 +458,10 @@ func (wh *WorkObjectHeader) SetParentHash(parentHash common.Hash) {
 
 func (wh *WorkObjectHeader) SetNumber(number *big.Int) {
 	wh.number = number
+}
+
+func (wh *WorkObjectHeader) SetPrimeTerminusNumber(primeTerminusNumber *big.Int) {
+	wh.primeTerminusNumber = primeTerminusNumber
 }
 
 func (wh *WorkObjectHeader) SetDifficulty(difficulty *big.Int) {
@@ -673,7 +686,7 @@ func NewWorkObjectBody(header *Header, txs []*Transaction, etxs []*Transaction, 
 }
 
 func NewWorkObjectWithHeader(header *WorkObject, tx *Transaction, nodeCtx int, woType WorkObjectView) *WorkObject {
-	woHeader := NewWorkObjectHeader(header.Hash(), header.ParentHash(common.ZONE_CTX), header.Number(common.ZONE_CTX), header.woHeader.difficulty, header.woHeader.txHash, header.woHeader.nonce, header.woHeader.time, header.Location())
+	woHeader := NewWorkObjectHeader(header.Hash(), header.ParentHash(common.ZONE_CTX), header.NumberArray(), header.woHeader.difficulty, header.woHeader.txHash, header.woHeader.nonce, header.woHeader.time, header.Location())
 	woBody, _ := NewWorkObjectBody(header.Body().Header(), nil, nil, nil, nil, nil, nil, nodeCtx)
 	return NewWorkObject(woHeader, woBody, tx)
 }
@@ -834,16 +847,17 @@ func (wo *WorkObject) ProtoDecode(data *ProtoWorkObject, location common.Locatio
 	return nil
 }
 
-func NewWorkObjectHeader(headerHash common.Hash, parentHash common.Hash, number *big.Int, difficulty *big.Int, txHash common.Hash, nonce BlockNonce, time uint64, location common.Location) *WorkObjectHeader {
+func NewWorkObjectHeader(headerHash common.Hash, parentHash common.Hash, numberArray []*big.Int, difficulty *big.Int, txHash common.Hash, nonce BlockNonce, time uint64, location common.Location) *WorkObjectHeader {
 	return &WorkObjectHeader{
-		headerHash: headerHash,
-		parentHash: parentHash,
-		number:     number,
-		difficulty: difficulty,
-		txHash:     txHash,
-		nonce:      nonce,
-		time:       time,
-		location:   location,
+		headerHash:          headerHash,
+		parentHash:          parentHash,
+		number:              numberArray[common.ZONE_CTX],
+		primeTerminusNumber: new(big.Int).Sub(numberArray[common.PRIME_CTX], big.NewInt(1)),
+		difficulty:          difficulty,
+		txHash:              txHash,
+		nonce:               nonce,
+		time:                time,
+		location:            location,
 	}
 }
 
@@ -863,15 +877,16 @@ func CopyWorkObjectHeader(wh *WorkObjectHeader) *WorkObjectHeader {
 
 func (wh *WorkObjectHeader) RPCMarshalWorkObjectHeader() map[string]interface{} {
 	result := map[string]interface{}{
-		"headerHash": wh.HeaderHash(),
-		"parentHash": wh.ParentHash(),
-		"number":     (*hexutil.Big)(wh.Number()),
-		"difficulty": (*hexutil.Big)(wh.Difficulty()),
-		"nonce":      wh.Nonce(),
-		"location":   hexutil.Bytes(wh.Location()),
-		"txHash":     wh.TxHash(),
-		"time":       hexutil.Uint64(wh.Time()),
-		"mixHash":    wh.MixHash(),
+		"headerHash":          wh.HeaderHash(),
+		"parentHash":          wh.ParentHash(),
+		"number":              (*hexutil.Big)(wh.Number()),
+		"difficulty":          (*hexutil.Big)(wh.Difficulty()),
+		"primeTerminusNumber": (*hexutil.Big)(wh.PrimeTerminusNumber()),
+		"nonce":               wh.Nonce(),
+		"location":            hexutil.Bytes(wh.Location()),
+		"txHash":              wh.TxHash(),
+		"time":                hexutil.Uint64(wh.Time()),
+		"mixHash":             wh.MixHash(),
 	}
 	return result
 }
@@ -929,25 +944,27 @@ func (wh *WorkObjectHeader) ProtoEncode() (*ProtoWorkObjectHeader, error) {
 	txHash := common.ProtoHash{Value: wh.TxHash().Bytes()}
 	number := wh.Number().Bytes()
 	difficulty := wh.Difficulty().Bytes()
+	primeTerminusNumber := wh.PrimeTerminusNumber().Bytes()
 	location := wh.Location().ProtoEncode()
 	nonce := wh.Nonce().Uint64()
 	mixHash := common.ProtoHash{Value: wh.MixHash().Bytes()}
 
 	return &ProtoWorkObjectHeader{
-		HeaderHash: &hash,
-		ParentHash: &parentHash,
-		Number:     number,
-		Difficulty: difficulty,
-		TxHash:     &txHash,
-		Location:   location,
-		Nonce:      &nonce,
-		MixHash:    &mixHash,
-		Time:       &wh.time,
+		HeaderHash:          &hash,
+		ParentHash:          &parentHash,
+		Number:              number,
+		Difficulty:          difficulty,
+		PrimeTerminusNumber: primeTerminusNumber,
+		TxHash:              &txHash,
+		Location:            location,
+		Nonce:               &nonce,
+		MixHash:             &mixHash,
+		Time:                &wh.time,
 	}, nil
 }
 
 func (wh *WorkObjectHeader) ProtoDecode(data *ProtoWorkObjectHeader) error {
-	if data.HeaderHash == nil || data.ParentHash == nil || data.Number == nil || data.Difficulty == nil || data.TxHash == nil || data.Nonce == nil || data.Location == nil {
+	if data.HeaderHash == nil || data.ParentHash == nil || data.Number == nil || data.Difficulty == nil || data.PrimeTerminusNumber == nil || data.TxHash == nil || data.Nonce == nil || data.Location == nil {
 		err := errors.New("failed to decode work object header")
 		return err
 	}
@@ -955,6 +972,7 @@ func (wh *WorkObjectHeader) ProtoDecode(data *ProtoWorkObjectHeader) error {
 	wh.SetParentHash(common.BytesToHash(data.GetParentHash().Value))
 	wh.SetNumber(new(big.Int).SetBytes(data.GetNumber()))
 	wh.SetDifficulty(new(big.Int).SetBytes(data.Difficulty))
+	wh.SetPrimeTerminusNumber(new(big.Int).SetBytes(data.GetPrimeTerminusNumber()))
 	wh.SetTxHash(common.BytesToHash(data.GetTxHash().Value))
 	wh.SetNonce(uint64ToByteArr(data.GetNonce()))
 	wh.SetLocation(data.GetLocation().GetValue())

@@ -1374,6 +1374,7 @@ func (sl *Slice) combinePendingHeader(header *types.WorkObject, slPendingHeader 
 	if inSlice {
 		combinedPendingHeader.Header().SetEtxRollupHash(header.EtxRollupHash())
 		combinedPendingHeader.WorkObjectHeader().SetDifficulty(header.Difficulty())
+		combinedPendingHeader.WorkObjectHeader().SetPrimeTerminusNumber(header.PrimeTerminusNumber())
 		combinedPendingHeader.Header().SetUncledS(header.Header().UncledS())
 		combinedPendingHeader.Header().SetUncleHash(header.UncleHash())
 		combinedPendingHeader.Header().SetTxHash(header.Header().TxHash())
