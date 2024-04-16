@@ -19,8 +19,9 @@ type WorkObject struct {
 	tx       *Transaction
 
 	// caches
-	size       atomic.Value
 	appendTime atomic.Value
+	// indicates which type of WorkObject this is
+	viewType WorkObjectView
 
 	// These fields are used to track
 	// inter-peer block relay.
@@ -988,4 +989,17 @@ func (wb *WorkObjectBody) RPCMarshalWorkObjectBody() map[string]interface{} {
 	result["uncles"] = workedUncles
 
 	return result
+}
+
+////////////////////////////////////////////////////////////
+////////////////// View Conversion Methods /////////////////
+////////////////////////////////////////////////////////////
+
+func (wo *WorkObject) ConvertToHeaderView() *WorkObject {
+	newWo := NewWorkObjectWithHeader(wo, nil, common.ZONE_CTX, HeaderObject)
+	return newWo
+}
+
+func (wo *WorkObject) CondenseToBlock() *WorkObject {
+	panic("TODO")
 }
