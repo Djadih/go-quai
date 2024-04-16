@@ -623,7 +623,7 @@ func (progpow *Progpow) FinalizeAndAssemble(chain consensus.ChainHeaderReader, h
 
 	woBody := types.NewWorkObjectBody(header.Header(), txs, etxs, uncles, subManifest, receipts, trie.NewStackTrie(nil), nodeCtx)
 	// Header seems complete, assemble into a block and return
-	return types.NewWorkObject(header.WorkObjectHeader(), woBody, nil, types.BlockObject), nil
+	return types.NewWorkObject(header.WorkObjectHeader(), woBody, nil), nil
 }
 
 func (progpow *Progpow) NodeLocation() common.Location {
