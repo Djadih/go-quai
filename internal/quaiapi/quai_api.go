@@ -650,7 +650,7 @@ func (s *PublicBlockChainQuaiAPI) ReceiveMinedHeader(ctx context.Context, raw js
 
 	// Broadcast the block and announce chain insertion event
 	if block.Header() != nil {
-		err := s.b.BroadcastBlock(block, s.b.NodeLocation())
+		err := s.b.BroadcastBlock(block, s.b.NodeLocation(), types.BlockObject)
 		if err != nil {
 			log.Global.WithField("err", err).Error("Error broadcasting block")
 		}

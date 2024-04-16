@@ -182,7 +182,7 @@ func DecodeQuaiResponse(respMsg *QuaiResponseMessage) (uint32, interface{}, erro
 }
 
 // Converts a custom go type to a proto type and marhsals it into a protobuf message
-func ConvertAndMarshal(data interface{}) ([]byte, error) {
+func ConvertAndMarshal(data interface{}, woType int) ([]byte, error) {
 	switch data := data.(type) {
 	case *types.WorkObject:
 		log.Global.Tracef("marshalling block: %+v", data)
@@ -191,13 +191,6 @@ func ConvertAndMarshal(data interface{}) ([]byte, error) {
 			return nil, err
 		}
 		return proto.Marshal(protoBlock)
-	case *types.Header:
-		log.Global.Tracef("marshalling header: %+v", data)
-		protoHeader, err := data.ProtoEncode()
-		if err != nil {
-			return nil, err
-		}
-		return proto.Marshal(protoHeader)
 	case *types.Transaction:
 		log.Global.Tracef("marshalling transaction: %+v", data)
 		protoTransaction, err := data.ProtoEncode()

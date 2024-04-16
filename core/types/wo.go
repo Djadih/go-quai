@@ -50,6 +50,7 @@ const (
 	BlockObject = iota
 	TxObject
 	PEtxObject
+	HeaderObject
 	PhObject
 )
 

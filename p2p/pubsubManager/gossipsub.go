@@ -126,12 +126,12 @@ func (g *PubsubManager) Subscribe(location common.Location, datatype interface{}
 }
 
 // broadcasts data to subscribing peers
-func (g *PubsubManager) Broadcast(location common.Location, datatype interface{}) error {
+func (g *PubsubManager) Broadcast(location common.Location, datatype interface{}, woType int) error {
 	topicName, err := TopicName(g.genesis, location, datatype)
 	if err != nil {
 		return err
 	}
-	protoData, err := pb.ConvertAndMarshal(datatype)
+	protoData, err := pb.ConvertAndMarshal(datatype, woType)
 	if err != nil {
 		return err
 	}
