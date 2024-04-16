@@ -89,6 +89,10 @@ func (wo *WorkObject) Tx() *Transaction {
 	return wo.tx
 }
 
+func (wo *WorkObject) ViewType() WorkObjectView {
+	return wo.viewType
+}
+
 ////////////////////////////////////////////////////////////
 /////////////////// Work Object Setters ///////////////
 ////////////////////////////////////////////////////////////
@@ -562,6 +566,7 @@ func NewWorkObject(woHeader *WorkObjectHeader, woBody *WorkObjectBody, tx *Trans
 			woHeader: woHeader,
 			woBody:   woBody,
 			tx:       tx,
+			viewType: woType,
 		}
 	}
 }
@@ -992,14 +997,30 @@ func (wb *WorkObjectBody) RPCMarshalWorkObjectBody() map[string]interface{} {
 }
 
 ////////////////////////////////////////////////////////////
-////////////////// View Conversion Methods /////////////////
+///////////////////// Work Object Views ////////////////////
 ////////////////////////////////////////////////////////////
 
-func (wo *WorkObject) ConvertToHeaderView() *WorkObject {
-	newWo := NewWorkObjectWithHeader(wo, nil, common.ZONE_CTX, HeaderObject)
-	return newWo
+type WorkObjectBlockView struct {
+	*WorkObject
 }
 
-func (wo *WorkObject) CondenseToBlock() *WorkObject {
-	panic("TODO")
+type WorkObjectHeaderView struct {
+	*WorkObject
+}
+
+////////////////////////////////////////////////////////////
+////////////// View Conversion/Getter Methods //////////////
+////////////////////////////////////////////////////////////
+
+func (wo *WorkObject) ConvertToHeaderView() *WorkObjectHeaderView {
+	newWo := NewWorkObjectWithHeader(wo, nil, common.ZONE_CTX, HeaderObject)
+	return &WorkObjectHeaderView{
+		WorkObject: newWo,
+	}
+}
+
+func (wo *WorkObject) ConvertToBlockView() *WorkObjectBlockView {
+	return &WorkObjectBlockView{
+		WorkObject: wo,
+	}
 }

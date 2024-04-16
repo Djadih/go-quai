@@ -10,7 +10,6 @@ import (
 
 	"github.com/dominant-strategies/go-quai/cmd/utils"
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/dominant-strategies/go-quai/quai"
@@ -127,12 +126,12 @@ func (g *PubsubManager) Subscribe(location common.Location, datatype interface{}
 }
 
 // broadcasts data to subscribing peers
-func (g *PubsubManager) Broadcast(location common.Location, datatype interface{}, woType types.WorkObjectView) error {
+func (g *PubsubManager) Broadcast(location common.Location, datatype interface{}) error {
 	topicName, err := TopicName(g.genesis, location, datatype)
 	if err != nil {
 		return err
 	}
-	protoData, err := pb.ConvertAndMarshal(datatype, woType)
+	protoData, err := pb.ConvertAndMarshal(datatype)
 	if err != nil {
 		return err
 	}

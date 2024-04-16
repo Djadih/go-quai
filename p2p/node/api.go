@@ -59,8 +59,8 @@ func (p *P2PNode) Subscribe(location common.Location, datatype interface{}) erro
 	return p.pubsub.Subscribe(location, datatype)
 }
 
-func (p *P2PNode) Broadcast(location common.Location, data interface{}, woType types.WorkObjectView) error {
-	return p.pubsub.Broadcast(location, data, woType)
+func (p *P2PNode) Broadcast(location common.Location, data interface{}) error {
+	return p.pubsub.Broadcast(location, data)
 }
 
 func (p *P2PNode) SetConsensusBackend(be quai.ConsensusAPI) {

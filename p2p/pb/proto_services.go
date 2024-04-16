@@ -182,7 +182,7 @@ func DecodeQuaiResponse(respMsg *QuaiResponseMessage) (uint32, interface{}, erro
 }
 
 // Converts a custom go type to a proto type and marhsals it into a protobuf message
-func ConvertAndMarshal(data interface{}, woType types.WorkObjectView) ([]byte, error) {
+func ConvertAndMarshal(data interface{}) ([]byte, error) {
 	switch data := data.(type) {
 	case *types.WorkObject:
 		log.Global.Tracef("marshalling block: %+v", data)
@@ -191,6 +191,20 @@ func ConvertAndMarshal(data interface{}, woType types.WorkObjectView) ([]byte, e
 			return nil, err
 		}
 		return proto.Marshal(protoBlock)
+	case *types.WorkObjectHeaderView:
+		log.Global.Tracef("marshalling header view: %+v", data)
+		protoHeaderView, err := data.ProtoEncode(types.BlockObject)
+		if err != nil {
+			return nil, err
+		}
+		return proto.Marshal(protoHeaderView)
+	case *types.WorkObjectBlockView:
+		log.Global.Tracef("marshalling block view: %+v", data)
+		protoBlockView, err := data.ProtoEncode(types.BlockObject)
+		if err != nil {
+			return nil, err
+		}
+		return proto.Marshal(protoBlockView)
 	case *types.Transaction:
 		log.Global.Tracef("marshalling transaction: %+v", data)
 		protoTransaction, err := data.ProtoEncode()
@@ -210,7 +224,7 @@ func ConvertAndMarshal(data interface{}, woType types.WorkObjectView) ([]byte, e
 // Unmarshals a protobuf message into a proto type and converts it to a custom go type
 func UnmarshalAndConvert(data []byte, sourceLocation common.Location, dataPtr *interface{}, datatype interface{}) error {
 	switch datatype.(type) {
-	case *types.WorkObject:
+	case *types.WorkObject, *types.WorkObjectHeaderView, *types.WorkObjectBlockView:
 		protoWorkObject := &types.ProtoWorkObject{}
 		err := proto.Unmarshal(data, protoWorkObject)
 		if err != nil {
