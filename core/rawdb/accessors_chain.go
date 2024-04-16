@@ -545,7 +545,7 @@ func DeleteTermini(db ethdb.KeyValueWriter, hash common.Hash) {
 }
 
 // ReadWorkObjectHeader retreive's the work object header stored in hash.
-func ReadWorkObjectHeader(db ethdb.Reader, hash common.Hash, woType int) *types.WorkObjectHeader {
+func ReadWorkObjectHeader(db ethdb.Reader, hash common.Hash, woType types.WorkObjectView) *types.WorkObjectHeader {
 	var key []byte
 	switch woType {
 	case types.BlockObject:
@@ -577,7 +577,7 @@ func ReadWorkObjectHeader(db ethdb.Reader, hash common.Hash, woType int) *types.
 }
 
 // WriteWorkObjectHeader writes the work object header of the terminus hash.
-func WriteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType int, nodeCtx int) {
+func WriteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType types.WorkObjectView, nodeCtx int) {
 	var key []byte
 	switch woType {
 	case types.BlockObject:
@@ -601,7 +601,7 @@ func WriteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, workObject
 }
 
 // DeleteWorkObjectHeader deletes the work object header stored for the header hash.
-func DeleteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, woType int) {
+func DeleteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, woType types.WorkObjectView) {
 	var key []byte
 	switch woType {
 	case types.BlockObject:
@@ -617,7 +617,7 @@ func DeleteWorkObjectHeader(db ethdb.KeyValueWriter, hash common.Hash, woType in
 }
 
 // ReadWorkObject retreive's the work object stored in hash.
-func ReadWorkObject(db ethdb.Reader, hash common.Hash, woType int) *types.WorkObject {
+func ReadWorkObject(db ethdb.Reader, hash common.Hash, woType types.WorkObjectView) *types.WorkObject {
 	workObjectHeader := ReadWorkObjectHeader(db, hash, woType)
 	if workObjectHeader == nil {
 		return nil
@@ -630,13 +630,13 @@ func ReadWorkObject(db ethdb.Reader, hash common.Hash, woType int) *types.WorkOb
 }
 
 // WriteWorkObject writes the work object of the terminus hash.
-func WriteWorkObject(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType int, nodeCtx int) {
+func WriteWorkObject(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType types.WorkObjectView, nodeCtx int) {
 	WriteWorkObjectBody(db, hash, workObject, woType, nodeCtx)
 	WriteWorkObjectHeader(db, hash, workObject, woType, nodeCtx)
 }
 
 // DeleteWorkObject deletes the work object stored for the header hash.
-func DeleteWorkObject(db ethdb.KeyValueWriter, hash common.Hash, number uint64, woType int) {
+func DeleteWorkObject(db ethdb.KeyValueWriter, hash common.Hash, number uint64, woType types.WorkObjectView) {
 	DeleteWorkObjectBody(db, hash)
 	DeleteWorkObjectHeader(db, hash, woType) //TODO: mmtx transaction
 	DeleteHeader(db, hash, number)
@@ -645,7 +645,7 @@ func DeleteWorkObject(db ethdb.KeyValueWriter, hash common.Hash, number uint64, 
 
 // DeleteWorkObjectWithoutNumber removes all block data associated with a hash, except
 // the hash to number mapping.
-func DeleteBlockWithoutNumber(db ethdb.KeyValueWriter, hash common.Hash, number uint64, woType int) {
+func DeleteBlockWithoutNumber(db ethdb.KeyValueWriter, hash common.Hash, number uint64, woType types.WorkObjectView) {
 	DeleteWorkObjectBody(db, hash)
 	DeleteWorkObjectHeader(db, hash, woType) //TODO: mmtx transaction
 	DeleteReceipts(db, hash, number)
@@ -677,7 +677,7 @@ func ReadWorkObjectBody(db ethdb.Reader, hash common.Hash) *types.WorkObjectBody
 }
 
 // WriteWorkObjectBody writes the work object body of the terminus hash.
-func WriteWorkObjectBody(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType int, nodeCtx int) {
+func WriteWorkObjectBody(db ethdb.KeyValueWriter, hash common.Hash, workObject *types.WorkObject, woType types.WorkObjectView, nodeCtx int) {
 
 	key := workObjectBodyKey(hash)
 	WriteHeaderNumber(db, hash, workObject.NumberU64(nodeCtx))

@@ -577,12 +577,12 @@ func (b *QuaiAPIBackend) SubscribeExpansionEvent(ch chan<- core.ExpansionEvent) 
 // ///////////////////////////
 // /////// P2P ///////////////
 // ///////////////////////////
-func (b *QuaiAPIBackend) BroadcastBlock(block *types.WorkObject, location common.Location, viewType int) error {
+func (b *QuaiAPIBackend) BroadcastBlock(block *types.WorkObject, location common.Location, viewType types.WorkObjectView) error {
 	switch viewType {
 	case types.BlockObject:
-		return b.quai.p2p.Broadcast(location, block.CondenseToBlock(), types.BlockObject)
+		return b.quai.p2p.Broadcast(location, block, types.BlockObject)
 	case types.HeaderObject:
-		return b.quai.p2p.Broadcast(location, block.CondenseToHeader(), types.HeaderObject)
+		return b.quai.p2p.Broadcast(location, block.ConvertToHeaderView(), types.HeaderObject)
 	default:
 		return errors.New("invalid view type")
 	}

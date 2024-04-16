@@ -70,7 +70,7 @@ type NetworkingAPI interface {
 
 	// Method to broadcast data to the network
 	// Specify location and the data to send
-	Broadcast(location common.Location, data interface{}, woType int) error
+	Broadcast(location common.Location, data interface{}, woType types.WorkObjectView) error
 
 	// SetConsensusBackend sets the consensus API into the p2p interface
 	SetConsensusBackend(ConsensusAPI)

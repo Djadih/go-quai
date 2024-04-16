@@ -128,7 +128,7 @@ type Backend interface {
 	Logger() *log.Logger
 
 	// P2P apis
-	BroadcastBlock(block *types.WorkObject, location common.Location, viewType int) error
+	BroadcastBlock(block *types.WorkObject, location common.Location, viewType types.WorkObjectView) error
 }
 
 func GetAPIs(apiBackend Backend) []rpc.API {
