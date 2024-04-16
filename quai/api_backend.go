@@ -582,9 +582,33 @@ func (b *QuaiAPIBackend) SubscribeExpansionEvent(ch chan<- core.ExpansionEvent) 
 	return b.quai.core.SubscribeExpansionEvent(ch)
 }
 
-// ///////////////////////////
-// /////// P2P ///////////////
-// ///////////////////////////
-func (b *QuaiAPIBackend) BroadcastBlock(block *types.WorkObject, location common.Location) error {
-	return b.quai.p2p.Broadcast(location, block)
+// ////////////////////////////
+// //////// P2P ///////////////
+// ////////////////////////////
+func (b *QuaiAPIBackend) BroadcastWorkObject(wo *types.WorkObject, location common.Location) error {
+	errsExpected := 1
+	if b.ProcessingState() {
+		errsExpected += 1
+	}
+	errChan := make(chan error, errsExpected)
+	defer close(errChan)
+
+	if b.ProcessingState() {
+		go func() {
+			err := b.quai.p2p.Broadcast(location, wo.ConvertToBlockView())
+			errChan <- err
+		}()
+	}
+	go func() {
+		err := b.quai.p2p.Broadcast(location, wo.ConvertToHeaderView())
+		errChan <- err
+	}()
+
+	// Return the error if any of the broadcasts fail
+	for i := 0; i < errsExpected; i++ {
+		if err := <-errChan; err != nil {
+			return err
+		}
+	}
+	return nil
 }
