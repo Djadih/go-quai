@@ -49,6 +49,22 @@ func (qbe *QuaiBackend) SetApiBackend(apiBackend *quaiapi.Backend, location comm
 	}
 }
 
+// Return the locations for which state is being processed
+func (qbe *QuaiBackend) ProcessingState() []common.Location {
+	var stateLocs []common.Location
+	var backends []*quaiapi.Backend
+
+	// Only zones can not process state.
+	for _, backend := range(qbe.zoneApiBackends) {
+		if !backend.ProcessingState() {
+
+		}
+	}
+
+	// Example/mock implementation
+	panic("todo")
+}
+
 // Set the PrimeBackend into the QuaiBackend
 func (qbe *QuaiBackend) SetPrimeApiBackend(primeBackend *quaiapi.Backend) {
 	qbe.primeApiBackend = primeBackend
@@ -183,7 +199,7 @@ func (qbe *QuaiBackend) WriteGenesisBlock(block *types.WorkObject, location comm
 
 // SetSubClient sets the sub client for the given subLocation
 func (qbe *QuaiBackend) SetSubClient(client *quaiclient.Client, nodeLocation common.Location, subLocation common.Location) {
-	backend := *qbe.GetBackend(nodeLocation)
+	backend := *qbe.GetBackend(nodeLocationThey need the entire )
 	if backend == nil {
 		log.Global.Error("no backend found")
 		return
