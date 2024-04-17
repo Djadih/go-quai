@@ -2,6 +2,7 @@ package node
 
 import (
 	"math/big"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -88,6 +89,14 @@ func (p *P2PNode) Stop() error {
 	// run each stop function in a goroutine
 	for _, fn := range stopFuncs {
 		go func(fn stopFunc) {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Global.WithFields(log.Fields{
+						"error":      r,
+						"stacktrace": string(debug.Stack()),
+					}).Error("Go-Quai Panicked")
+				}
+			}()
 			errs <- fn()
 		}(fn)
 	}
@@ -116,6 +125,14 @@ func (p *P2PNode) Stop() error {
 
 func (p *P2PNode) requestFromPeers(location common.Location, data interface{}, datatype interface{}, resultChan chan interface{}) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Global.WithFields(log.Fields{
+					"error":      r,
+					"stacktrace": string(debug.Stack()),
+				}).Error("Go-Quai Panicked")
+			}
+		}()
 		defer close(resultChan)
 		peers := p.peerManager.GetPeers(location, peerManager.Best)
 		log.Global.WithFields(log.Fields{
@@ -127,6 +144,14 @@ func (p *P2PNode) requestFromPeers(location common.Location, data interface{}, d
 		for _, peerID := range peers {
 			requestWg.Add(1)
 			go func(peerID peer.ID) {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Global.WithFields(log.Fields{
+							"error":      r,
+							"stacktrace": string(debug.Stack()),
+						}).Error("Go-Quai Panicked")
+					}
+				}()
 				defer requestWg.Done()
 				p.requestAndWait(peerID, location, data, datatype, resultChan)
 			}(peerID)
@@ -136,6 +161,14 @@ func (p *P2PNode) requestFromPeers(location common.Location, data interface{}, d
 }
 
 func (p *P2PNode) requestAndWait(peerID peer.ID, location common.Location, data interface{}, dataType interface{}, resultChan chan interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Global.WithFields(log.Fields{
+				"error":      r,
+				"stacktrace": string(debug.Stack()),
+			}).Fatal("Go-Quai Panicked")
+		}
+	}()
 	var recvd interface{}
 	var err error
 	// Ask peer and wait for response
