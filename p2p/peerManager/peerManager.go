@@ -447,7 +447,7 @@ func (pm *BasicPeerManager) reportPeerStats() {
 		q := query.Query{
 			Prefix: "/peers",
 		}
-		ticker := time.NewTicker(1 * time.Minute)
+		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
 
 		for {
