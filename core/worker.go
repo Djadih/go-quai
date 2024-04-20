@@ -1498,7 +1498,6 @@ func (w *worker) processQiTx(tx *types.Transaction, env *environment) error {
 	if txFeeInQit.Cmp(minimumFee) < 0 {
 		return fmt.Errorf("tx %032x has insufficient fee for base fee of %d and gas of %d", tx.Hash(), baseFeeInQi.Uint64(), txGas)
 	}
-	w.logger.Infof("Minimum fee: %d", minimumFee.Int64())
 	// Miner gets remainder of fee after base fee
 	txFeeInQit.Sub(txFeeInQit, minimumFee)
 
