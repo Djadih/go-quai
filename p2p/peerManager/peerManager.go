@@ -170,9 +170,7 @@ func NewManager(ctx context.Context, low int, high int, datastore datastore.Data
 	logger := log.NewLogger("nodelogs/peers.log", "debug")
 
 	go func() {
-		q := query.Query{
-			Prefix: "/peers",
-		}
+		q := query.Query{}
 		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 
@@ -185,7 +183,7 @@ func NewManager(ctx context.Context, low int, high int, datastore datastore.Data
 				for locName, location := range peerDBs {
 					locPeer := []log.Fields{}
 					for dbName, db := range location {
-						peerCount := db.GetPeerCount()
+						// peerCount := db.GetPeerCount()
 						results, err := db.Query(ctx, q)
 						if err != nil {
 							logger.Errorf("Error querying peerDB: %s", err)
@@ -197,14 +195,20 @@ func NewManager(ctx context.Context, low int, high int, datastore datastore.Data
 								logger.Errorf("Error decoding peer ID: %s", err)
 								continue
 							}
+							peerInfo := &peerdb.ProtoPeerInfo{}
+							err = proto.Unmarshal(result.Value, peerInfo)
+							if err != nil {
+								logger.Errorf("Error unmarshaling peer info: %s", err)
+								continue
+							}
 							locPeer = append(locPeer, log.Fields{
 								"peerID": peerID,
-								"info":   result.Value,
+								"info":   peerInfo.String(),
 							})
 						}
 						logger.WithFields(log.Fields{
 							"location":  locName,
-							"peerCount": peerCount,
+							"peerCount": len(locPeer),
 							"bucket":    dbName,
 							"peers":     locPeer}).Info("Peer stats")
 					}
@@ -400,28 +404,28 @@ func (pm *BasicPeerManager) recategorizePeer(peer p2p.PeerID, location common.Lo
 	// prime block before adding a peer to the prime DB
 	// locationContexts := location.GetDoms()
 	// for _, location := range locationContexts {
-		locationName := location.Name()
-		if liveness >= c_qualityThreshold && responsiveness >= c_qualityThreshold {
-			// Best peers: high liveness and responsiveness
-			err := pm.peerDBs[locationName][c_bestDBPos].Put(pm.ctx, key, peerInfo)
-			if err != nil {
-				return errors.Wrap(err, "error putting peer in bestPeersDB")
-			}
-
-		} else if responsiveness >= c_qualityThreshold {
-			// Responsive peers: high responsiveness, but low liveness
-			err := pm.peerDBs[locationName][c_responseiveDBPos].Put(pm.ctx, key, peerInfo)
-			if err != nil {
-				return errors.Wrap(err, "error putting peer in responsivePeersDB")
-			}
-
-		} else {
-			// All other peers
-			err := pm.peerDBs[locationName][c_lastResortDBPos].Put(pm.ctx, key, peerInfo)
-			if err != nil {
-				return errors.Wrap(err, "error putting peer in allPeersDB")
-			}
+	locationName := location.Name()
+	if liveness >= c_qualityThreshold && responsiveness >= c_qualityThreshold {
+		// Best peers: high liveness and responsiveness
+		err := pm.peerDBs[locationName][c_bestDBPos].Put(pm.ctx, key, peerInfo)
+		if err != nil {
+			return errors.Wrap(err, "error putting peer in bestPeersDB")
 		}
+
+	} else if responsiveness >= c_qualityThreshold {
+		// Responsive peers: high responsiveness, but low liveness
+		err := pm.peerDBs[locationName][c_responseiveDBPos].Put(pm.ctx, key, peerInfo)
+		if err != nil {
+			return errors.Wrap(err, "error putting peer in responsivePeersDB")
+		}
+
+	} else {
+		// All other peers
+		err := pm.peerDBs[locationName][c_lastResortDBPos].Put(pm.ctx, key, peerInfo)
+		if err != nil {
+			return errors.Wrap(err, "error putting peer in allPeersDB")
+		}
+	}
 	// }
 
 	return nil
