@@ -398,8 +398,8 @@ func (pm *BasicPeerManager) recategorizePeer(peer p2p.PeerID, location common.Lo
 	// Need to add the peer to all locations that it is running
 	// This is an important optimization to not have to wait for a
 	// prime block before adding a peer to the prime DB
-	locationContexts := location.GetDoms()
-	for _, location := range locationContexts {
+	// locationContexts := location.GetDoms()
+	// for _, location := range locationContexts {
 		locationName := location.Name()
 		if liveness >= c_qualityThreshold && responsiveness >= c_qualityThreshold {
 			// Best peers: high liveness and responsiveness
@@ -422,7 +422,7 @@ func (pm *BasicPeerManager) recategorizePeer(peer p2p.PeerID, location common.Lo
 				return errors.Wrap(err, "error putting peer in allPeersDB")
 			}
 		}
-	}
+	// }
 
 	return nil
 }
