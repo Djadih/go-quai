@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/log"
@@ -385,19 +386,26 @@ func (pm *BasicPeerManager) calculatePeerResponsiveness(peer p2p.PeerID) float64
 //
 // 3. peers
 //   - all other peers
-func (pm *BasicPeerManager) recategorizePeer(peer p2p.PeerID, location common.Location) error {
-	liveness := pm.calculatePeerLiveness(peer)
-	responsiveness := pm.calculatePeerResponsiveness(peer)
+func (pm *BasicPeerManager) recategorizePeer(peerID p2p.PeerID, location common.Location) error {
+	liveness := pm.calculatePeerLiveness(peerID)
+	responsiveness := pm.calculatePeerResponsiveness(peerID)
 
 	// remove peer from DB first
-	err := pm.removePeerFromTopic(peer, location.Name())
+	err := pm.removePeerFromTopic(peerID, location.Name())
 	if err != nil {
 		return err
 	}
 
-	key := datastore.NewKey(peer.String())
+	key := datastore.NewKey(peerID.String())
 	// TODO: construct peerDB.PeerInfo and marshal it to bytes
-	peerInfo := []byte{}
+	peerInfo, err := proto.Marshal(peerdb.PeerInfo{
+		AddrInfo: peer.AddrInfo{
+			ID: peerID,
+		},
+	}.ProtoEncode())
+	if err != nil {
+		return errors.Wrap(err, "error marshaling peer info")
+	}
 
 	// Need to add the peer to all locations that it is running
 	// This is an important optimization to not have to wait for a
