@@ -331,19 +331,20 @@ func (pm *BasicPeerManager) GetPeers(location common.Location, quality PeerQuali
 		peerList = pm.getLastResortPeers(location)
 	}
 
-	if len(peerList) == C_peerCount {
+	lenPeers := len(peerList)
+	if lenPeers >= C_peerCount {
 		// Found sufficient number of peers
 		return peerList
 	}
 
 	// Query the DHT for more peers
-	return pm.queryDHT(location, peerList, C_peerCount-len(peerList))
+	return pm.queryDHT(location, peerList, C_peerCount-lenPeers)
 }
 
 func (pm *BasicPeerManager) queryDHT(location common.Location, peerList []p2p.PeerID, peerCount int) []p2p.PeerID {
 	const (
-		maxDHTQueryRetries    = 3  // Maximum number of retries for DHT queries
-		dhtQueryRetryInterval = 5  // Time to wait between DHT query retries
+		maxDHTQueryRetries    = 3 // Maximum number of retries for DHT queries
+		dhtQueryRetryInterval = 5 // Time to wait between DHT query retries
 	)
 	// create a Cid from the slice location
 	shardCid := pubsubManager.LocationToCid(location)
