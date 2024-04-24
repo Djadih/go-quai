@@ -135,7 +135,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		// Let this host use the DHT to find other hosts
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			dht, err = kaddht.New(ctx, h,
-				kaddht.Mode(kaddht.ModeServer),
+				// kaddht.Mode(kaddht.ModeServer),
 				kaddht.BootstrapPeersFunc(func() []peer.AddrInfo {
 					log.Global.Debugf("Bootstrapping to the following peers: %v", bootpeers)
 					return bootpeers
