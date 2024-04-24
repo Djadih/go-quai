@@ -102,8 +102,6 @@ func (sm *basicStreamManager) GetStream(peerID p2p.PeerID) (network.Stream, erro
 		if streamMetrics != nil {
 			streamMetrics.WithLabelValues("NumStreams").Inc()
 		}
-	} else {
-		log.Global.Trace("Requested stream was found in cache")
 	}
 
 	return stream.(network.Stream), err

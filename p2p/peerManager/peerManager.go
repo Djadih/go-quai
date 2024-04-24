@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/dominant-strategies/go-quai/common"
@@ -342,27 +343,24 @@ func (pm *BasicPeerManager) GetPeers(location common.Location, quality PeerQuali
 }
 
 func (pm *BasicPeerManager) queryDHT(location common.Location, peerList []p2p.PeerID, peerCount int) []p2p.PeerID {
-	const (
-		maxDHTQueryRetries    = 3 // Maximum number of retries for DHT queries
-		dhtQueryRetryInterval = 5 // Time to wait between DHT query retries
-	)
 	// create a Cid from the slice location
 	shardCid := pubsubManager.LocationToCid(location)
 
 	// Internal list of peers from the dht
 	dhtPeers := make([]p2p.PeerID, 0, peerCount)
-	for retries := 0; retries < maxDHTQueryRetries; retries++ {
-		log.Global.Infof("Querying DHT for slice Cid %s (retry %d)", shardCid, retries)
-		// query the DHT for peers in the slice
-		// TODO: need to find providers of a topic, not a shard
-		for peer := range pm.dht.FindProvidersAsync(pm.ctx, shardCid, peerCount) {
-			if peer.ID != pm.selfID {
-				dhtPeers = append(dhtPeers, peer.ID)
-			}
+	// query the DHT for peers in the slice
+	// TODO: need to find providers of a topic, not a shard
+	for peer := range pm.dht.FindProvidersAsync(pm.ctx, shardCid, peerCount) {
+		if peer.ID != pm.selfID {
+			dhtPeers = append(dhtPeers, peer.ID)
 		}
-		log.Global.Warn("Found the following peers from the DHT: ", dhtPeers)
-		time.Sleep(dhtQueryRetryInterval * time.Second)
 	}
+	log.Global.WithFields(
+		logrus.Fields{
+			"contentID": shardCid,
+			"dht peers": dhtPeers,
+		}).Debug("Querying DHT")
+	log.Global.Debug("Found the following peers from the DHT: ", dhtPeers)
 	return append(peerList, dhtPeers...)
 }
 
