@@ -21,12 +21,13 @@ import (
 
 	"github.com/ipfs/go-datastore"
 	"github.com/ipfs/go-datastore/query"
+	kaddht "github.com/libp2p/go-libp2p-kad-dht"
 
 	"github.com/dominant-strategies/go-quai/p2p/peerManager/peerdb"
-	"github.com/libp2p/go-libp2p-kad-dht/dual"
 	"github.com/libp2p/go-libp2p/core/connmgr"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/routing"
 	basicConnGater "github.com/libp2p/go-libp2p/p2p/net/conngater"
 	basicConnMgr "github.com/libp2p/go-libp2p/p2p/net/connmgr"
 )
@@ -71,7 +72,7 @@ type PeerManager interface {
 	SetSelfID(p2p.PeerID)
 
 	// Sets the DHT provided from the Host interface
-	SetDHT(*dual.DHT)
+	SetDHT(*kaddht.IpfsDHT)
 
 	// Announces to the DHT that we are providing this data
 	Provide(context.Context, common.Location, interface{}) error
@@ -121,7 +122,7 @@ type BasicPeerManager struct {
 	peerDBs map[string][]*peerdb.PeerDB
 
 	// DHT instance
-	dht *dual.DHT
+	dht routing.Routing
 
 	// This peer's ID to distinguish self-broadcasts
 	selfID p2p.PeerID
@@ -246,7 +247,7 @@ func NewManager(ctx context.Context, low int, high int, datastore datastore.Data
 	}, nil
 }
 
-func (pm *BasicPeerManager) SetDHT(dht *dual.DHT) {
+func (pm *BasicPeerManager) SetDHT(dht *kaddht.IpfsDHT) {
 	pm.dht = dht
 }
 
@@ -520,7 +521,6 @@ func (pm *BasicPeerManager) Stop() error {
 
 	closeFuncs := []func() error{
 		pm.BasicConnMgr.Close,
-		pm.dht.Close,
 	}
 
 	wg.Add(len(closeFuncs))
