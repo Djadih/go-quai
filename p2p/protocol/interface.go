@@ -3,13 +3,12 @@ package protocol
 import (
 	"math/big"
 
-	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
-	"github.com/dominant-strategies/go-quai/p2p/requestManager"
+	"github.com/dominant-strategies/go-quai/p2p/node/requestManager"
 	"github.com/dominant-strategies/go-quai/trie"
 )
 
@@ -23,9 +22,7 @@ type QuaiP2PNode interface {
 	GetBlockHashByNumber(number *big.Int, location common.Location) *common.Hash
 	GetTrieNode(hash common.Hash, location common.Location) *trie.TrieNodeResponse
 	GetRequestManager() requestManager.RequestManager
-	GetHostBackend() host.Host
 
 	Connect(peer.AddrInfo) error
 	NewStream(peer.ID) (network.Stream, error)
-	Network() network.Network
 }
