@@ -8,6 +8,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
+	"github.com/dominant-strategies/go-quai/p2p/pb"
 	quaiprotocol "github.com/dominant-strategies/go-quai/p2p/protocol"
 	"github.com/pkg/errors"
 
@@ -132,7 +133,7 @@ func (sm *basicStreamManager) GetHost() host.Host {
 }
 
 // Writes the message to the stream.
-func (sm *basicStreamManager) WriteMessageToStream(peerID p2p.PeerID, stream network.Stream, msg []byte) error {
+func (sm *basicStreamManager) WriteMessageToStream(peerID p2p.PeerID, stream network.Stream, msgType pb.MsgType, msg []byte) error {
 	wrappedStream, found := sm.streamCache.Get(peerID)
 	if !found {
 		return errors.New("stream not found")
@@ -141,8 +142,11 @@ func (sm *basicStreamManager) WriteMessageToStream(peerID p2p.PeerID, stream net
 		// Indicate an unexpected case where the stream we stored and the stream we are requested to write to are not the same.
 		return errors.New("stream mismatch")
 	}
-	// Make sure the semaphore has space before proceeding to write to the stream
-	wrappedStream.(*streamWrapper).semaphore <- struct{}{}
+
+	if msgType == pb.Request {
+		// Make sure the semaphore has space before proceeding to write another request
+		wrappedStream.(*streamWrapper).semaphore <- struct{}{}
+	}
 
 	// Set the write deadline
 	if err := stream.SetWriteDeadline(time.Now().Add(c_stream_timeout)); err != nil {

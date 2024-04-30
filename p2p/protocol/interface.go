@@ -9,6 +9,8 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/core/types"
+	"github.com/dominant-strategies/go-quai/p2p"
+	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/dominant-strategies/go-quai/p2p/requestManager"
 	"github.com/dominant-strategies/go-quai/trie"
 )
@@ -25,6 +27,9 @@ type StreamManager interface {
 
 	// RemoveStream goes through all the steps to properly close and remove a stream's resources
 	CloseStream(peer.ID) error
+
+	// Writes a message to the stream with logic to check pending requests
+	WriteMessageToStream(peerID p2p.PeerID, stream network.Stream, msgType pb.MsgType, msg []byte) error
 }
 
 // interface required to join the quai protocol network
