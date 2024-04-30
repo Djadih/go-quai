@@ -27,6 +27,7 @@ import (
 	"github.com/dominant-strategies/go-quai/p2p/protocol"
 	"github.com/dominant-strategies/go-quai/p2p/pubsubManager"
 	"github.com/dominant-strategies/go-quai/p2p/requestManager"
+	"github.com/dominant-strategies/go-quai/p2p/streamManager"
 	"github.com/dominant-strategies/go-quai/quai"
 )
 
@@ -184,7 +185,12 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 
 	// Create a gossipsub instance with helper functions
 	ps, err := pubsubManager.NewGossipSubManager(ctx, host)
+	if err != nil {
+		return nil, err
+	}
 
+	// Create a stream manager instance
+	streamMgr, err := streamManager.NewStreamManager(1)
 	if err != nil {
 		return nil, err
 	}
@@ -195,6 +201,7 @@ func NewNode(ctx context.Context) (*P2PNode, error) {
 		bootpeers:      bootpeers,
 		pubsub:         ps,
 		peerManager:    peerMgr,
+		streamManager:  streamMgr,
 		requestManager: requestManager.NewManager(),
 		cache:          initializeCaches(common.GenerateLocations(common.MaxRegions, common.MaxZones)),
 	}

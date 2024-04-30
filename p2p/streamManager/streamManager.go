@@ -9,6 +9,7 @@ import (
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/pb"
+	"github.com/dominant-strategies/go-quai/p2p/protocol"
 	quaiprotocol "github.com/dominant-strategies/go-quai/p2p/protocol"
 	"github.com/pkg/errors"
 
@@ -37,7 +38,7 @@ var (
 type basicStreamManager struct {
 	ctx         context.Context
 	streamCache *lru.Cache
-	p2pBackend  quaiprotocol.QuaiP2PNode
+	p2pBackend  protocol.QuaiP2PNode
 	mu          sync.Mutex
 
 	host host.Host
@@ -48,7 +49,7 @@ type streamWrapper struct {
 	semaphore chan struct{}
 }
 
-func NewStreamManager(peerCount int) (*basicStreamManager, error) {
+func NewStreamManager(peerCount int, backend *node.P2PNode) (*basicStreamManager, error) {
 	lruCache, err := lru.NewWithEvict(
 		peerCount*c_streamReplicationFactor,
 		severStream,
@@ -60,6 +61,7 @@ func NewStreamManager(peerCount int) (*basicStreamManager, error) {
 
 	return &basicStreamManager{
 		ctx:         context.Background(),
+		p2pBackend:  backend,
 		streamCache: lruCache,
 	}, nil
 }
@@ -118,14 +120,6 @@ func (sm *basicStreamManager) GetStream(peerID p2p.PeerID) (network.Stream, erro
 	}
 
 	return wrappedStream.(*streamWrapper).stream, err
-}
-
-func (sm *basicStreamManager) SetP2PBackend(host quaiprotocol.QuaiP2PNode) {
-	sm.p2pBackend = host
-}
-
-func (sm *basicStreamManager) SetHost(host host.Host) {
-	sm.host = host
 }
 
 func (sm *basicStreamManager) GetHost() host.Host {

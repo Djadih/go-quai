@@ -273,7 +273,7 @@ func (p *P2PNode) GetBootPeers() []peer.AddrInfo {
 
 // Opens a new stream to the given peer using the given protocol ID
 func (p *P2PNode) NewStream(peerID peer.ID) (network.Stream, error) {
-	return p.peerManager.GetStream(peerID)
+	return p.streamManager.GetStream(peerID)
 }
 
 // Connects to the given peer
