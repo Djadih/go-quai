@@ -485,7 +485,7 @@ func (pm *BasicPeerManager) recategorizePeer(peerID p2p.PeerID, topic *pubsubMan
 
 	} else {
 		// All other peers
-		err := pm.peerDBs[topic.String()][LastResort].Put(pm.ctx, key, peerInfo)
+		err := pm.peerDBs[topic.GetLocation().Name()][LastResort].Put(pm.ctx, key, peerInfo)
 		if err != nil {
 			return errors.Wrap(err, "error putting peer in allPeersDB")
 		}

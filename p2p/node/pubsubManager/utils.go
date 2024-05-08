@@ -2,6 +2,7 @@ package pubsubManager
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/dominant-strategies/go-quai/common"
@@ -29,7 +30,12 @@ type Topic struct {
 
 // gets the name of the topic for the given type of data
 func (t *Topic) buildTopicString() string {
-	baseTopic := strings.Join([]string{t.genesis.String(), t.location.Name()}, "/")
+	var parts []string
+	for _, b := range t.location {
+		parts = append(parts, strconv.Itoa(int(b)))
+	}
+	encodedLocation := strings.Join(parts, ",")
+	baseTopic := strings.Join([]string{t.genesis.String(), encodedLocation}, "/")
 	switch t.data.(type) {
 	case *types.WorkObjectHeaderView:
 		return strings.Join([]string{baseTopic, C_headerType}, "/")
@@ -77,7 +83,16 @@ func TopicFromString(genesis common.Hash, topic string) (*Topic, error) {
 	if len(topicParts) < 3 {
 		return nil, ErrMalformedTopic
 	}
-	location, err := common.LocationFromName(topicParts[1])
+	locationStr := strings.Split(topicParts[1], ",")
+	region, err := strconv.Atoi(locationStr[0])
+	if err != nil {
+		return nil, err
+	}
+	zone, err := strconv.Atoi(locationStr[1])
+	if err != nil {
+		return nil, err
+	}
+	location, err := common.NewLocation(region, zone)
 	if err != nil {
 		return nil, err
 	}

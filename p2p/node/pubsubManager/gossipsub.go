@@ -148,7 +148,7 @@ func (g *PubsubManager) Subscribe(location common.Location, datatype interface{}
 				}
 			}(location)
 		}
-		log.Global.Debugf("waiting for first message on subscription: %s", sub.Topic())
+		log.Global.WithField("topic", topic.String()).Debugf("Subscribed to topic")
 		for {
 			msg, err := sub.Next(g.ctx)
 			if err != nil || msg == nil {

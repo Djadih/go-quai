@@ -537,7 +537,15 @@ func (l Location) MarshalJSON() ([]byte, error) {
 	return json.Marshal(intSlice)
 }
 
-// NewLocationFromName parses a location name and returns a Location.
+// NewLocation verifies the inputs for region and zone and returns a valid location
+func NewLocation(region, zone int) (Location, error) {
+	if (region < 0 || region >= 0xf) || (zone < 0 || zone >= 0xf) {
+		return nil, fmt.Errorf("invalid location")
+	}
+	return Location{byte(region), byte(zone)}, nil
+}
+
+// LocationFromName parses a location name and returns a Location.
 func LocationFromName(name string) (Location, error) {
 	if name == "prime" {
 		return Location{}, nil
