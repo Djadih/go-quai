@@ -537,6 +537,37 @@ func (l Location) MarshalJSON() ([]byte, error) {
 	return json.Marshal(intSlice)
 }
 
+// NewLocationFromName parses a location name and returns a Location.
+func LocationFromName(name string) (Location, error) {
+	if name == "prime" {
+		return Location{}, nil
+	}
+
+	parts := strings.Fields(name)
+	if len(parts) == 1 {
+		regionIndex, err := strconv.Atoi(parts[0])
+		if err != nil {
+			log.Global.WithField("error", err).Error("Error parsing region index")
+			return nil, err
+		}
+		return Location{byte(regionIndex)}, nil
+	} else if len(parts) == 2 {
+		regionIndex, err := strconv.Atoi(parts[0])
+		if err != nil {
+			log.Global.WithField("error", err).Error("Error parsing region index")
+			return nil, err
+		}
+		zoneIndex, err := strconv.Atoi(parts[1])
+		if err != nil {
+			log.Global.WithField("error", err).Error("Error parsing zone index")
+			return nil, err
+		}
+		return Location{byte(regionIndex), byte(zoneIndex)}, nil
+	}
+
+	return nil, fmt.Errorf("invalid location format")
+}
+
 func IsInChainScope(b []byte, nodeLocation Location) bool {
 	nodeCtx := nodeLocation.Context()
 	// IsInChainScope only be called for a zone chain
