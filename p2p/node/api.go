@@ -2,6 +2,7 @@ package node
 
 import (
 	"math/big"
+	"reflect"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -198,6 +199,7 @@ func (p *P2PNode) Request(location common.Location, requestData interface{}, res
 	if err != nil {
 		log.Global.WithFields(log.Fields{
 			"location": location.Name(),
+			"dataType": reflect.TypeOf(responseDataType),
 			"err":      err,
 		}).Error("Error getting topic name")
 		panic(err)
