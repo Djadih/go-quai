@@ -3,8 +3,9 @@ package streamManager
 import (
 	"context"
 	"encoding/binary"
-	"sync"
 	"time"
+
+	"github.com/sasha-s/go-deadlock"
 
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
@@ -53,7 +54,7 @@ type basicStreamManager struct {
 	ctx         context.Context
 	streamCache *lru.Cache
 	p2pBackend  quaiprotocol.QuaiP2PNode
-	mu          sync.Mutex
+	mu          deadlock.Mutex
 
 	host host.Host
 }
