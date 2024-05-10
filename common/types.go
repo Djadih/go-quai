@@ -62,6 +62,10 @@ var (
 	Zero         = Address{&ZeroExternal} // For utility purposes only. It is out-of-scope for state purposes.
 )
 
+var (
+	ErrInvalidLocation = errors.New("invalid location")
+)
+
 // Hash represents the 32 byte Keccak256 hash of arbitrary data.
 type Hash [HashLength]byte
 
@@ -539,10 +543,46 @@ func (l Location) MarshalJSON() ([]byte, error) {
 
 // NewLocation verifies the inputs for region and zone and returns a valid location
 func NewLocation(region, zone int) (Location, error) {
-	if (region < 0 || region >= 0xf) || (zone < 0 || zone >= 0xf) {
-		return nil, fmt.Errorf("invalid location")
+	loc := Location{}
+	err := loc.SetRegion(region)
+	if err != nil {
+		return nil, err
 	}
-	return Location{byte(region), byte(zone)}, nil
+	err = loc.SetZone(zone)
+	if err != nil {
+		return nil, err
+	}
+
+	return loc, nil
+}
+
+func (l *Location) SetRegion(region int) error {
+	if region < 0 || region >= 0xf {
+		return ErrInvalidLocation
+	}
+	if len(*l) < 1 {
+		// Extend location to include region if its too short
+		newLoc := make([]byte, 1)
+		*l = newLoc
+	}
+	(*l)[0] = byte(region)
+	return nil
+}
+
+func (l *Location) SetZone(zone int) error {
+	if zone < 0 || zone > 0xf {
+		return ErrInvalidLocation
+	}
+	if len(*l) < 2 {
+		// Extend the slice while preserving the first byte, if it exists
+		newSlice := make([]byte, 2)
+		if len(*l) > 0 {
+			newSlice[0] = (*l)[0] // Preserve existing first byte
+		}
+		*l = newSlice
+	}
+	(*l)[1] = byte(zone)
+	return nil
 }
 
 // LocationFromName parses a location name and returns a Location.

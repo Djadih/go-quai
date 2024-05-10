@@ -83,19 +83,27 @@ func TopicFromString(genesis common.Hash, topic string) (*Topic, error) {
 	if len(topicParts) < 3 {
 		return nil, ErrMalformedTopic
 	}
+	var location common.Location
 	locationStr := strings.Split(topicParts[1], ",")
-	region, err := strconv.Atoi(locationStr[0])
-	if err != nil {
-		return nil, err
+	if len(locationStr) > 0 {
+		if len(locationStr) >= 1 {
+			// Region specified
+			region, err := strconv.Atoi(locationStr[0])
+			if err != nil {
+				return nil, err
+			}
+			location.SetRegion(region)
+		}
+		if len(locationStr) == 2 {
+			// Zone specified
+			zone, err := strconv.Atoi(locationStr[1])
+			if err != nil {
+				return nil, err
+			}
+			location.SetZone(zone)
+		}
 	}
-	zone, err := strconv.Atoi(locationStr[1])
-	if err != nil {
-		return nil, err
-	}
-	location, err := common.NewLocation(region, zone)
-	if err != nil {
-		return nil, err
-	}
+
 	switch topicParts[2] {
 	case C_headerType:
 		return NewTopic(genesis, location, &types.WorkObjectHeaderView{})

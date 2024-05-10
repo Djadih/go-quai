@@ -195,6 +195,9 @@ func (p *P2PNode) requestAndWait(peerID peer.ID, topic *pubsubManager.Topic, req
 
 // Request a data from the network for the specified slice
 func (p *P2PNode) Request(location common.Location, requestData interface{}, responseDataType interface{}) chan interface{} {
+	if location.Context() == common.REGION_CTX {
+		log.Global.Print("fake")
+	}
 	topic, err := pubsubManager.NewTopic(p.pubsub.GetGenesis(), location, responseDataType)
 	if err != nil {
 		log.Global.WithFields(log.Fields{
@@ -321,6 +324,10 @@ func (p *P2PNode) handleBroadcast(sourcePeer peer.ID, topic string, data interfa
 	switch v := data.(type) {
 	case types.WorkObject:
 		p.cacheAdd(v.Hash(), &v, nodeLocation)
+		log.Global.WithField("context", v.Location().Context()).Print("")
+		if v.Location().Context() <= common.REGION_CTX {
+			log.Global.Print("sum ting wong")
+		}
 	// TODO: send it to consensus
 	case types.Transactions:
 	default:
