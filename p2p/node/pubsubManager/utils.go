@@ -86,7 +86,7 @@ func TopicFromString(genesis common.Hash, topic string) (*Topic, error) {
 	var location common.Location
 	locationStr := strings.Split(topicParts[1], ",")
 	if len(locationStr) > 0 {
-		if len(locationStr) >= 1 {
+		if len(locationStr) >= 1 && locationStr[0] != "" {
 			// Region specified
 			region, err := strconv.Atoi(locationStr[0])
 			if err != nil {
@@ -94,7 +94,7 @@ func TopicFromString(genesis common.Hash, topic string) (*Topic, error) {
 			}
 			location.SetRegion(region)
 		}
-		if len(locationStr) == 2 {
+		if len(locationStr) == 2 && locationStr[1] != "" {
 			// Zone specified
 			zone, err := strconv.Atoi(locationStr[1])
 			if err != nil {

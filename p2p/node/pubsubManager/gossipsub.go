@@ -196,9 +196,6 @@ func (g *PubsubManager) Unsubscribe(location common.Location, datatype interface
 
 // broadcasts data to subscribing peers
 func (g *PubsubManager) Broadcast(location common.Location, datatype interface{}) error {
-	if location.Context() == common.REGION_CTX {
-		log.Global.Print("fake")
-	}
 	topicName, err := NewTopic(g.genesis, location, datatype)
 	if err != nil {
 		return err

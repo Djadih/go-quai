@@ -195,9 +195,6 @@ func (p *P2PNode) requestAndWait(peerID peer.ID, topic *pubsubManager.Topic, req
 
 // Request a data from the network for the specified slice
 func (p *P2PNode) Request(location common.Location, requestData interface{}, responseDataType interface{}) chan interface{} {
-	if location.Context() == common.REGION_CTX {
-		log.Global.Print("fake")
-	}
 	topic, err := pubsubManager.NewTopic(p.pubsub.GetGenesis(), location, responseDataType)
 	if err != nil {
 		log.Global.WithFields(log.Fields{

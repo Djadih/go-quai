@@ -98,8 +98,10 @@ func (qbe *QuaiBackend) OnNewBroadcast(sourcePeer p2p.PeerID, topic string, data
 		if backend.ProcessingState() {
 			backend.SendRemoteTxs(data)
 		}
+	case types.Header:
 	default:
 		// TODO: Remove panic and gracefully return
+		log.Global.Error("Received unknown broadcast")
 		panic("not supposed to happen in dev environment")
 		return false
 	}
