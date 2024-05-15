@@ -181,17 +181,6 @@ func handleRequest(quaiMsg *pb.QuaiRequestMessage, stream network.Stream, node Q
 		if messageMetrics != nil {
 			messageMetrics.WithLabelValues("blocks").Inc()
 		}
-	case *types.Header:
-		requestedHash := query.(*common.Hash)
-		err = handleHeaderRequest(id, loc, *requestedHash, stream, node)
-		if err != nil {
-			log.Global.WithField("err", err).Error("error handling header request")
-			// TODO: handle error
-			return
-		}
-		if messageMetrics != nil {
-			messageMetrics.WithLabelValues("headers").Inc()
-		}
 	case *types.Transaction:
 		requestedHash := query.(*common.Hash)
 		err = handleTransactionRequest(id, loc, *requestedHash, stream, node)
@@ -211,12 +200,14 @@ func handleRequest(quaiMsg *pb.QuaiRequestMessage, stream network.Stream, node Q
 			return
 		}
 	case trie.TrieNodeRequest:
+		panic("unsupported request data type")
 		requestedHash := query.(*common.Hash)
 		err := handleTrieNodeRequest(id, loc, *requestedHash, stream, node)
 		if err != nil {
 			log.Global.WithField("err", err).Error("error handling trie node request")
 		}
 	default:
+		panic("unsupported request data type")
 		log.Global.WithField("request type", decodedType).Error("unsupported request data type")
 		// TODO: handle error
 		return
