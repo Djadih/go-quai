@@ -141,6 +141,14 @@ func handleRequest(quaiMsg *pb.QuaiRequestMessage, stream network.Stream, node Q
 
 	switch decodedType.(type) {
 	case *types.WorkObject:
+		var requestedView types.WorkObjectView
+		switch decodedType.(type) {
+		case *types.WorkObjectHeaderView:
+			requestedView = types.HeaderObject
+		case *types.WorkObjectBlockView:
+			requestedView = types.BlockObject
+		}
+
 		requestedHash := &common.Hash{}
 		switch query := query.(type) {
 		case *common.Hash:
@@ -160,7 +168,7 @@ func handleRequest(quaiMsg *pb.QuaiRequestMessage, stream network.Stream, node Q
 			// TODO: handle error
 			return
 		}
-		err = handleBlockRequest(id, loc, *requestedHash, stream, node)
+		err = handleBlockRequest(id, loc, *requestedHash, stream, node, requestedView)
 		if err != nil {
 			log.Global.WithFields(
 				logrus.Fields{
@@ -240,14 +248,22 @@ func handleResponse(quaiResp *pb.QuaiResponseMessage, node QuaiP2PNode) {
 }
 
 // Seeks the block in the cache or database and sends it to the peer in a pb.QuaiResponseMessage
-func handleBlockRequest(id uint32, loc common.Location, hash common.Hash, stream network.Stream, node QuaiP2PNode) error {
+func handleBlockRequest(id uint32, loc common.Location, hash common.Hash, stream network.Stream, node QuaiP2PNode, view types.WorkObjectView) error {
 	// check if we have the block in our cache or database
-	block := node.GetWorkObject(hash, loc)
-	if block == nil {
+	fullWO := node.GetWorkObject(hash, loc)
+	if fullWO == nil {
 		log.Global.Debugf("block not found")
 		return nil
 	}
-	log.Global.Debugf("block found %s", block.Hash())
+	log.Global.Debugf("block found %s", fullWO.Hash())
+
+	var block interface{}
+	switch view {
+	case types.HeaderObject:
+		block = fullWO.ConvertToHeaderView()
+	case types.BlockObject:
+		block = fullWO.ConvertToBlockView()
+	}
 	// create a Quai Message Response with the block
 	data, err := pb.EncodeQuaiResponse(id, loc, block)
 	if err != nil {
@@ -258,7 +274,7 @@ func handleBlockRequest(id uint32, loc common.Location, hash common.Hash, stream
 		return err
 	}
 	log.Global.WithFields(log.Fields{
-		"blockHash": block.Hash(),
+		"blockHash": block.(*types.WorkObject).Hash(),
 		"peer":      stream.Conn().RemotePeer(),
 	}).Trace("Sent block to peer")
 	return nil
