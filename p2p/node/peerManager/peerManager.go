@@ -15,6 +15,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/cmd/utils"
 	"github.com/dominant-strategies/go-quai/common"
+	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/node/peerManager/peerdb"
@@ -161,26 +162,38 @@ func NewManager(ctx context.Context, low int, high int, datastore datastore.Data
 		return locations
 	}
 
+	var dataTypes = []interface{}{
+		&types.WorkObjectHeaderView{},
+		&types.WorkObjectBlockView{},
+		common.Hash{},
+		&types.Transactions{},
+	}
+
 	for _, loc := range generateLocations() {
 		domLocations := loc.GetDoms()
 		for _, domLoc := range domLocations {
-			domLocName := domLoc.Name()
-			if peerDBs[domLocName] != nil {
-				// This peerDB has already been initialized
-				continue
-			}
-			peerDBs[domLocName] = make([]*peerdb.PeerDB, 3)
-			peerDBs[domLocName][Best], err = peerdb.NewPeerDB(dbNames[Best], domLocName)
-			if err != nil {
-				return nil, err
-			}
-			peerDBs[domLocName][Responsive], err = peerdb.NewPeerDB(dbNames[Responsive], domLocName)
-			if err != nil {
-				return nil, err
-			}
-			peerDBs[domLocName][LastResort], err = peerdb.NewPeerDB(dbNames[LastResort], domLocName)
-			if err != nil {
-				return nil, err
+			for _, dataType := range dataTypes {
+				topic, err := pubsubManager.NewTopic(utils.MakeGenesis().ToBlock(0).Hash(), domLoc, dataType)
+				if err != nil {
+					return nil, err
+				}
+				if peerDBs[topic.String()] != nil {
+					// This peerDB has already been initialized
+					continue
+				}
+				peerDBs[topic.String()] = make([]*peerdb.PeerDB, 3)
+				peerDBs[topic.String()][Best], err = peerdb.NewPeerDB(dbNames[Best], topic.String())
+				if err != nil {
+					return nil, err
+				}
+				peerDBs[topic.String()][Responsive], err = peerdb.NewPeerDB(dbNames[Responsive], topic.String())
+				if err != nil {
+					return nil, err
+				}
+				peerDBs[topic.String()][LastResort], err = peerdb.NewPeerDB(dbNames[LastResort], topic.String())
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
@@ -485,7 +498,7 @@ func (pm *BasicPeerManager) recategorizePeer(peerID p2p.PeerID, topic *pubsubMan
 
 	} else {
 		// All other peers
-		err := pm.peerDBs[topic.GetLocation().Name()][LastResort].Put(pm.ctx, key, peerInfo)
+		err := pm.peerDBs[topic.String()][LastResort].Put(pm.ctx, key, peerInfo)
 		if err != nil {
 			return errors.Wrap(err, "error putting peer in allPeersDB")
 		}

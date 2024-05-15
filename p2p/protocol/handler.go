@@ -140,7 +140,7 @@ func handleRequest(quaiMsg *pb.QuaiRequestMessage, stream network.Stream, node Q
 	}
 
 	switch decodedType.(type) {
-	case *types.WorkObject:
+	case *types.WorkObject, *types.WorkObjectHeaderView, *types.WorkObjectBlockView:
 		var requestedView types.WorkObjectView
 		switch decodedType.(type) {
 		case *types.WorkObjectHeaderView:

@@ -65,7 +65,7 @@ func (t *Topic) GetTopicType() interface{} {
 // gets the name of the topic for the given type of data
 func NewTopic(genesis common.Hash, location common.Location, data interface{}) (*Topic, error) {
 	switch data.(type) {
-	case *types.WorkObjectHeaderView, *types.WorkObjectBlockView, common.Hash, *types.Transaction:
+	case *types.WorkObjectHeaderView, *types.WorkObjectBlockView, common.Hash, *types.Transactions:
 		t := &Topic{
 			genesis:  genesis,
 			location: location,
