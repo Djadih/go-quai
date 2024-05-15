@@ -264,10 +264,6 @@ func handleBlockRequest(id uint32, loc common.Location, hash common.Hash, stream
 	if err != nil {
 		return err
 	}
-	log.Global.WithFields(log.Fields{
-		"blockHash": block.(*types.WorkObject).Hash(),
-		"peer":      stream.Conn().RemotePeer(),
-	}).Trace("Sent block to peer")
 	return nil
 }
 
