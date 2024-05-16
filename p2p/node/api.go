@@ -2,6 +2,7 @@ package node
 
 import (
 	"math/big"
+	"math/rand"
 	"reflect"
 	"runtime/debug"
 	"sync"
@@ -318,6 +319,10 @@ func (p *P2PNode) GetTrieNode(hash common.Hash, location common.Location) *trie.
 }
 
 func (p *P2PNode) handleBroadcast(sourcePeer peer.ID, topic string, data interface{}, nodeLocation common.Location) {
+	if rand.Intn(2) == 0 {
+		return
+	}
+
 	switch v := data.(type) {
 	case types.WorkObject:
 		p.cacheAdd(v.Hash(), &v, nodeLocation)
