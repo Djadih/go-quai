@@ -99,6 +99,9 @@ func (qbe *QuaiBackend) OnNewBroadcast(sourcePeer p2p.PeerID, topic string, data
 		if backend.ProcessingState() {
 			backend.SendRemoteTxs(data)
 		}
+	default:
+		qbe.p2pBackend.BanPeer(sourcePeer)
+		return false
 	}
 
 	// If it was a good broadcast, mark the peer as lively
