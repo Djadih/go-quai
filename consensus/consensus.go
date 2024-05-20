@@ -107,7 +107,7 @@ type Engine interface {
 
 	// CheckIfValidWorkShare checks if the workshare meets the work share
 	// requirements defined by the protocol
-	CheckIfValidWorkShare(workShare *types.WorkObjectHeader) bool
+	CheckIfValidWorkShare(workShare *types.WorkObjectHeader, numberArr []*big.Int) bool
 
 	// UncledUncledSubDeltaLogS returns the log of the uncled entropy reduction  since the past coincident
 	UncledSubDeltaLogS(chain GenesisReader, header *types.WorkObject) *big.Int
@@ -162,7 +162,7 @@ type Engine interface {
 	CalcDifficulty(chain ChainHeaderReader, parent *types.WorkObjectHeader, expansionNum uint8) *big.Int
 
 	// ComputePowHash returns the pow hash of the workobject header
-	ComputePowHash(header *types.WorkObjectHeader) (common.Hash, error)
+	ComputePowHash(header *types.WorkObjectHeader, numbers []*big.Int) (common.Hash, error)
 
 	// IsDomCoincident returns true if this block satisfies the difficulty order
 	// of a dominant chain. If this node does not have a dominant chain (i.e.

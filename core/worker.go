@@ -1415,8 +1415,8 @@ func totalFees(block *types.WorkObject, receipts []*types.Receipt) *big.Float {
 	return new(big.Float).Quo(new(big.Float).SetInt(feesWei), new(big.Float).SetInt(big.NewInt(params.Ether)))
 }
 
-func (w *worker) AddWorkShare(workShare *types.WorkObjectHeader) error {
-	if !w.engine.CheckIfValidWorkShare(workShare) {
+func (w *worker) AddWorkShare(workShare *types.WorkObjectHeader, numberArr []*big.Int) error {
+	if !w.engine.CheckIfValidWorkShare(workShare, numberArr) {
 		return errors.New("workshare is not valid")
 	}
 

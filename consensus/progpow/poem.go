@@ -167,7 +167,7 @@ func (progpow *Progpow) WorkShareLogS(wo *types.WorkObject) (*big.Int, error) {
 	workShares := wo.Uncles()
 	totalWsEntropy := big.NewInt(0)
 	for _, ws := range workShares {
-		powHash, err := progpow.ComputePowHash(ws)
+		powHash, err := progpow.ComputePowHash(ws, wo.NumberArray())
 		if err != nil {
 			return big.NewInt(0), err
 		}
@@ -271,7 +271,7 @@ func (progpow *Progpow) CalcRank(chain consensus.GenesisReader, header *types.Wo
 	return 0, nil
 }
 
-func (progpow *Progpow) CheckIfValidWorkShare(workShare *types.WorkObjectHeader) bool {
+func (progpow *Progpow) CheckIfValidWorkShare(workShare *types.WorkObjectHeader, numberArr []*big.Int) bool {
 	// Extract some data from the header
 	diff := new(big.Int).Set(workShare.Difficulty())
 	c, _ := mathutil.BinaryLog(diff, mantBits)
@@ -281,7 +281,7 @@ func (progpow *Progpow) CheckIfValidWorkShare(workShare *types.WorkObjectHeader)
 	workShareThreshold := c - params.WorkSharesThresholdDiff
 	workShareDiff := new(big.Int).Exp(big.NewInt(2), big.NewInt(int64(workShareThreshold)), nil)
 	workShareMintarget := new(big.Int).Div(big2e256, workShareDiff)
-	powHash, err := progpow.ComputePowHash(workShare)
+	powHash, err := progpow.ComputePowHash(workShare, numberArr)
 	if err != nil {
 		return false
 	}

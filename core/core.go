@@ -536,8 +536,8 @@ func (c *Core) Engine() consensus.Engine {
 	return c.engine
 }
 
-func (c *Core) CheckIfValidWorkShare(workShare *types.WorkObjectHeader) bool {
-	return c.engine.CheckIfValidWorkShare(workShare)
+func (c *Core) CheckIfValidWorkShare(workShare *types.WorkObjectHeader, numberArr []*big.Int) bool {
+	return c.engine.CheckIfValidWorkShare(workShare, numberArr)
 }
 
 // Slice retrieves the slice struct.

@@ -245,7 +245,7 @@ func (progpow *Progpow) VerifyUncles(chain consensus.ChainReader, block *types.W
 		if ancestors[uncle.ParentHash()] == nil || uncle.ParentHash() == block.ParentHash(nodeCtx) {
 			return errDanglingUncle
 		}
-		_, err := progpow.ComputePowHash(uncle)
+		_, err := progpow.ComputePowHash(uncle, block.NumberArray())
 		if err != nil {
 			return err
 		}
@@ -268,7 +268,7 @@ func (progpow *Progpow) VerifyUncles(chain consensus.ChainReader, block *types.W
 				return consensus.ErrInvalidNumber
 			}
 
-			if !progpow.CheckIfValidWorkShare(uncle) {
+			if !progpow.CheckIfValidWorkShare(uncle, block.NumberArray()) {
 				return errors.New("invalid workshare included")
 			}
 
@@ -560,9 +560,9 @@ func (progpow *Progpow) ComputePowLight(header *types.WorkObjectHeader) (mixHash
 		}
 		return progpowLight(size, cache, hash, nonce, blockNumber, ethashCache.cDag)
 	}
-	cache := progpow.cache(header.NumberU64(nodeCtx))
-	size := datasetSize(header.NumberU64(nodeCtx))
-	digest, result := powLight(size, cache.cache, header.SealHash().Bytes(), header.NonceU64(), header.NumberU64(common.PRIME_CTX))
+	cache := progpow.cache(header.NumberU64())
+	size := datasetSize(header.NumberU64())
+	digest, result := powLight(size, cache.cache, header.SealHash().Bytes(), header.NonceU64(), header.NumberU64())
 	mixHash = common.BytesToHash(digest)
 	powHash = common.BytesToHash(result)
 	header.PowDigest.Store(mixHash)
@@ -617,7 +617,7 @@ func (progpow *Progpow) verifySeal(header *types.WorkObjectHeader) (common.Hash,
 	return powHash.(common.Hash), nil
 }
 
-func (progpow *Progpow) ComputePowHash(header *types.WorkObjectHeader) (common.Hash, error) {
+func (progpow *Progpow) ComputePowHash(header *types.WorkObjectHeader, numberArr []*big.Int) (common.Hash, error) {
 	// Check progpow
 	mixHash := header.PowDigest.Load()
 	powHash := header.PowHash.Load()

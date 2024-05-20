@@ -29,15 +29,16 @@ type WorkObject struct {
 }
 
 type WorkObjectHeader struct {
-	headerHash common.Hash
-	parentHash common.Hash
-	number     *big.Int
-	difficulty *big.Int
-	txHash     common.Hash
-	location   common.Location
-	mixHash    common.Hash
-	time       uint64
-	nonce      BlockNonce
+	headerHash          common.Hash
+	parentHash          common.Hash
+	number              *big.Int
+	primeTerminusNumber *big.Int
+	difficulty          *big.Int
+	txHash              common.Hash
+	location            common.Location
+	mixHash             common.Hash
+	time                uint64
+	nonce               BlockNonce
 
 	PowHash   atomic.Value
 	PowDigest atomic.Value
@@ -183,6 +184,10 @@ func (wo *WorkObject) Number(nodeCtx int) *big.Int {
 	} else {
 		return wo.Body().Header().Number(nodeCtx)
 	}
+}
+
+func (wo *WorkObject) PrimeTerminusNumber() *big.Int {
+	return wo.WorkObjectHeader().primeTerminusNumber
 }
 
 func (wo *WorkObject) NumberU64(nodeCtx int) uint64 {
