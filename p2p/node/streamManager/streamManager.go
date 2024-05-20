@@ -136,12 +136,12 @@ func (sm *basicStreamManager) GetStream(peerID p2p.PeerID) (network.Stream, erro
 		}
 		sm.streamCache.Add(peerID, wrappedStream)
 		go quaiprotocol.QuaiProtocolHandler(stream, sm.p2pBackend)
-		log.Global.Debug("Had to create new stream")
+		log.Global.Warn("Had to create new stream")
 		if streamMetrics != nil {
 			streamMetrics.WithLabelValues("NumStreams").Inc()
 		}
 	} else {
-		log.Global.Trace("Requested stream was found in cache")
+		log.Global.Warn("Requested stream was found in cache")
 	}
 
 	return wrappedStream.(*streamWrapper).stream, err
