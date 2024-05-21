@@ -1140,11 +1140,18 @@ func (w *worker) prepareWork(genParams *generateParams, wo *types.WorkObject) (*
 		} else {
 			if w.hc.IsGenesisHash(parent.Hash()) {
 				newWo.Header().SetPrimeTerminus(parent.Hash())
+				newWo.WorkObjectHeader().SetPrimeTerminusNumber(big.NewInt(0))
 			} else {
 				// carry the prime terminus from the parent block
 				newWo.Header().SetPrimeTerminus(parent.Header().PrimeTerminus())
 				newWo.WorkObjectHeader().SetPrimeTerminusNumber(parent.WorkObjectHeader().PrimeTerminusNumber())
 			}
+		}
+	} else {
+		if w.hc.IsGenesisHash(parent.Hash()) {
+			newWo.WorkObjectHeader().SetPrimeTerminusNumber(big.NewInt(0))
+		} else {
+			newWo.WorkObjectHeader().SetPrimeTerminusNumber(parent.WorkObjectHeader().PrimeTerminusNumber())
 		}
 	}
 
@@ -1202,7 +1209,7 @@ func (w *worker) prepareWork(genParams *generateParams, wo *types.WorkObject) (*
 			w.logger.WithField("err", err).Error("Failed to prepare header for sealing")
 			return nil, err
 		}
-		proposedWoHeader := types.NewWorkObjectHeader(newWo.Hash(), newWo.ParentHash(nodeCtx), newWo.NumberArray(), newWo.Difficulty(), types.EmptyRootHash, newWo.Nonce(), newWo.Time(), newWo.Location())
+		proposedWoHeader := types.NewWorkObjectHeader(newWo.Hash(), newWo.ParentHash(nodeCtx), newWo.NumberArray(), newWo.Difficulty(), newWo.WorkObjectHeader().PrimeTerminusNumber(), types.EmptyRootHash, newWo.Nonce(), newWo.Time(), newWo.Location())
 		proposedWoBody, err := types.NewWorkObjectBody(newWo.Header(), nil, nil, nil, nil, nil, nil, nodeCtx)
 		if err != nil {
 			return nil, err
@@ -1254,7 +1261,7 @@ func (w *worker) prepareWork(genParams *generateParams, wo *types.WorkObject) (*
 		}
 		return env, nil
 	} else {
-		proposedWoHeader := types.NewWorkObjectHeader(newWo.Hash(), newWo.ParentHash(nodeCtx), newWo.NumberArray(), newWo.Difficulty(), types.EmptyRootHash, newWo.Nonce(), newWo.Time(), newWo.Location())
+		proposedWoHeader := types.NewWorkObjectHeader(newWo.Hash(), newWo.ParentHash(nodeCtx), newWo.NumberArray(), newWo.Difficulty(), newWo.WorkObjectHeader().PrimeTerminusNumber(), types.EmptyRootHash, newWo.Nonce(), newWo.Time(), newWo.Location())
 		proposedWoBody, err := types.NewWorkObjectBody(newWo.Header(), nil, nil, nil, nil, nil, nil, nodeCtx)
 		if err != nil {
 			return nil, err
