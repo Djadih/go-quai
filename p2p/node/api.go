@@ -14,6 +14,7 @@ import (
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/p2p"
 	"github.com/dominant-strategies/go-quai/p2p/node/pubsubManager"
+	"github.com/dominant-strategies/go-quai/p2p/pb"
 	quaiprotocol "github.com/dominant-strategies/go-quai/p2p/protocol"
 	"github.com/dominant-strategies/go-quai/quai"
 	"github.com/dominant-strategies/go-quai/trie"
@@ -124,7 +125,7 @@ func (p *P2PNode) Stop() error {
 	}
 }
 
-func (p *P2PNode) requestFromPeers(ctx context.Context, topic *pubsubManager.Topic, requestData interface{}, respDataType interface{}, resultChan chan interface{}) {
+func (p *P2PNode) requestFromPeers(ctx context.Context, topic *pubsubManager.Topic, encodedRequest []byte, requestData interface{}, respDataType interface{}, resultChan chan interface{}) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -154,14 +155,14 @@ func (p *P2PNode) requestFromPeers(ctx context.Context, topic *pubsubManager.Top
 						}).Error("Go-Quai Panicked")
 					}
 				}()
-				p.requestAndWait(ctx, peerID, topic, requestData, respDataType, resultChan)
+				p.requestAndWait(ctx, peerID, topic, encodedRequest, requestData, respDataType, resultChan)
 			}(peerID)
 		}
 		requestWg.Wait()
 	}()
 }
 
-func (p *P2PNode) requestAndWait(ctx context.Context, peerID peer.ID, topic *pubsubManager.Topic, reqData interface{}, respDataType interface{}, resultChan chan interface{}) {
+func (p *P2PNode) requestAndWait(ctx context.Context, peerID peer.ID, topic *pubsubManager.Topic, encodedRequest []byte, reqData interface{}, respDataType interface{}, resultChan chan interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Global.WithFields(log.Fields{
@@ -172,7 +173,7 @@ func (p *P2PNode) requestAndWait(ctx context.Context, peerID peer.ID, topic *pub
 	}()
 	var recvd interface{}
 	var err error
-	if recvd, err = p.requestFromPeer(peerID, topic, reqData, respDataType); err == nil {
+	if recvd, err = p.requestFromPeer(peerID, topic, encodedRequest, reqData, respDataType); err == nil {
 		log.Global.WithFields(log.Fields{
 			"peerId": peerID,
 			"topic":  topic.String(),
@@ -230,6 +231,11 @@ func (p *P2PNode) Request(location common.Location, requestData interface{}, res
 			resultChan <- result
 			return resultChan
 		}
+	}
+
+	requestBytes, err := pb.EncodeQuaiRequest(id, topic.GetLocation(), reqData, respDataType)
+	if err != nil {
+		return nil, err
 	}
 
 	p.requestFromPeers(ctx, topic, requestData, responseDataType, resultChan)

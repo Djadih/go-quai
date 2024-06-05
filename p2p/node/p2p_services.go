@@ -15,12 +15,11 @@ import (
 	"github.com/dominant-strategies/go-quai/p2p/node/peerManager"
 	"github.com/dominant-strategies/go-quai/p2p/node/pubsubManager"
 	"github.com/dominant-strategies/go-quai/p2p/node/requestManager"
-	"github.com/dominant-strategies/go-quai/p2p/pb"
 	"github.com/dominant-strategies/go-quai/trie"
 )
 
 // Opens a stream to the given peer and request some data for the given hash at the given location
-func (p *P2PNode) requestFromPeer(peerID peer.ID, topic *pubsubManager.Topic, reqData interface{}, respDataType interface{}) (interface{}, error) {
+func (p *P2PNode) requestFromPeer(peerID peer.ID, topic *pubsubManager.Topic, encodedRequest []byte, reqData interface{}, respDataType interface{}) (interface{}, error) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Global.WithFields(log.Fields{
@@ -49,13 +48,13 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, topic *pubsubManager.Topic, re
 	defer p.requestManager.CloseRequest(id)
 
 	// Create the corresponding data request
-	requestBytes, err := pb.EncodeQuaiRequest(id, topic.GetLocation(), reqData, respDataType)
-	if err != nil {
-		return nil, err
-	}
+	// requestBytes, err := pb.EncodeQuaiRequest(id, topic.GetLocation(), reqData, respDataType)
+	// if err != nil {
+	// return nil, err
+	// }
 
 	// Send the request to the peer
-	err = p.GetPeerManager().WriteMessageToStream(peerID, stream, requestBytes)
+	err = p.GetPeerManager().WriteMessageToStream(peerID, stream, encodedRequest)
 	if err != nil {
 		return nil, err
 	}
