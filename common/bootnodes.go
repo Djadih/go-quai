@@ -16,5 +16,9 @@ var (
 			"/ip4/34.122.101.50/tcp/4001/p2p/12D3KooWCeucchYeo3Ayn6RwYazEppCzsuVTFryqsut2F3jYtjvM",
 			"/ip4/34.136.175.169/tcp/4001/p2p/12D3KooWScCUPsMigdHmATmSjt2YH6qok2THVpXo6ea74zL3Emb9",
 		},
+		"lighthouse": {
+			"/ip4/34.31.180.127/tcp/4001/p2p/12D3KooWHvkSiGeUZqcbf4txogkibpoLz3CgJiS4PYsAojwsAk5z",
+			"/ip4/34.68.124.139/tcp/4001/p2p/12D3KooWLDMDPFvGwof2mEYvRvMpT4PKqb43gAFC1ZXVrJyof2oY",
+		},
 	}
 )
