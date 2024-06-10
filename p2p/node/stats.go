@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dominant-strategies/go-quai/log"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Returns the number of peers in the routing table, as well as how many active
@@ -15,6 +16,10 @@ func (p *P2PNode) connectionStats() int {
 
 	return numConnected
 }
+
+var (
+	peerMetrics *prometheus.GaugeVec
+)
 
 func (p *P2PNode) statsLoop() {
 	defer func() {
@@ -31,6 +36,7 @@ func (p *P2PNode) statsLoop() {
 		select {
 		case <-ticker.C:
 			peersConnected := p.connectionStats()
+			peerMetrics.WithLabelValues("numPeers").Set(float64(peersConnected))
 			log.Global.Debugf("Number of peers connected: %d", peersConnected)
 		case <-p.ctx.Done():
 			log.Global.Warnf("Context cancelled. Stopping stats loop...")
