@@ -125,7 +125,7 @@ func handleMessage(data []byte, stream network.Stream, node QuaiP2PNode) {
 		}
 
 	default:
-		log.Global.WithFields(log.Fields{"quaiMsg": quaiMsg, "peer": stream.Conn().RemotePeer()}).Errorf("unsupported quai message type")
+		log.Global.WithFields(log.Fields{"quaiMsg": quaiMsg, "data": data, "peer": stream.Conn().RemotePeer()}).Errorf("unsupported quai message type")
 	}
 }
 
@@ -276,6 +276,9 @@ func handleBlockRequest(id uint32, loc common.Location, hash common.Hash, stream
 	if err != nil {
 		return err
 	}
+	if len(data) == 0 {
+		log.Global.Error("Writing empty message into stream in handleBlockRequest", "id", id, "hash", hash)
+	}
 	err = common.WriteMessageToStream(stream, data)
 	if err != nil {
 		return err
@@ -301,7 +304,9 @@ func handleBlockNumberRequest(id uint32, loc common.Location, number *big.Int, s
 	if err != nil {
 		return err
 	}
-
+	if len(data) == 0 {
+		log.Global.Error("Writing empty message into stream in handleBlockNumberRequest", "id", id, "number", number)
+	}
 	err = common.WriteMessageToStream(stream, data)
 	if err != nil {
 		return err
@@ -320,6 +325,9 @@ func handleTrieNodeRequest(id uint32, loc common.Location, hash common.Hash, str
 	data, err := pb.EncodeQuaiResponse(id, loc, trieNode)
 	if err != nil {
 		return err
+	}
+	if len(data) == 0 {
+		log.Global.Error("Writing empty message into stream in handleTrieNodeRequest", "id", id, "hash", hash)
 	}
 	err = common.WriteMessageToStream(stream, data)
 	if err != nil {

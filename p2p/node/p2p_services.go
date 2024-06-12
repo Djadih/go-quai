@@ -54,6 +54,9 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, topic *pubsubManager.Topic, re
 		return nil, err
 	}
 
+	if len(requestBytes) == 0 {
+		log.Global.Error("Empty request message", "topic", topic.String())
+	}
 	// Send the request to the peer
 	err = p.GetPeerManager().WriteMessageToStream(peerID, stream, requestBytes)
 	if err != nil {
@@ -65,11 +68,16 @@ func (p *P2PNode) requestFromPeer(peerID peer.ID, topic *pubsubManager.Topic, re
 	if err != nil {
 		return nil, err
 	}
+
+	requestTimer := time.NewTimer(requestManager.C_requestTimeout)
+	defer requestTimer.Stop()
+
 	var recvdType interface{}
 	select {
 	case recvdType = <-dataChan:
+		requestTimer.Stop()
 		break
-	case <-time.After(requestManager.C_requestTimeout):
+	case <-requestTimer.C:
 		log.Global.WithFields(log.Fields{
 			"requestID": id,
 			"peerId":    peerID,
