@@ -525,6 +525,9 @@ func (s *Service) handleBlock(block *types.WorkObject) {
 			s.transactionStatsQueue.Enqueue(txStats)
 		}
 	}
+
+	updateHeaderMetrics(block)
+
 	// After handling a block and potentially adding to the queues, notify the sendStats goroutine
 	// that stats are ready to be sent
 	select {
