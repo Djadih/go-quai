@@ -730,9 +730,9 @@ func (h *Header) SealEncode() *ProtoHeader {
 
 // SealHash returns the hash of a block prior to it being sealed.
 func (h *Header) Hash() (hash common.Hash) {
-	hasherMu.Lock()
-	defer hasherMu.Unlock()
-	hasher.Reset()
+	// hasherMu.Lock()
+	// defer hasherMu.Unlock()
+	// hasher.Reset()
 	protoSealData := h.SealEncode()
 	data, err := proto.Marshal(protoSealData)
 	if err != nil {

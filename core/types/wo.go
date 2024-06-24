@@ -912,9 +912,9 @@ func (wh *WorkObjectHeader) RPCMarshalWorkObjectHeader() map[string]interface{} 
 
 func (wh *WorkObjectHeader) Hash() (hash common.Hash) {
 	sealHash := wh.SealHash().Bytes()
-	hasherMu.Lock()
-	defer hasherMu.Unlock()
-	hasher.Reset()
+	// hasherMu.Lock()
+	// defer hasherMu.Unlock()
+	// hasher.Reset()
 	var hData [40]byte
 	copy(hData[:], wh.Nonce().Bytes())
 	copy(hData[len(wh.nonce):], sealHash)
@@ -924,9 +924,9 @@ func (wh *WorkObjectHeader) Hash() (hash common.Hash) {
 }
 
 func (wh *WorkObjectHeader) SealHash() (hash common.Hash) {
-	hasherMu.Lock()
-	defer hasherMu.Unlock()
-	hasher.Reset()
+	// hasherMu.Lock()
+	// defer hasherMu.Unlock()
+	// hasher.Reset()
 	protoSealData := wh.SealEncode()
 	data, err := proto.Marshal(protoSealData)
 	if err != nil {

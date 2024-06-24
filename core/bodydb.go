@@ -137,7 +137,7 @@ func (bc *BodyDb) ProcessingState() bool {
 // WriteBlock write the block to the bodydb database
 func (bc *BodyDb) WriteBlock(block *types.WorkObject, nodeCtx int) {
 	// add the block to the cache as well
-	bc.blockCache.Add(block.Hash(), *block)
+	// bc.blockCache.Add(block.Hash(), *block)
 	rawdb.WriteWorkObject(bc.db, block.Hash(), block, types.BlockObject, nodeCtx)
 }
 

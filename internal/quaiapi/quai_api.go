@@ -752,7 +752,7 @@ func (s *PublicBlockChainQuaiAPI) ReceiveWorkShare(ctx context.Context, raw json
 			return errors.New("work share is invalid")
 		}
 
-		s.b.Logger().WithField("number", workShare.NumberU64()).Info("Received Work Share")
+		// s.b.Logger().WithField("number", workShare.NumberU64()).Info("Received Work Share")
 		pendingBlockBody := s.b.GetPendingBlockBody(workShare)
 		txs, err := s.b.GetTxsFromBroadcastSet(workShare.TxHash())
 		if err != nil {
@@ -768,11 +768,11 @@ func (s *PublicBlockChainQuaiAPI) ReceiveWorkShare(ctx context.Context, raw json
 		if err != nil {
 			s.b.Logger().WithField("err", err).Error("Error broadcasting work share")
 		}
-		powHash, err := s.b.Engine().ComputePowHash(workShare)
+		_, err = s.b.Engine().ComputePowHash(workShare)
 		if err != nil {
 			s.b.Logger().Error("Error computing the powhash of the workshare")
 		}
-		s.b.Logger().WithFields(log.Fields{"powHash": powHash, "tx count": len(txs)}).Info("Broadcasted workshares with txs")
+		// s.b.Logger().WithFields(log.Fields{"powHash": powHash, "tx count": len(txs)}).Info("Broadcasted workshares with txs")
 	}
 	return nil
 }
