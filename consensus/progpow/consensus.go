@@ -229,7 +229,8 @@ func (progpow *Progpow) VerifyUncles(chain consensus.ChainReader, block *types.W
 	uncles.Add(block.Hash())
 
 	// Verify each of the uncles that it's recent, but not an ancestor
-	for _, uncle := range block.Uncles() {
+	for cnt, uncle := range block.Uncles() {
+		prevTime := time.Now()
 		// Make sure every uncle is rewarded only once
 		hash := uncle.Hash()
 		if uncles.Contains(hash) {
@@ -274,6 +275,10 @@ func (progpow *Progpow) VerifyUncles(chain consensus.ChainReader, block *types.W
 				return consensus.ErrInvalidNumber
 			}
 		}
+		log.Global.WithFields(log.Fields{
+			"uncle":   cnt,
+			"elapsed": time.Since(prevTime),
+		}).Warn("Verifying an uncle")
 	}
 	return nil
 }

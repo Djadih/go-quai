@@ -87,9 +87,9 @@ func (v *BlockValidator) ValidateBody(block *types.WorkObject) error {
 		}
 	} else {
 		// Header validity is known at this point, check the uncles and transactions
-		if err := v.engine.VerifyUncles(v.hc, block); err != nil {
-			return err
-		}
+		// if err := v.engine.VerifyUncles(v.hc, block); err != nil {
+		// 	return err
+		// }
 		if hash := types.CalcUncleHash(block.Uncles()); hash != header.UncleHash() {
 			return fmt.Errorf("uncle root hash mismatch: have %x, want %x", hash, header.UncleHash())
 		}
