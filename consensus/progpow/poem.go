@@ -4,11 +4,13 @@ import (
 	"errors"
 	"math"
 	"math/big"
+	"time"
 
 	"github.com/dominant-strategies/go-quai/common"
 	bigMath "github.com/dominant-strategies/go-quai/common/math"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core/types"
+	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/params"
 	"modernc.org/mathutil"
 )
@@ -23,7 +25,9 @@ func (progpow *Progpow) CalcOrder(header *types.WorkObject) (*big.Int, int, erro
 	expansionNum := header.ExpansionNumber()
 
 	// Verify the seal and get the powHash for the given header
+	prevTime := time.Now()
 	powHash, err := progpow.verifySeal(header.WorkObjectHeader())
+	log.Global.WithField("elapsed", time.Since(prevTime)).Warn("VerifySeal")
 	if err != nil {
 		return big0, -1, err
 	}

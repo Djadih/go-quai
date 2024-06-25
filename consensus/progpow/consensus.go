@@ -279,7 +279,7 @@ func (progpow *Progpow) VerifyUncles(chain consensus.ChainReader, block *types.W
 }
 
 // verifyHeader checks whether a header conforms to the consensus rules
-func (progpow *Progpow) verifyHeader(chain consensus.ChainHeaderReader, header, parent *types.WorkObject, uncle bool, unixNow int64) error {
+func (progpow *Progpow) verifyHeader(chain consensus.ChainHeaderReader, header, parent *types.WorkObject, uncle bool, startTime int64) error {
 	nodeCtx := progpow.NodeLocation().Context()
 	// Ensure that the header's extra-data section is of a reasonable size
 	if uint64(len(header.Extra())) > params.MaximumExtraDataSize {
@@ -292,7 +292,7 @@ func (progpow *Progpow) verifyHeader(chain consensus.ChainHeaderReader, header, 
 	}
 	// Verify the header's timestamp
 	if !uncle {
-		if header.Time() > uint64(unixNow+allowedFutureBlockTimeSeconds) {
+		if header.Time() > uint64(startTime+allowedFutureBlockTimeSeconds) {
 			return consensus.ErrFutureBlock
 		}
 	}
@@ -308,7 +308,9 @@ func (progpow *Progpow) verifyHeader(chain consensus.ChainHeaderReader, header, 
 		}
 	}
 	// Verify the engine specific seal securing the block
+	prevTime := time.Now()
 	_, order, err := progpow.CalcOrder(parent)
+	calcOrderTime := time.Since(prevTime)
 	if err != nil {
 		return err
 	}
@@ -485,6 +487,7 @@ func (progpow *Progpow) verifyHeader(chain consensus.ChainHeaderReader, header, 
 	if diff := new(big.Int).Sub(header.Number(nodeCtx), parentNumber); diff.Cmp(big.NewInt(1)) != 0 {
 		return consensus.ErrInvalidNumber
 	}
+	log.Global.WithField("elapsed", calcOrderTime).Warn("CalcOrder")
 	return nil
 }
 
@@ -573,7 +576,9 @@ func (progpow *Progpow) ComputePowLight(header *types.WorkObjectHeader) (mixHash
 	}
 	cache := progpow.cache(header.NumberU64())
 	size := datasetSize(header.NumberU64())
+	prevTime := time.Now()
 	digest, result := powLight(size, cache.cache, header.SealHash(), header.NonceU64(), header.PrimeTerminusNumber().Uint64())
+	log.Global.WithField("elapsed", time.Since(prevTime)).Warn("powLight: ComputePowLight")
 	mixHash = common.BytesToHash(digest)
 	powHash = common.BytesToHash(result)
 	header.PowDigest.Store(mixHash)
@@ -615,7 +620,9 @@ func (progpow *Progpow) verifySeal(header *types.WorkObjectHeader) (common.Hash,
 	mixHash := header.PowDigest.Load()
 	powHash := header.PowHash.Load()
 	if powHash == nil || mixHash == nil {
+		prevTime := time.Now()
 		mixHash, powHash = progpow.ComputePowLight(header)
+		log.Global.WithField("elapsed", time.Since(prevTime)).Warn("ComputePowLight: verifySeal")
 	}
 	// Verify the calculated values against the ones provided in the header
 	if !bytes.Equal(header.MixHash().Bytes(), mixHash.(common.Hash).Bytes()) {
@@ -629,6 +636,7 @@ func (progpow *Progpow) verifySeal(header *types.WorkObjectHeader) (common.Hash,
 }
 
 func (progpow *Progpow) ComputePowHash(header *types.WorkObjectHeader) (common.Hash, error) {
+	log.Global.Warn("ComputePowHash")
 	// Check progpow
 	mixHash := header.PowDigest.Load()
 	powHash := header.PowHash.Load()
