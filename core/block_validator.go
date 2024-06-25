@@ -152,6 +152,7 @@ func (v *BlockValidator) ValidateState(block *types.WorkObject, statedb *state.S
 	if expectedUncledS.Cmp(header.UncledS()) != 0 {
 		return fmt.Errorf("invalid uncledS (remote: %x local: %x)", header.UncledS(), expectedUncledS)
 	}
+	time7 := common.PrettyDuration(time.Since(start))
 	v.hc.logger.WithFields(log.Fields{
 		"t1": time1,
 		"t2": time2,
@@ -159,6 +160,7 @@ func (v *BlockValidator) ValidateState(block *types.WorkObject, statedb *state.S
 		"t4": time4,
 		"t5": time5,
 		"t6": time6,
+		"t7": time7,
 	}).Debug("times during validate state")
 	return nil
 }

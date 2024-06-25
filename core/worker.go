@@ -1363,9 +1363,9 @@ func (w *worker) FinalizeAssemble(chain consensus.ChainHeaderReader, newWo *type
 	}
 
 	// Once the uncles list is assembled in the block
-	if nodeCtx == common.ZONE_CTX {
-		wo.Header().SetUncledS(w.engine.UncledLogS(wo))
-	}
+	// if nodeCtx == common.ZONE_CTX {
+	// 	wo.Header().SetUncledS(w.engine.UncledLogS(wo))
+	// }
 
 	manifestHash := w.ComputeManifestHash(parent)
 
