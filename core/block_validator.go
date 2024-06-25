@@ -148,10 +148,10 @@ func (v *BlockValidator) ValidateState(block *types.WorkObject, statedb *state.S
 	}
 
 	// Check that the UncledS in the header matches the S from the block
-	expectedUncledS := v.engine.UncledLogS(block)
-	if expectedUncledS.Cmp(header.UncledS()) != 0 {
-		return fmt.Errorf("invalid uncledS (remote: %x local: %x)", header.UncledS(), expectedUncledS)
-	}
+	// expectedUncledS := v.engine.UncledLogS(block)
+	// if expectedUncledS.Cmp(header.UncledS()) != 0 {
+	// 	return fmt.Errorf("invalid uncledS (remote: %x local: %x)", header.UncledS(), expectedUncledS)
+	// }
 	time7 := common.PrettyDuration(time.Since(start))
 	v.hc.logger.WithFields(log.Fields{
 		"t1": time1,
