@@ -19,9 +19,7 @@ package progpow
 import (
 	"encoding/binary"
 	"math/bits"
-	"time"
 
-	"github.com/dominant-strategies/go-quai/log"
 	goLRU "github.com/hashicorp/golang-lru/v2"
 	"golang.org/x/crypto/sha3"
 )
@@ -41,10 +39,7 @@ const (
 
 func progpowLight(size uint64, cache []uint32, hash []byte, nonce uint64,
 	blockNumber uint64, cDag []uint32, lookupCache *goLRU.Cache[uint32, []byte]) ([]byte, []byte) {
-	startTime := time.Now()
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-	keccakTime := time.Since(startTime)
-	preLookup := time.Now()
 	lookup := func(index uint32) []byte {
 		res, ok := lookupCache.Get(index)
 		if ok {
@@ -54,11 +49,6 @@ func progpowLight(size uint64, cache []uint32, hash []byte, nonce uint64,
 		lookupCache.Add(index, datasetItem)
 		return datasetItem
 	}
-	lookupTime := time.Since(preLookup)
-	log.Global.WithFields(log.Fields{
-		"keccakTime": keccakTime,
-		"lookupTime": lookupTime,
-	}).Warn()
 	return progpow(hash, nonce, size, blockNumber, cDag, lookup)
 }
 
@@ -323,9 +313,7 @@ func progpowLoop(seed uint64, loop uint32, mix *[progpowLanes][progpowRegs]uint3
 	cDag []uint32, datasetSize uint32) {
 	// All lanes share a base address for the global load
 	// Global offset uses mix[0] to guarantee it depends on the load result
-	preOffset := time.Now()
 	gOffset := mix[loop%progpowLanes][0] % (64 * datasetSize / (progpowLanes * progpowDagLoads))
-	offsetTime := time.Since(preOffset)
 
 	var (
 		srcCounter uint32
@@ -338,18 +326,13 @@ func progpowLoop(seed uint64, loop uint32, mix *[progpowLanes][progpowRegs]uint3
 		data_g     []uint32 = make([]uint32, progpowDagLoads)
 	)
 	// 256 bytes of dag data
-	preDag := time.Now()
 	dag_item := make([]byte, 256)
-	dagTime := time.Since(preDag)
-	preCopy := time.Now()
 	// The lookup returns 64, so we'll fetch four items
 	copy(dag_item, lookup((gOffset*progpowLanes)*progpowDagLoads))
 	copy(dag_item[64:], lookup((gOffset*progpowLanes)*progpowDagLoads+16))
 	copy(dag_item[128:], lookup((gOffset*progpowLanes)*progpowDagLoads+32))
 	copy(dag_item[192:], lookup((gOffset*progpowLanes)*progpowDagLoads+48))
-	copyTime := time.Since(preCopy)
 
-	preLane := time.Now()
 	// Lanes can execute in parallel and will be convergent
 	for l := uint32(0); l < progpowLanes; l++ {
 
@@ -405,14 +388,6 @@ func progpowLoop(seed uint64, loop uint32, mix *[progpowLanes][progpowRegs]uint3
 			merge(&mix[l][dst], data_g[i], rnd(&randState))
 		}
 	}
-	laneTime := time.Since(preLane)
-	log.Global.WithFields(log.Fields{
-		"offsetTime": offsetTime,
-		"dagTime":    dagTime,
-		"copyTime":   copyTime,
-		"laneTime":   laneTime,
-		"totalTime":  time.Since(preOffset),
-	}).Warn()
 }
 
 func progpow(hash []byte, nonce uint64, size uint64, blockNumber uint64, cDag []uint32,
@@ -421,29 +396,16 @@ func progpow(hash []byte, nonce uint64, size uint64, blockNumber uint64, cDag []
 		mix         [progpowLanes][progpowRegs]uint32
 		laneResults [progpowLanes]uint32
 	)
-
-	preResult := time.Now()
 	result := make([]uint32, 8)
-	resultTime := time.Since(preResult)
-
-	preSeed := time.Now()
 	seed := keccakF800Short(hash, nonce, result)
-	seedTime := time.Since(preSeed)
-
-	preLane := time.Now()
 	for lane := uint32(0); lane < progpowLanes; lane++ {
 		mix[lane] = fillMix(seed, lane)
 	}
-	laneTime := time.Since(preLane)
-
 	period := (blockNumber / progpowPeriodLength)
-	preProgpowLoop := time.Now()
 	for l := uint32(0); l < progpowCntDag; l++ {
 		progpowLoop(period, l, &mix, lookup, cDag, uint32(size/progpowMixBytes))
 	}
-	progpowLoopTime := time.Since(preProgpowLoop)
 
-	preHash := time.Now()
 	// Reduce mix data to a single per-lane result
 	for lane := uint32(0); lane < progpowLanes; lane++ {
 		laneResults[lane] = 0x811c9dc5
@@ -462,14 +424,5 @@ func progpow(hash []byte, nonce uint64, size uint64, blockNumber uint64, cDag []
 	for i := 0; i < 8; i++ {
 		binary.LittleEndian.PutUint32(mixHash[i*4:], result[i])
 	}
-	hashTime := time.Since(preHash)
-
-	log.Global.WithFields(log.Fields{
-		"resultTime":      resultTime,
-		"seedTime":        seedTime,
-		"laneTime":        laneTime,
-		"progpowLoopTime": progpowLoopTime,
-		"hashTime":        hashTime,
-	}).Warn()
 	return mixHash[:], finalHash[:]
 }
