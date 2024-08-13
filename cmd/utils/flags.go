@@ -32,10 +32,10 @@ import (
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/metrics_config"
-	"github.com/dominant-strategies/go-quai/node"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/dominant-strategies/go-quai/quai/gasprice"
 	"github.com/dominant-strategies/go-quai/quai/quaiconfig"
+	"github.com/dominant-strategies/go-quai/rpc"
 )
 
 const (
@@ -46,6 +46,18 @@ const (
 	c_PeersFlagPrefix   = "peers."
 	c_MetricsFlagPrefix = "metrics."
 )
+
+// DefaultConfig contains reasonable default settings.
+var DefaultConfig = Config{
+	DataDir:          filepath.Join(xdg.DataHome, constants.APP_NAME),
+	HTTPPort:         viper.GetInt(HTTPPortFlag.Name),
+	HTTPModules:      []string{"net", "web3"},
+	HTTPVirtualHosts: []string{"localhost"},
+	HTTPTimeouts:     rpc.DefaultHTTPTimeouts,
+	// WSPort:           DefaultWSPort,
+	WSModules: []string{"net", "web3"},
+	DBEngine:  "",
+}
 
 var Flags = [][]Flag{
 	GlobalFlags,
@@ -576,7 +588,7 @@ var (
 
 	HTTPListenAddrFlag = Flag{
 		Name:  c_RPCFlagPrefix + "http-addr",
-		Value: node.DefaultHTTPHost,
+		Value: DefaultHTTPHost,
 		Usage: "HTTP-RPC server listening interface" + generateEnvDoc(c_RPCFlagPrefix+"http-addr"),
 	}
 
@@ -588,7 +600,7 @@ var (
 
 	HTTPVirtualHostsFlag = Flag{
 		Name:  c_RPCFlagPrefix + "http-vhosts",
-		Value: strings.Join(node.DefaultConfig.HTTPVirtualHosts, ","),
+		Value: strings.Join(DefaultConfig.HTTPVirtualHosts, ","),
 		Usage: "Comma separated list of virtual hostnames from which to accept requests (server enforced). Accepts '*' wildcard." + generateEnvDoc(c_RPCFlagPrefix+"http-vhosts"),
 	}
 
@@ -604,6 +616,12 @@ var (
 		Usage: "HTTP path path prefix on which JSON-RPC is served. Use '/' to serve on all paths." + generateEnvDoc(c_RPCFlagPrefix+"http-rpcprefix"),
 	}
 
+	HTTPPortFlag = Flag{
+		Name:  c_RPCFlagPrefix + "http-port",
+		Value: DefaultHTTPPort,
+		Usage: "HTTP-RPC server listening port" + generateEnvDoc(c_RPCFlagPrefix+"http-port"),
+	}
+
 	WSEnabledFlag = Flag{
 		Name:  c_RPCFlagPrefix + "ws",
 		Value: false,
@@ -612,7 +630,7 @@ var (
 
 	WSListenAddrFlag = Flag{
 		Name:  c_RPCFlagPrefix + "ws-addr",
-		Value: node.DefaultWSHost,
+		Value: DefaultWSHost,
 		Usage: "WS-RPC server listening interface" + generateEnvDoc(c_RPCFlagPrefix+"ws-addr"),
 	}
 
@@ -632,6 +650,12 @@ var (
 		Name:  c_RPCFlagPrefix + "ws-rpcprefix",
 		Value: "",
 		Usage: "HTTP path prefix on which JSON-RPC is served. Use '/' to serve on all paths." + generateEnvDoc(c_RPCFlagPrefix+"ws-rpcprefix"),
+	}
+
+	WSPortFlag = Flag{
+		Name: c_RPCFlagPrefix + "ws-port",
+		// Value: node.DefaultWSPort,
+		Usage: "WS-RPC server listening port" + generateEnvDoc(c_RPCFlagPrefix+"ws-port"),
 	}
 
 	PreloadJSFlag = Flag{
@@ -778,7 +802,7 @@ func generateEnvDoc(flag string) string {
 }
 
 // setNodeUserIdent creates the user identifier from CLI flags.
-func setNodeUserIdent(cfg *node.Config) {
+func setNodeUserIdent(cfg *Config) {
 	if identity := viper.GetString(IdentityFlag.Name); len(identity) > 0 {
 		cfg.UserIdent = identity
 	}
@@ -798,7 +822,7 @@ func SplitAndTrim(input string) (ret []string) {
 
 // setHTTP creates the HTTP RPC listener interface string from the set
 // command line flags, returning empty if the HTTP endpoint is disabled.
-func setHTTP(cfg *node.Config, nodeLocation common.Location) {
+func setHTTP(cfg *Config, nodeLocation common.Location) {
 	if viper.GetBool(HTTPEnabledFlag.Name) && cfg.HTTPHost == "" {
 		cfg.HTTPHost = "127.0.0.1"
 		if viper.IsSet(HTTPListenAddrFlag.Name) {
@@ -839,7 +863,7 @@ func GetHttpPort(nodeLocation common.Location) int {
 
 // setWS creates the WebSocket RPC listener interface string from the set
 // command line flags, returning empty if the HTTP endpoint is disabled.
-func setWS(cfg *node.Config, nodeLocation common.Location) {
+func setWS(cfg *Config, nodeLocation common.Location) {
 	if viper.GetBool(WSEnabledFlag.Name) && cfg.WSHost == "" {
 		cfg.WSHost = "127.0.0.1"
 		if viper.IsSet(WSListenAddrFlag.Name) {
@@ -955,7 +979,7 @@ func MakePasswordList() []string {
 }
 
 // SetNodeConfig applies node-related command line flags to the config.
-func SetNodeConfig(cfg *node.Config, nodeLocation common.Location, logger *log.Logger) {
+func SetNodeConfig(cfg *Config, nodeLocation common.Location, logger *log.Logger) {
 	setHTTP(cfg, nodeLocation)
 	setWS(cfg, nodeLocation)
 	setNodeUserIdent(cfg)
@@ -980,7 +1004,7 @@ func SetNodeConfig(cfg *node.Config, nodeLocation common.Location, logger *log.L
 	}
 }
 
-func setDataDir(cfg *node.Config) {
+func setDataDir(cfg *Config) {
 	environment := viper.GetString(EnvironmentFlag.Name)
 	switch {
 	case viper.IsSet(DataDirFlag.Name):
@@ -1223,7 +1247,7 @@ func EnablePprof() {
 }
 
 // SetQuaiConfig applies quai-related command line flags to the config.
-func SetQuaiConfig(stack *node.Node, cfg *quaiconfig.Config, slicesRunning []common.Location, nodeLocation common.Location, currentExpansionNumber uint8, logger *log.Logger) {
+func SetQuaiConfig(stack *Node, cfg *quaiconfig.Config, slicesRunning []common.Location, nodeLocation common.Location, currentExpansionNumber uint8, logger *log.Logger) {
 	cfg.NodeLocation = nodeLocation
 	cfg.SlicesRunning = slicesRunning
 
@@ -1428,7 +1452,7 @@ func SplitTagsFlag(tagsFlag string) map[string]string {
 }
 
 // MakeChainDatabase open an LevelDB using the flags passed to the client and will hard crash if it fails.
-func MakeChainDatabase(stack *node.Node, readonly bool) ethdb.Database {
+func MakeChainDatabase(stack *Node, readonly bool) ethdb.Database {
 	var (
 		cache   = viper.GetInt(CacheFlag.Name) * viper.GetInt(CacheDatabaseFlag.Name) / 100
 		handles = MakeDatabaseHandles()

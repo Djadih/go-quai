@@ -20,21 +20,16 @@ import (
 	"path/filepath"
 
 	"github.com/adrg/xdg"
+	"github.com/dominant-strategies/go-quai/cmd/utils"
 	"github.com/dominant-strategies/go-quai/common/constants"
 	"github.com/dominant-strategies/go-quai/rpc"
-)
-
-const (
-	DefaultHTTPHost = "localhost" // Default host interface for the HTTP RPC server
-	DefaultHTTPPort = 8545        // Default TCP port for the HTTP RPC server
-	DefaultWSHost   = "localhost" // Default host interface for the websocket RPC server
-	DefaultWSPort   = 8546        // Default TCP port for the websocket RPC server
+	"github.com/spf13/viper"
 )
 
 // DefaultConfig contains reasonable default settings.
 var DefaultConfig = Config{
 	DataDir:          filepath.Join(xdg.DataHome, constants.APP_NAME),
-	HTTPPort:         DefaultHTTPPort,
+	HTTPPort:         viper.GetInt(utils.HTTPPortFlag.Name),
 	HTTPModules:      []string{"net", "web3"},
 	HTTPVirtualHosts: []string{"localhost"},
 	HTTPTimeouts:     rpc.DefaultHTTPTimeouts,

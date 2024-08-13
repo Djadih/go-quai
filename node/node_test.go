@@ -26,6 +26,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/dominant-strategies/go-quai/cmd/utils"
 	"github.com/dominant-strategies/go-quai/crypto"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
@@ -392,7 +393,7 @@ func TestRegisterHandler_Successful(t *testing.T) {
 // Tests that the given handler will not be successfully mounted since no HTTP server
 // is enabled for RPC
 func TestRegisterHandler_Unsuccessful(t *testing.T) {
-	node, err := New(&DefaultConfig, log.Global)
+	node, err := New(&utils.DefaultConfig, log.Global)
 	if err != nil {
 		t.Fatalf("could not create new node: %v", err)
 	}

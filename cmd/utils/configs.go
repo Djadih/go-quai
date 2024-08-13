@@ -1,40 +1,9 @@
-// Copyright 2014 The go-ethereum Authors
-// This file is part of the go-ethereum library.
-//
-// The go-ethereum library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// The go-ethereum library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
-
-package node
+package utils
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
-	"sync"
-
 	"github.com/dominant-strategies/go-quai/common"
-	log "github.com/dominant-strategies/go-quai/log"
+	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rpc"
-)
-
-const (
-	datadirPrivateKey      = "nodekey"            // Path within the datadir to the node's private key
-	datadirDefaultKeyStore = "keystore"           // Path within the datadir to the keystore
-	datadirStaticNodes     = "static-nodes.json"  // Path within the datadir to the static node list
-	datadirTrustedNodes    = "trusted-nodes.json" // Path within the datadir to the trusted node list
-	datadirNodeDatabase    = "nodes"              // Path within the datadir to store the node infos
 )
 
 // Config represents a small collection of configuration values to fine tune the
@@ -166,101 +135,4 @@ type Config struct {
 
 	// NodeLocation is the location value for a particular chain
 	NodeLocation common.Location
-}
-
-// NodeDB returns the path to the discovery node database.
-func (c *Config) NodeDB() string {
-	if c.DataDir == "" {
-		return "" // ephemeral
-	}
-	return c.ResolvePath(datadirNodeDatabase)
-}
-
-// HTTPEndpoint resolves an HTTP endpoint based on the configured host interface
-// and port parameters.
-func (c *Config) HTTPEndpoint() string {
-	if c.HTTPHost == "" {
-		return ""
-	}
-	return fmt.Sprintf("%s:%d", c.HTTPHost, c.HTTPPort)
-}
-
-// WSEndpoint resolves a websocket endpoint based on the configured host interface
-// and port parameters.
-func (c *Config) WSEndpoint() string {
-	if c.WSHost == "" {
-		return ""
-	}
-	return fmt.Sprintf("%s:%d", c.WSHost, c.WSPort)
-}
-
-// ExtRPCEnabled returns the indicator whether node enables the external
-// RPC(http, ws).
-func (c *Config) ExtRPCEnabled() bool {
-	return c.HTTPHost != "" || c.WSHost != ""
-}
-
-// NodeName returns the devp2p node identifier.
-func (c *Config) NodeName() string {
-	name := c.name()
-	if c.UserIdent != "" {
-		name += "/" + c.UserIdent
-	}
-	if c.Version != "" {
-		name += "/" + c.Version
-	}
-	name += "/" + runtime.GOOS + "-" + runtime.GOARCH
-	name += "/" + runtime.Version()
-	return name
-}
-
-func (c *Config) name() string {
-	if c.Name == "" {
-		progname := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
-		if progname == "" {
-			panic("empty executable name, set Config.Name")
-		}
-		return progname
-	}
-	return c.Name
-}
-
-// These resources are resolved differently for "go-quai" instances.
-var isOldQuaiResource = map[string]bool{
-	"chaindata":          true,
-	"nodes":              true,
-	"nodekey":            true,
-	"static-nodes.json":  false, // no warning for these because they have their
-	"trusted-nodes.json": false, // own separate warning.
-}
-
-// ResolvePath resolves path in the instance directory.
-func (c *Config) ResolvePath(path string) string {
-	if filepath.IsAbs(path) {
-		return path
-	}
-	if c.DataDir == "" {
-		return ""
-	}
-	return filepath.Join(c.instanceDir(), path)
-}
-
-func (c *Config) instanceDir() string {
-	if c.DataDir == "" {
-		return ""
-	}
-	return filepath.Join(c.DataDir, c.name())
-}
-
-var warnLock sync.Mutex
-
-func (c *Config) warnOnce(w *bool, format string, args ...interface{}) {
-	warnLock.Lock()
-	defer warnLock.Unlock()
-
-	if *w {
-		return
-	}
-	log.Global.Warn(fmt.Sprintf(format, args...))
-	*w = true
 }
