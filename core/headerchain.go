@@ -211,6 +211,7 @@ func (hc *HeaderChain) GetPendingEtxsRollup(hash common.Hash, location common.Lo
 
 // GetBloom gets the bloom from the cache or database
 func (hc *HeaderChain) GetBloom(hash common.Hash) (*types.Bloom, error) {
+	log.Global.WithField("hash", hash).Warn("Getting bloom")
 	var bloom types.Bloom
 	// Look for bloom first in bloom cache, then in database
 	if res, ok := hc.blooms.Get(hash); ok {
@@ -218,7 +219,8 @@ func (hc *HeaderChain) GetBloom(hash common.Hash) (*types.Bloom, error) {
 	} else if res := rawdb.ReadBloom(hc.headerDb, hash); res != nil {
 		bloom = *res
 	} else {
-		hc.logger.WithField("hash", hash.String()).Trace("Unable to find bloom for hash in manifest")
+		log.Global.WithField("hash", hash.String()).Error("Unable to find bloom for hash in manifest")
+		panic("Couldn't find bloom")
 		return nil, ErrBloomNotFound
 	}
 	return &bloom, nil
@@ -521,6 +523,7 @@ func (hc *HeaderChain) AddPendingEtxs(pEtxs types.PendingEtxs) error {
 }
 
 func (hc *HeaderChain) AddBloom(bloom types.Bloom, hash common.Hash) error {
+	// log.Global.WithField("hash", hash).Warn("Putting bloom")
 	// Only write the bloom if we have not seen it before
 	if !hc.blooms.Contains(hash) {
 		// Write to bloom database

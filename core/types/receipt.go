@@ -27,6 +27,7 @@ import (
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/hexutil"
 	"github.com/dominant-strategies/go-quai/crypto"
+	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/dominant-strategies/go-quai/rlp"
 	"github.com/sirupsen/logrus"
@@ -242,6 +243,9 @@ func (r *ReceiptForStorage) ProtoEncode() (*ProtoReceiptForStorage, error) {
 		PostStateOrStatus: (*Receipt)(r).statusEncoding(),
 		CumulativeGasUsed: r.CumulativeGasUsed,
 		ContractAddress:   r.ContractAddress.ProtoEncode(),
+	}
+	if len(r.Logs) != 0 {
+		log.Global.Warn("This receipt has logs")
 	}
 	protoEtxs, err := r.Etxs.ProtoEncode()
 	if err != nil {

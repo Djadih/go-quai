@@ -237,6 +237,10 @@ func (f *Filter) unindexedLogs(ctx context.Context, end uint64) ([]*types.Log, e
 // blockLogs returns the logs matching the filter criteria within a single block.
 func (f *Filter) blockLogs(ctx context.Context, header *types.WorkObject) (logs []*types.Log, err error) {
 	// Get block bloom from the database
+	log.Global.WithFields(log.Fields{
+		"hash": header.Hash(),
+		"number": header.NumberU64(common.ZONE_CTX),
+	}).Warn("Finding bloom")
 	bloom, err := f.backend.GetBloom(header.Hash())
 	if err != nil {
 		return logs, err

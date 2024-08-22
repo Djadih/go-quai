@@ -1213,6 +1213,12 @@ func (p *StateProcessor) Apply(batch ethdb.Batch, block *types.WorkObject) ([]*t
 	time4_5 := common.PrettyDuration(time.Since(start))
 	// Create bloom filter and write it to cache/db
 	bloom := types.CreateBloom(receipts)
+	if len(block.Transactions()) != 0 {
+		log.Global.WithFields(log.Fields{
+			"number": block.NumberU64(nodeCtx),
+			"hash":   block.Hash(),
+		}).Error("Found a transaction to add bloom")
+	}
 	p.hc.AddBloom(bloom, block.Hash())
 	time5 := common.PrettyDuration(time.Since(start))
 	rawdb.WritePreimages(batch, statedb.Preimages())

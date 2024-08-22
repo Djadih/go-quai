@@ -24,7 +24,6 @@ import (
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/ethdb"
 	"github.com/dominant-strategies/go-quai/log"
-	"github.com/dominant-strategies/go-quai/params"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -38,6 +37,10 @@ func ReadTxLookupEntry(db ethdb.Reader, hash common.Hash) *uint64 {
 	// Database v6 tx lookup just stores the block number
 	if len(data) < common.HashLength {
 		number := new(big.Int).SetBytes(data).Uint64()
+		log.Global.WithFields(log.Fields{
+			"number": number,
+			"TxHash": hash,
+		}).Warn("Found Tx data in lookup cache")
 		return &number
 	}
 	// Database v4-v5 tx lookup format just stores the hash
