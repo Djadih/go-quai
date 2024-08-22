@@ -270,7 +270,7 @@ func (p *P2PNode) MarkLivelyPeer(peer p2p.PeerID, topic string) {
 	log.Global.WithFields(log.Fields{
 		"peer":  peer,
 		"topic": topic,
-	}).Debug("Recording well-behaving peer")
+	}).Trace("Recording well-behaving peer")
 
 	t, err := pubsubManager.TopicFromString(topic)
 	if err != nil {
@@ -288,7 +288,7 @@ func (p *P2PNode) MarkLatentPeer(peer p2p.PeerID, topic string) {
 	log.Global.WithFields(log.Fields{
 		"peer":  peer,
 		"topic": topic,
-	}).Debug("Recording misbehaving peer")
+	}).Trace("Recording misbehaving peer")
 
 	t, err := pubsubManager.TopicFromString(topic)
 	if err != nil {
