@@ -255,6 +255,11 @@ func (r *ReceiptForStorage) ProtoEncode() (*ProtoReceiptForStorage, error) {
 		protoLog := (*LogForStorage)(log).ProtoEncode()
 		protoLogs.Logs[i] = protoLog
 	}
+	protoBloom, err := r.Bloom.ProtoEncode()
+	if err != nil {
+		return nil, err
+	}
+	ProtoReceiptForStorage.Bloom = protoBloom
 	return ProtoReceiptForStorage, nil
 }
 
@@ -291,7 +296,7 @@ func (r *ReceiptForStorage) ProtoDecode(protoReceipt *ProtoReceiptForStorage, lo
 		}
 		r.Etxs = append(r.Etxs, etx)
 	}
-	r.Bloom = CreateBloom(Receipts{(*Receipt)(r)})
+	r.Bloom = Bloom(protoReceipt.Bloom)
 	return nil
 }
 

@@ -135,6 +135,7 @@ message ProtoReceiptForStorage {
   ProtoLogsForStorage logs = 5;
   ProtoTransactions etxs = 6;
   uint64 gas_used = 7;
+  bytes bloom = 8;
 }
 
 message ProtoReceiptsForStorage {
