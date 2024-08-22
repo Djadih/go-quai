@@ -131,7 +131,7 @@ func (f *Filter) Logs(ctx context.Context) ([]*types.Log, error) {
 		if header == nil {
 			return nil, errors.New("unknown block")
 		}
-		return f.blockLogs(ctx, header.Header())
+		return f.blockLogs(ctx, header)
 	}
 	// Figure out the limits of the filter range
 	header, _ := f.backend.HeaderByNumber(ctx, rpc.LatestBlockNumber)
@@ -225,7 +225,7 @@ func (f *Filter) unindexedLogs(ctx context.Context, end uint64) ([]*types.Log, e
 		if header == nil || err != nil {
 			return logs, err
 		}
-		found, err := f.blockLogs(ctx, header.Header())
+		found, err := f.blockLogs(ctx, header)
 		if err != nil {
 			return logs, err
 		}
@@ -235,14 +235,14 @@ func (f *Filter) unindexedLogs(ctx context.Context, end uint64) ([]*types.Log, e
 }
 
 // blockLogs returns the logs matching the filter criteria within a single block.
-func (f *Filter) blockLogs(ctx context.Context, header *types.Header) (logs []*types.Log, err error) {
+func (f *Filter) blockLogs(ctx context.Context, header *types.WorkObject) (logs []*types.Log, err error) {
 	// Get block bloom from the database
 	bloom, err := f.backend.GetBloom(header.Hash())
 	if err != nil {
 		return logs, err
 	}
 	if bloomFilter(*bloom, f.addresses, f.topics) {
-		found, err := f.checkMatches(ctx, header)
+		found, err := f.checkMatches(ctx, header.Header())
 		if err != nil {
 			return logs, err
 		}
