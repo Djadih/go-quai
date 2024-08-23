@@ -128,14 +128,14 @@ message ProtoAccessTuple {
 }
 
 message ProtoReceiptForStorage {
-  bytes post_state_or_status = 1;
-  uint64 cumulative_gas_used = 2;
-  common.ProtoHash tx_hash = 3;
-  common.ProtoAddress contract_address = 4;
-  ProtoLogsForStorage logs = 5;
-  ProtoTransactions etxs = 6;
+  uint32 type = 1;
+  bytes post_state_or_status = 2;
+  uint64 cumulative_gas_used = 3;
+  ProtoLogsForStorage logs = 4;
+  common.ProtoHash tx_hash = 5;
+  common.ProtoAddress contract_address = 6;
   uint64 gas_used = 7;
-  bytes bloom = 8;
+  ProtoTransactions etxs = 8;
 }
 
 message ProtoReceiptsForStorage {

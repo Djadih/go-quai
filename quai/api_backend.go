@@ -445,7 +445,7 @@ func (b *QuaiAPIBackend) BloomStatus() (uint64, uint64) {
 }
 
 func (b *QuaiAPIBackend) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {
-	for i := 0; i < bloomFilterThreads; i++ {
+	for i := 0; i < 1; i++ {
 		go session.Multiplex(bloomRetrievalBatch, bloomRetrievalWait, b.quai.bloomRequests)
 	}
 }

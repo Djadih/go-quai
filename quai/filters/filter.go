@@ -203,7 +203,7 @@ func (f *Filter) indexedLogs(ctx context.Context, end uint64) ([]*types.Log, err
 			if header == nil || err != nil {
 				return logs, err
 			}
-			found, err := f.checkMatches(ctx, header.Header())
+			found, err := f.checkMatches(ctx, header)
 			if err != nil {
 				return logs, err
 			}
@@ -238,7 +238,7 @@ func (f *Filter) unindexedLogs(ctx context.Context, end uint64) ([]*types.Log, e
 func (f *Filter) blockLogs(ctx context.Context, header *types.WorkObject) (logs []*types.Log, err error) {
 	// Get block bloom from the database
 	log.Global.WithFields(log.Fields{
-		"hash": header.Hash(),
+		"hash":   header.Hash(),
 		"number": header.NumberU64(common.ZONE_CTX),
 	}).Warn("Finding bloom")
 	bloom, err := f.backend.GetBloom(header.Hash())
@@ -246,7 +246,7 @@ func (f *Filter) blockLogs(ctx context.Context, header *types.WorkObject) (logs 
 		return logs, err
 	}
 	if bloomFilter(*bloom, f.addresses, f.topics) {
-		found, err := f.checkMatches(ctx, header.Header())
+		found, err := f.checkMatches(ctx, header)
 		if err != nil {
 			return logs, err
 		}
@@ -257,7 +257,7 @@ func (f *Filter) blockLogs(ctx context.Context, header *types.WorkObject) (logs 
 
 // checkMatches checks if the receipts belonging to the given header contain any log events that
 // match the filter criteria. This function is called when the bloom filter signals a potential match.
-func (f *Filter) checkMatches(ctx context.Context, header *types.Header) (logs []*types.Log, err error) {
+func (f *Filter) checkMatches(ctx context.Context, header *types.WorkObject) (logs []*types.Log, err error) {
 	// Get the logs of the block
 	logsList, err := f.backend.GetLogs(ctx, header.Hash())
 	if err != nil {

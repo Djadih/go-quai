@@ -240,9 +240,12 @@ type ReceiptForStorage Receipt
 
 func (r *ReceiptForStorage) ProtoEncode() (*ProtoReceiptForStorage, error) {
 	ProtoReceiptForStorage := &ProtoReceiptForStorage{
+		Type:              uint32(r.Type),
 		PostStateOrStatus: (*Receipt)(r).statusEncoding(),
 		CumulativeGasUsed: r.CumulativeGasUsed,
+		TxHash:            r.TxHash.ProtoEncode(),
 		ContractAddress:   r.ContractAddress.ProtoEncode(),
+		GasUsed:           r.GasUsed,
 	}
 	if len(r.Logs) != 0 {
 		log.Global.Warn("This receipt has logs")
@@ -259,11 +262,7 @@ func (r *ReceiptForStorage) ProtoEncode() (*ProtoReceiptForStorage, error) {
 		protoLog := (*LogForStorage)(log).ProtoEncode()
 		protoLogs.Logs[i] = protoLog
 	}
-	protoBloom, err := r.Bloom.ProtoEncode()
-	if err != nil {
-		return nil, err
-	}
-	ProtoReceiptForStorage.Bloom = protoBloom
+	ProtoReceiptForStorage.Logs = protoLogs
 	return ProtoReceiptForStorage, nil
 }
 
@@ -300,7 +299,6 @@ func (r *ReceiptForStorage) ProtoDecode(protoReceipt *ProtoReceiptForStorage, lo
 		}
 		r.Etxs = append(r.Etxs, etx)
 	}
-	r.Bloom = Bloom(protoReceipt.Bloom)
 	return nil
 }
 

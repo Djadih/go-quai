@@ -21,6 +21,7 @@ import (
 
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/common/hexutil"
+	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/rlp"
 )
 
@@ -112,6 +113,9 @@ func (l LogForStorage) ProtoEncode() *ProtoLogForStorage {
 	for i, t := range l.Topics {
 		topics[i] = t.ProtoEncode()
 	}
+	if len(l.Topics) != 0 {
+		log.Global.Error("Encoding a log with more than one topic")
+	}
 	return &ProtoLogForStorage{
 		Address: address,
 		Topics:  topics,
@@ -131,6 +135,9 @@ func (l *LogForStorage) ProtoDecode(protoLog *ProtoLogForStorage, location commo
 		topic := new(common.Hash)
 		topic.ProtoDecode(t)
 		topics[i] = *topic
+	}
+	if len(protoLog.Topics) != 0 {
+		log.Global.Error("Decoding a log with more than one topic")
 	}
 	l.Address = *address
 	l.Topics = topics
