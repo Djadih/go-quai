@@ -2,12 +2,12 @@ package quaiapi
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/common/hexutil"
 	"github.com/dominant-strategies/go-quai/core/types"
 	"github.com/dominant-strategies/go-quai/crypto"
 	"github.com/dominant-strategies/go-quai/params"
@@ -47,6 +47,7 @@ func TestRedeemQuai(t *testing.T) {
 	if !from.Equal(fromAddress) {
 		t.Fatalf("Failed to convert public key to address: %v", err)
 	}
+	fmt.Println("FromAddr: ", fromAddress.String())
 	toAddr := common.HexToAddress("0x0000000000000000000000000000000000011111", location)
 	fmt.Println("To Address: ", toAddr.String())
 	signer := types.LatestSigner(PARAMS)
@@ -84,7 +85,7 @@ func TestRedeemQuai(t *testing.T) {
 		t.Fail()
 		return
 	}
-	fmt.Println(hexutil.Encode(protoTxBytes))
+	fmt.Println(hex.EncodeToString(protoTxBytes))
 	err = client.SendTransaction(context.Background(), tx)
 	if err != nil {
 		t.Error(err.Error())
