@@ -161,7 +161,7 @@ var (
 	GardenGasCeil              uint64 = 160000000
 	OrchardGasCeil             uint64 = 50000000
 	LighthouseGasCeil          uint64 = 160000000
-	LocalGasCeil               uint64 = 20000000
+	LocalGasCeil               uint64 = 160000000
 	DifficultyBoundDivisor            = big.NewInt(2048)  // The bound divisor of the difficulty, used in the update calculations.
 	ZoneMinDifficulty                 = big.NewInt(1000)  // The minimum difficulty in a zone. Prime & regions should be multiples of this value
 	MinimumDifficulty                 = ZoneMinDifficulty // The minimum that the difficulty may ever be.
