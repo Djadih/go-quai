@@ -447,58 +447,57 @@ func (pm *BasicPeerManager) GetPeers(topic *pubsubManager.Topic) map[p2p.PeerID]
 		// There have not been any peers added to this topic
 		return make(map[peer.ID]struct{})
 	}
-	peerList := make(map[p2p.PeerID]struct{})
+	peerMap := make(map[p2p.PeerID]struct{})
 	// Add best peers into the peerList
 	bestPeers := pm.getBestPeers(topic)
-	maps.Copy(peerList, bestPeers)
+	maps.Copy(peerMap, bestPeers)
 	// Add responsive peers into the peerList
 	responsivePeers := pm.getResponsivePeers(topic)
-	maps.Copy(peerList, responsivePeers)
+	maps.Copy(peerMap, responsivePeers)
 	// Add last resort peers into the peerList
 	lastResortPeers := pm.getLastResortPeers(topic)
-	maps.Copy(peerList, lastResortPeers)
+	maps.Copy(peerMap, lastResortPeers)
 
-	// Randomly select request degree number of peers from the peerList
-	lenPeer := len(peerList)
 	// If we have more peers than the request degree, randomly select peers and
 	// return, otherwise ask the dht for the extra required peers
-	if lenPeer >= topic.GetRequestDegree() {
-		peers := make([]p2p.PeerID, 0)
-		for peer, _ := range peerList {
-			peers = append(peers, peer)
-		}
-		rand.Shuffle(len(peers), func(i, j int) {
-			peers[i], peers[j] = peers[j], peers[i]
-		})
-
-		randomPeers := make(map[p2p.PeerID]struct{})
-		for _, peer := range peers[:topic.GetRequestDegree()] {
-			randomPeers[peer] = struct{}{}
-		}
-
-		return randomPeers
+	lenPeer := len(peerMap)
+	if lenPeer < topic.GetRequestDegree() {
+		// Query the DHT for more peers
+		pm.queryDHT(topic, peerMap, topic.GetRequestDegree()-lenPeer)
 	}
 
-	// Query the DHT for more peers
-	return pm.queryDHT(topic, peerList, topic.GetRequestDegree()-lenPeer)
+	// Randomly select request degree number of peers from the peerList
+	peers := make([]p2p.PeerID, topic.GetRequestDegree())
+	for peer := range peerMap {
+		peers = append(peers, peer)
+	}
+	rand.Shuffle(len(peers), func(i, j int) {
+		peers[i], peers[j] = peers[j], peers[i]
+	})
+
+	randomPeers := make(map[p2p.PeerID]struct{})
+	for _, peer := range peers[:topic.GetRequestDegree()] {
+		randomPeers[peer] = struct{}{}
+	}
+
+	return randomPeers
 }
 
-func (pm *BasicPeerManager) queryDHT(topic *pubsubManager.Topic, peerList map[p2p.PeerID]struct{}, peerCount int) map[p2p.PeerID]struct{} {
+func (pm *BasicPeerManager) queryDHT(topic *pubsubManager.Topic, peerMap map[p2p.PeerID]struct{}, peerCount int) map[p2p.PeerID]struct{} {
 	// create a Cid from the slice location
 	shardCid := pubsubManager.TopicToCid(topic)
 
 	// Internal list of peers from the dht
-	dhtPeers := make(map[p2p.PeerID]struct{})
-	log.Global.Infof("Querying DHT for slice Cid %s", shardCid)
 	// query the DHT for peers in the slice
+	dhtCount := 0
 	for peer := range pm.dht.FindProvidersAsync(pm.ctx, shardCid, peerCount) {
 		if peer.ID != pm.selfID {
-			dhtPeers[peer.ID] = struct{}{}
+			peerMap[peer.ID] = struct{}{}
+			dhtCount += 1
 		}
 	}
-	log.Global.Info("Found the following peers from the DHT: ", dhtPeers)
-	maps.Copy(peerList, dhtPeers)
-	return peerList
+	log.Global.Info("Found the following peers from the DHT: ", dhtCount)
+	return peerMap
 }
 
 func (pm *BasicPeerManager) getBestPeers(topic *pubsubManager.Topic) map[p2p.PeerID]struct{} {
