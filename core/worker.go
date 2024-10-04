@@ -1815,6 +1815,9 @@ func (w *worker) prepareWork(genParams *generateParams, wo *types.WorkObject) (*
 		if parent.NumberU64(common.PRIME_CTX) == 0 {
 			newWo.Header().SetEfficiencyScore(0)
 			newWo.Header().SetThresholdCount(0)
+			// get the genesis expansion number
+			genesisHeader := w.hc.GetBlockByHash(w.hc.GetGenesisHashes()[0])
+			newWo.Header().SetExpansionNumber(genesisHeader.ExpansionNumber())
 		} else {
 			// compute the efficiency score at each prime block
 			efficiencyScore, err := w.hc.ComputeEfficiencyScore(parent)
