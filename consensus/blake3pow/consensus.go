@@ -360,7 +360,7 @@ func (blake3pow *Blake3pow) verifyHeader(chain consensus.ChainHeaderReader, head
 			if header.ThresholdCount() != 0 {
 				return fmt.Errorf("invalid threshold count: have %v, want %v", header.ThresholdCount(), 0)
 			}
-			genesisHeader := chain.GetHeaderByNumber(0)
+			genesisHeader := chain.GetHeaderByHash(chain.GetGenesisHashes()[0])
 			if genesisHeader == nil {
 				blake3pow.logger.WithField("stacktrace", string(debug.Stack())).Error("Genesis header not found")
 				return fmt.Errorf("genesis header not found")
@@ -517,7 +517,7 @@ func (blake3pow *Blake3pow) CalcDifficulty(chain consensus.ChainHeaderReader, pa
 			return parent.Difficulty()
 		}
 		genesisBlock := chain.GetHeaderByHash(parent.Hash())
-		if genesisBlock.ExpansionNumber() > 0 && parent.Hash() == chain.Config().DefaultGenesisHash {
+		if genesisBlock.ExpansionNumber() > 0 && parent.Hash() == chain.GetGenesisHashes()[0] {
 			return parent.Difficulty()
 		}
 		genesis := chain.GetHeaderByHash(parent.Hash())
