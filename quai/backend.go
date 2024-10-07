@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dominant-strategies/go-quai/cmd/utils"
 	"github.com/dominant-strategies/go-quai/common"
 	"github.com/dominant-strategies/go-quai/consensus"
 	"github.com/dominant-strategies/go-quai/core"
@@ -115,7 +116,7 @@ func New(stack *node.Node, p2p NetworkingAPI, config *quaiconfig.Config, nodeCtx
 	// different expansion number is only to run experiments
 	if startingExpansionNumber > 0 {
 		var genesisErr error
-		chainConfig, _, genesisErr = core.SetupGenesisBlockWithOverride(chainDb, config.Genesis, config.NodeLocation, startingExpansionNumber, logger)
+		chainConfig, _, genesisErr = utils.SetupGenesisBlockWithOverride(chainDb, config.Genesis, config.NodeLocation, startingExpansionNumber, logger)
 		if genesisErr != nil {
 			return nil, genesisErr
 		}
