@@ -52,7 +52,7 @@ const (
 
 	c_uncleCacheSize = 100
 
-	defaultCoinbaseLockup = 0
+	defaultCoinbaseLockup = 3
 )
 
 // environment is the worker's current environment and holds all
