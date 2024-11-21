@@ -502,8 +502,8 @@ func FuzzQuaiTxHashingWorkNonce(f *testing.F) {
 
 func TestQiAddressScope(t *testing.T) {
 	addr := common.HexToAddress("0x001a1C308B372Fe50E7eA2Df8323d57a08a89f83", common.Location{0, 0})
-	t.Log(addr.IsInQiLedgerScope())
-	t.Log(addr.IsInQuaiLedgerScope())
+	require.False(t, addr.IsInQiLedgerScope())
+	require.True(t, addr.IsInQuaiLedgerScope())
 }
 
 // ETX hash tests
@@ -1072,12 +1072,12 @@ func TestTxNilDecode(t *testing.T) {
 	// proto.Unmarshal should read it and not return any error
 	protoTransaction := new(ProtoTransaction)
 	err := proto.Unmarshal(nil, protoTransaction)
-	require.Equal(t, err, nil)
+	require.NoError(t, err, err)
 
 	// This empty protoTransaction struct should not crash the proto decode
 	tx := Transaction{}
 	err = tx.ProtoDecode(protoTransaction, common.Location{0, 0})
-	require.NotEqual(t, err, nil)
+	require.NoError(t, err, err)
 }
 
 func TestNilChainIDDecode(t *testing.T) {
@@ -1094,7 +1094,5 @@ func TestNilChainIDDecode(t *testing.T) {
 	err = tx.ProtoDecode(protoQuaiTx, common.Location{0, 0})
 
 	// This should print missing required field 'ChainId'
-	t.Log(err)
-
-	require.NotEqual(t, err, nil)
+	require.NoError(t, err, err)
 }

@@ -669,8 +669,14 @@ func (tx *Transaction) Hash(location ...byte) (h common.Hash) {
 	if hash := tx.hash.Load(); hash != nil {
 		return hash.(common.Hash)
 	}
-	protoTx, _ := tx.ProtoEncode()
-	data, _ := proto.Marshal(protoTx)
+	protoTx, err := tx.ProtoEncode()
+	if err != nil {
+		return common.Hash{}
+	}
+	data, err := proto.Marshal(protoTx)
+	if err != nil {
+		return common.Hash{}
+	}
 	h = crypto.Keccak256Hash(data)
 	switch tx.Type() {
 	case QuaiTxType:
