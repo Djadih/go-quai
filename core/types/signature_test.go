@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -199,7 +199,7 @@ func TestSignatureAggregation(t *testing.T) {
 }
 
 func loadKeyAggVectors(filename string) (*KeyAggVectors, error) {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func loadKeyAggVectors(filename string) (*KeyAggVectors, error) {
 }
 
 func loadSigAggVectors(filename string) (*SigAggVectors, error) {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
