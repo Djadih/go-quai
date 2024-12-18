@@ -23,14 +23,14 @@ func (progpow *Progpow) CalcOrder(chain consensus.BlockReader, header *types.Wor
 	nodeCtx := progpow.config.NodeLocation.Context()
 	// Except for the slice [0,0] have to check if the header hash is the genesis hash
 	if header.NumberU64(nodeCtx) == 0 {
-		return big0, common.PRIME_CTX, nil
+		return big.NewInt(0), common.PRIME_CTX, nil
 	}
 	expansionNum := header.ExpansionNumber()
 
 	// Verify the seal and get the powHash for the given header
 	powHash, err := progpow.verifySeal(header.WorkObjectHeader())
 	if err != nil {
-		return big0, -1, err
+		return big.NewInt(0), -1, err
 	}
 
 	// Get entropy reduction of this header
@@ -46,11 +46,11 @@ func (progpow *Progpow) CalcOrder(chain consensus.BlockReader, header *types.Wor
 
 	var primeDeltaEntropyTarget *big.Int
 	if header.NumberU64(common.ZONE_CTX) < params.GoldenAgeForkNumberV2 {
-		primeDeltaEntropyTarget = new(big.Int).Div(params.PrimeEntropyTarget(expansionNum), big2)
+		primeDeltaEntropyTarget = new(big.Int).Div(params.PrimeEntropyTarget(expansionNum), common.Big2)
 		primeDeltaEntropyTarget = new(big.Int).Mul(zoneThresholdEntropy, primeDeltaEntropyTarget)
 	} else {
 		primeDeltaEntropyTarget = new(big.Int).Mul(params.PrimeEntropyTarget(expansionNum), zoneThresholdEntropy)
-		primeDeltaEntropyTarget = new(big.Int).Div(primeDeltaEntropyTarget, big2)
+		primeDeltaEntropyTarget = new(big.Int).Div(primeDeltaEntropyTarget, common.Big2)
 	}
 
 	primeBlockEntropyThreshold := new(big.Int).Add(zoneThresholdEntropy, common.BitsToBigBits(params.PrimeEntropyTarget(expansionNum)))
@@ -65,11 +65,11 @@ func (progpow *Progpow) CalcOrder(chain consensus.BlockReader, header *types.Wor
 
 	var regionDeltaSTarget *big.Int
 	if header.NumberU64(common.ZONE_CTX) < params.GoldenAgeForkNumberV2 {
-		regionDeltaSTarget = new(big.Int).Div(params.RegionEntropyTarget(expansionNum), big2)
+		regionDeltaSTarget = new(big.Int).Div(params.RegionEntropyTarget(expansionNum), common.Big2)
 		regionDeltaSTarget = new(big.Int).Mul(zoneThresholdEntropy, regionDeltaSTarget)
 	} else {
 		regionDeltaSTarget = new(big.Int).Mul(zoneThresholdEntropy, params.RegionEntropyTarget(expansionNum))
-		regionDeltaSTarget = new(big.Int).Div(regionDeltaSTarget, big2)
+		regionDeltaSTarget = new(big.Int).Div(regionDeltaSTarget, common.Big2)
 	}
 
 	regionBlockEntropyThreshold := new(big.Int).Add(zoneThresholdEntropy, common.BitsToBigBits(params.RegionEntropyTarget(expansionNum)))
@@ -86,7 +86,7 @@ func (progpow *Progpow) CalcOrder(chain consensus.BlockReader, header *types.Wor
 // IntrinsicLogEntropy returns the logarithm of the intrinsic entropy reduction of a PoW hash
 func (progpow *Progpow) IntrinsicLogEntropy(powHash common.Hash) *big.Int {
 	x := new(big.Int).SetBytes(powHash.Bytes())
-	d := new(big.Int).Div(big2e256, x)
+	d := new(big.Int).Div(common.Big2e256, x)
 	c, m := mathutil.BinaryLog(d, consensus.MantBits)
 	bigBits := new(big.Int).Mul(big.NewInt(int64(c)), new(big.Int).Exp(big.NewInt(2), big.NewInt(consensus.MantBits), nil))
 	bigBits = new(big.Int).Add(bigBits, m)

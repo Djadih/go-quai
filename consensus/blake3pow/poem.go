@@ -23,7 +23,7 @@ func (blake3pow *Blake3pow) CalcOrder(chain consensus.BlockReader, header *types
 	}
 	nodeCtx := blake3pow.config.NodeLocation.Context()
 	if header.NumberU64(nodeCtx) == 0 {
-		return big0, common.PRIME_CTX, nil
+		return big.NewInt(0), common.PRIME_CTX, nil
 	}
 
 	expansionNum := header.ExpansionNumber()
@@ -31,7 +31,7 @@ func (blake3pow *Blake3pow) CalcOrder(chain consensus.BlockReader, header *types
 	// Verify the seal and get the powHash for the given header
 	err := blake3pow.verifySeal(header.WorkObjectHeader())
 	if err != nil {
-		return big0, -1, err
+		return big.NewInt(0), -1, err
 	}
 
 	// Get entropy reduction of this header
@@ -47,7 +47,7 @@ func (blake3pow *Blake3pow) CalcOrder(chain consensus.BlockReader, header *types
 
 	var primeDeltaEntropyTarget *big.Int
 	if header.NumberU64(common.ZONE_CTX) < params.GoldenAgeForkNumberV2 {
-		primeDeltaEntropyTarget = new(big.Int).Div(params.PrimeEntropyTarget(expansionNum), big2)
+		primeDeltaEntropyTarget = new(big.Int).Div(params.PrimeEntropyTarget(expansionNum), common.Big2)
 		primeDeltaEntropyTarget = new(big.Int).Mul(zoneThresholdEntropy, primeDeltaEntropyTarget)
 	} else {
 		primeDeltaEntropyTarget = new(big.Int).Mul(params.PrimeEntropyTarget(expansionNum), zoneThresholdEntropy)
@@ -66,11 +66,11 @@ func (blake3pow *Blake3pow) CalcOrder(chain consensus.BlockReader, header *types
 
 	var regionDeltaEntropyTarget *big.Int
 	if header.NumberU64(common.ZONE_CTX) < params.GoldenAgeForkNumberV2 {
-		regionDeltaEntropyTarget = new(big.Int).Div(params.RegionEntropyTarget(expansionNum), big2)
+		regionDeltaEntropyTarget = new(big.Int).Div(params.RegionEntropyTarget(expansionNum), common.Big2)
 		regionDeltaEntropyTarget = new(big.Int).Mul(zoneThresholdEntropy, regionDeltaEntropyTarget)
 	} else {
 		regionDeltaEntropyTarget = new(big.Int).Mul(zoneThresholdEntropy, params.RegionEntropyTarget(expansionNum))
-		regionDeltaEntropyTarget = new(big.Int).Div(regionDeltaEntropyTarget, big2)
+		regionDeltaEntropyTarget = new(big.Int).Div(regionDeltaEntropyTarget, common.Big2)
 	}
 
 	regionBlockEntropyThreshold := new(big.Int).Add(zoneThresholdEntropy, common.BitsToBigBits(params.RegionEntropyTarget(expansionNum)))
@@ -87,7 +87,7 @@ func (blake3pow *Blake3pow) CalcOrder(chain consensus.BlockReader, header *types
 // IntrinsicLogEntropy returns the logarithm of the intrinsic entropy reduction of a PoW hash
 func (blake3pow *Blake3pow) IntrinsicLogEntropy(powHash common.Hash) *big.Int {
 	x := new(big.Int).SetBytes(powHash.Bytes())
-	d := new(big.Int).Div(big2e256, x)
+	d := new(big.Int).Div(common.Big2e256, x)
 	c, m := mathutil.BinaryLog(d, consensus.MantBits)
 	bigBits := new(big.Int).Mul(big.NewInt(int64(c)), new(big.Int).Exp(big.NewInt(2), big.NewInt(consensus.MantBits), nil))
 	bigBits = new(big.Int).Add(bigBits, m)
