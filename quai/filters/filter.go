@@ -137,33 +137,28 @@ func (f *Filter) Logs(ctx context.Context) ([]*types.Log, error) {
 		return f.blockLogs(ctx, workObject)
 	}
 	// Figure out the limits of the filter range
-	if f.begin < 0 || f.end < 0 {
-		// Covers both latest and pending block number cases.
-		header, err := f.backend.HeaderByNumber(ctx, rpc.LatestBlockNumber)
-		if err != nil {
-			return nil, err
-		}
-		head := header.NumberU64(common.ZONE_CTX)
-
-		if f.begin < 0 {
-			f.begin = int64(head)
-		}
-
-		if f.end < 0 {
-			f.end = int64(head)
-		}
+	header, _ := f.backend.HeaderByNumber(ctx, rpc.LatestBlockNumber)
+	if header == nil {
+		return nil, nil
 	}
+	head := header.NumberU64(common.ZONE_CTX)
 
+	if f.begin == -1 {
+		f.begin = int64(head)
+	}
+	end := uint64(f.end)
+	if f.end == -1 {
+		end = head
+	}
 	// Gather all indexed logs, and finish with non indexed ones
 	var (
 		logs []*types.Log
 		err  error
 	)
-
 	size, sections := f.backend.BloomStatus()
 	if indexed := sections * size; indexed > uint64(f.begin) {
-		if indexed > uint64(f.end) {
-			logs, err = f.indexedLogs(ctx, uint64(f.end))
+		if indexed > end {
+			logs, err = f.indexedLogs(ctx, end)
 		} else {
 			logs, err = f.indexedLogs(ctx, indexed-1)
 		}
@@ -171,7 +166,7 @@ func (f *Filter) Logs(ctx context.Context) ([]*types.Log, error) {
 			return logs, err
 		}
 	}
-	rest, err := f.unindexedLogs(ctx, uint64(f.end))
+	rest, err := f.unindexedLogs(ctx, end)
 	logs = append(logs, rest...)
 	return logs, err
 }
@@ -179,8 +174,7 @@ func (f *Filter) Logs(ctx context.Context) ([]*types.Log, error) {
 // indexedLogs returns the logs matching the filter criteria based on the bloom
 // bits indexed available locally or via the network.
 func (f *Filter) indexedLogs(ctx context.Context, end uint64) ([]*types.Log, error) {
-	// Create a matcher session and request servicing from the backend.
-	// Matches is a channel of matching WorkObject numbers for the given filter.
+	// Create a matcher session and request servicing from the backend
 	matches := make(chan uint64, 64)
 
 	session, err := f.matcher.Start(ctx, uint64(f.begin), end, matches)
