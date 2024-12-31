@@ -296,15 +296,15 @@ func Open(o OpenOptions, nodeCtx int, logger *log.Logger, location common.Locati
 	if err != nil {
 		return nil, err
 	}
-	if len(o.AncientsDirectory) == 0 {
-		return kvdb, nil
-	}
-	frdb, err := NewDatabaseWithFreezer(kvdb, o.AncientsDirectory, o.Namespace, o.ReadOnly, nodeCtx, logger, location)
-	if err != nil {
-		kvdb.Close()
-		return nil, err
-	}
-	return frdb, nil
+	// if len(o.AncientsDirectory) == 0 {
+	return kvdb, nil
+	// }
+	// frdb, err := NewDatabaseWithFreezer(kvdb, o.AncientsDirectory, o.Namespace, o.ReadOnly, nodeCtx, logger, location)
+	// if err != nil {
+	// 	kvdb.Close()
+	// 	return nil, err
+	// }
+	// return frdb, nil
 }
 
 type counter uint64
