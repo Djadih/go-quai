@@ -210,6 +210,10 @@ var (
 
 	ConversionLockPeriod uint64 = 2 * BlocksPerWeek
 	CoinbaseEpochBlocks  uint64 = 1000 // Maximum number of blocks in a coinbase tranche TODO: change this
+
+	StartingKQuaiDiscount               = big.NewInt(100)
+	StartingConversionFlowAmount        = big.NewInt(100000000000) // TODO: this amount has to be calculated based on the exchange rate
+	MinerDifficultyWindow        uint64 = 1000
 )
 
 func CalculateLockupByteRewardsMultiple(lockupByte uint8, blockNumber uint64) (*big.Int, error) {
