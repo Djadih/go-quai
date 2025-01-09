@@ -691,20 +691,59 @@ func TestReceiptsStorage(t *testing.T) {
 
 func createReceipts(txs types.Transactions) types.Receipts {
 
-	receipt1 := createReceipt(txs[0].Hash(), types.EmptyHash)
+	receipt1 := createReceipt(txs[0], types.EmptyHash)
 
-	receipt2 := createReceipt(txs[1].Hash(), types.EmptyHash)
+	receipt2 := createReceipt(txs[1], types.EmptyHash)
 
 	return types.Receipts{receipt1, receipt2}
 }
 
-func createReceipt(txHash common.Hash, blockHash common.Hash) *types.Receipt {
-	receipt := types.NewReceipt([]byte{}, false, 55000)
-	receipt.TxHash = txHash
-	receipt.GasUsed = 55000
-	receipt.BlockHash = blockHash
-	receipt.BlockNumber = big.NewInt(11)
-	return receipt
+func createReceipt(tx *types.Transaction, blockHash common.Hash) *types.Receipt {
+	txHash := tx.Hash()
+	return &types.Receipt{
+		Type:              1,
+		PostState:         []byte{0x1},
+		Status:            1,
+		CumulativeGasUsed: 3,
+		Bloom:             types.Bloom{},
+		Logs: types.Logs{
+			&types.Log{
+				Address: common.Zero,
+				Topics: []common.Hash{
+					common.Zero.Hash(),
+					common.ZeroExternal.Hash(),
+				},
+				Data:        common.Zero.Bytes(),
+				BlockNumber: 1,
+				TxHash:      txHash,
+				TxIndex:     1,
+				BlockHash:   blockHash,
+				Index:       1,
+			},
+			&types.Log{
+				Address: common.Zero,
+				Topics: []common.Hash{
+					common.Zero.Hash(),
+					common.ZeroExternal.Hash(),
+				},
+				Data:        common.Zero.Bytes(),
+				BlockNumber: 2,
+				TxHash:      common.Zero.Hash(),
+				TxIndex:     2,
+				BlockHash:   common.Zero.Hash(),
+				Index:       2,
+			},
+		},
+
+		TxHash:          txHash,
+		ContractAddress: common.Zero,
+		GasUsed:         1234,
+
+		BlockHash:        blockHash,
+		BlockNumber:      common.Big32,
+		TransactionIndex: 42,
+		OutboundEtxs:     types.Transactions{tx},
+	}
 }
 
 func TestAncientReceiptsStorage(t *testing.T) {
@@ -732,10 +771,28 @@ func TestAncientReceiptsStorage(t *testing.T) {
 	txs := types.Transactions{tx1, tx2}
 	writeBlockForReceipts(db, hash, txs)
 
-	if entry := ReadReceipts(freezerDb, hash, 0, &params.ChainConfig{}); len(entry) != 2 {
+	var readReceipts types.Receipts
+	if readReceipts = ReadReceipts(freezerDb, hash, 0, &params.ChainConfig{}); len(readReceipts) != 2 {
 		t.Fatal("Stored receipts not found")
 	}
 
+	for index, expectedReceipt := range receipts {
+		// require.Equal(t, expectedReceipt.Type, readReceipts[index].Type)
+		// require.Equal(t, expectedReceipt.PostState, readReceipts[index].PostState)
+		require.Equal(t, expectedReceipt.Status, readReceipts[index].Status)
+		require.Equal(t, expectedReceipt.CumulativeGasUsed, readReceipts[0].CumulativeGasUsed)
+		require.Equal(t, expectedReceipt.Bloom, readReceipts[index].Bloom)
+		// require.Equal(t, expectedReceipt.Logs, readReceipts[index].Logs)
+
+		require.Equal(t, expectedReceipt.TxHash, readReceipts[index].TxHash)
+		require.Equal(t, expectedReceipt.ContractAddress, readReceipts[index].ContractAddress)
+		// require.Equal(t, expectedReceipt.GasUsed, readReceipts[index].GasUsed)
+
+		require.Equal(t, expectedReceipt.BlockHash, readReceipts[index].BlockHash)
+		// require.Equal(t, expectedReceipt.BlockNumber, readReceipts[index].BlockNumber)
+		// require.Equal(t, expectedReceipt.TransactionIndex, readReceipts[index].TransactionIndex)
+		// require.Equal(t, expectedReceipt.OutboundEtxs, readReceipts[index].OutboundEtxs)
+	}
 }
 
 func createBlockWithTransactions(txs types.Transactions) *types.WorkObject {
