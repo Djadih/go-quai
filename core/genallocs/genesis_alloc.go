@@ -96,11 +96,13 @@ func (account *GenesisAccount) calculateLockedBalances() {
 
 	vestingSchedule := vestingSchedules[account.VestSchedule]
 	balanceInt := new(big.Int).SetUint64(account.TotalBalance)
+	balanceInt = new(big.Int).Mul(balanceInt, common.Big10e18)
 
 	// Calculate total unlock at tge.
 	tgePercentage := big.NewInt(int64(vestingSchedule.tgePercentage * 100)) // Multiply by 100 to remove need for floats.
 	tgeAmount := new(big.Int).Mul(balanceInt, tgePercentage)
 	tgeAmount.Div(tgeAmount, common.Big100) // Divide back by 100.
+	// tgeAmount.Mul(tgeAmount, common.Big10e18)
 	account.BalanceSchedule[0] = tgeAmount
 
 	// Calculate number of unlocks.
@@ -108,8 +110,8 @@ func (account *GenesisAccount) calculateLockedBalances() {
 
 	// Calculate amount per unlock.
 	quaiPerUnlock := new(big.Int).Sub(balanceInt, tgeAmount)
-	quaiPerUnlock.Mul(quaiPerUnlock, common.Big10e18)
 	quaiPerUnlock.Div(quaiPerUnlock, new(big.Int).SetUint64(numUnlocks))
+	// quaiPerUnlock.Mul(quaiPerUnlock, common.Big10e18)
 
 	// Calculate the unlock at each block height.
 	for i := uint64(0); i <= numUnlocks; i++ {
