@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/dominant-strategies/go-quai/common"
-	"github.com/dominant-strategies/go-quai/log"
 	"github.com/dominant-strategies/go-quai/params"
 	"github.com/stretchr/testify/require"
 )
@@ -36,21 +35,10 @@ const (
 var (
 	expectedAllocs = [3]GenesisAccount{
 		{
-			VestSchedule: 0,
-			Address:      common.HexToAddress("0x0000000000000000000000000000000000000001", common.Location{0, 0}),
-			TotalBalance: 500000,
-			BalanceSchedule: map[uint64]*big.Int{
-				// 0:                              big.NewInt(500000 * 30 / 100),
-				(12)*params.BlocksPerMonth - 1: new(big.Int).Mul(big.NewInt(500000), common.Big10e18),
-				// (12)*params.BlocksPerMonth - 1: new(big.Int).Mul(big.NewInt(5833), common.Big10e18),
-				// (12+1)*params.BlocksPerMonth - 1:  big.NewInt(5833),
-				// (12+2)*params.BlocksPerMonth - 1:  big.NewInt(5833),
-				// (12+3)*params.BlocksPerMonth - 1:  big.NewInt(5833),
-				// (12+4)*params.BlocksPerMonth - 1:  big.NewInt(5833),
-				// (12+58)*params.BlocksPerMonth - 1: big.NewInt(5833),
-				// (12+59)*params.BlocksPerMonth - 1: big.NewInt(5833),
-				// (12+60)*params.BlocksPerMonth - 1: big.NewInt(5833 + 20), // rounding
-			},
+			VestSchedule:    0,
+			Address:         common.HexToAddress("0x0000000000000000000000000000000000000001", common.Location{0, 0}),
+			TotalBalance:    500000,
+			BalanceSchedule: map[uint64]*big.Int{},
 		},
 		{
 			VestSchedule: 1,
@@ -87,6 +75,24 @@ var (
 	}
 )
 
+func altCalcBalances(account *GenesisAccount) {
+	total := new(big.Int).Mul(big.NewInt(int64(account.TotalBalance)), common.Big10e18)
+
+	vestingSchedule := vestingSchedules[account.VestSchedule]
+	tgePercentage := int64(vestingSchedule.tgePercentage * 100)
+	tgeAmount := new(big.Int).Div(new(big.Int).Mul(total, big.NewInt(tgePercentage)), big.NewInt(100))
+	unlock := new(big.Int).Div(new(big.Int).Sub(total, tgeAmount), new(big.Int).SetUint64(vestingSchedule.vestDuration*12))
+	rounded := new(big.Int).Sub(total, new(big.Int).Add(tgeAmount, new(big.Int).Mul(unlock, new(big.Int).SetUint64(vestingSchedule.vestDuration*12))))
+
+	account.BalanceSchedule[0] = tgeAmount
+	for unlockMonth := uint64(12); unlockMonth <= vestingSchedule.vestDuration*12; unlockMonth++ {
+		account.BalanceSchedule[unlockMonth*params.BlocksPerMonth-1] = unlock
+	}
+	// account.BalanceSchedule[unlockMonth*params.BlocksPerMonth-1] = account.BalanceSchedule[unlockMonth*params.BlocksPerMonth-1].Add(account.BalanceSchedule[unlockMonth*params.BlocksPerMonth-1], rounded)
+	unlockMonth := vestingSchedule.vestDuration*12*params.BlocksPerMonth - 1
+	account.BalanceSchedule[unlockMonth].Add(account.BalanceSchedule[unlockMonth], rounded)
+}
+
 func TestReadingGenallocs(t *testing.T) {
 
 	allocs, err := decodeGenesisAllocs(strings.NewReader(genAllocsStr))
@@ -107,11 +113,10 @@ func TestCalculatingGenallocs(t *testing.T) {
 
 	for allocNum, actualAlloc := range allocs[:1] {
 		actualAlloc.calculateLockedBalances()
+		altCalcBalances(&expectedAllocs[allocNum])
 		for blockNum, expectedUnlock := range expectedAllocs[allocNum].BalanceSchedule {
-			weiBalance := new(big.Int).Mul(expectedUnlock, common.Big10e18)
-			log.Global.Print(actualAlloc.BalanceSchedule[blockNum])
 			require.Zero(t,
-				weiBalance.Cmp(actualAlloc.BalanceSchedule[blockNum]),
+				expectedUnlock.Cmp(actualAlloc.BalanceSchedule[blockNum]),
 				fmt.Sprintf("incorrect balance unlock on block %d", blockNum),
 			)
 		}
