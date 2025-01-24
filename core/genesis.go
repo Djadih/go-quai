@@ -426,7 +426,7 @@ func DefaultLocalGenesisBlock(consensusEngine string, nonce uint64, extra []byte
 		Nonce:      nonce,
 		ExtraData:  extra,
 		GasLimit:   12000000,
-		Difficulty: big.NewInt(1000),
+		Difficulty: big.NewInt(2000),
 	}
 	if consensusEngine == "blake3" {
 		genesis.Config = params.Blake3PowLocalChainConfig
