@@ -169,7 +169,7 @@ var (
 	LighthouseDurationLimit           = big.NewInt(5) // The decision boundary on the blocktime duration used to determine whether difficulty should go up or not.
 	LocalDurationLimit                = big.NewInt(1) // The decision boundary on the blocktime duration used to determine whether difficulty should go up or not.
 	TimeToStartTx              uint64 = 5 * BlocksPerDay
-	BlocksPerDay               uint64 = new(big.Int).Div(big.NewInt(86400), DurationLimit).Uint64() // BlocksPerDay is the number of blocks per day assuming 5 second block time
+	BlocksPerDay               uint64 = new(big.Int).Div(big.NewInt(5), DurationLimit).Uint64() // BlocksPerDay is the number of blocks per day assuming 5 second block time
 	BlocksPerWeek              uint64 = 7 * BlocksPerDay
 	BlocksPerMonth             uint64 = 30 * BlocksPerDay
 	BlocksPerYear              uint64 = 365 * BlocksPerDay                                          // BlocksPerYear is the number of blocks per year assuming 5 secs blocks
