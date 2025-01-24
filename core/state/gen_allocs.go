@@ -9,7 +9,7 @@ import (
 )
 
 // Will go through the balance schedule and add each one to the account's balance in state.
-func (state *StateDB) AddLockedBalances(blockNum *big.Int, genesisAccounts []genallocs.GenesisAccount, log *log.Logger) error {
+func (state *StateDB) AddLockedBalances(blockNum *big.Int, genesisAccounts []genallocs.GenesisAccount, logger *log.Logger) error {
 	uintBlockNum := blockNum.Uint64()
 	// Check if this block is a monthly unlock.
 	if uintBlockNum%params.BlocksPerMonth == 0 || uintBlockNum == 1 {
@@ -23,9 +23,16 @@ func (state *StateDB) AddLockedBalances(blockNum *big.Int, genesisAccounts []gen
 			if balance := account.BalanceSchedule[uintBlockNum]; balance != nil {
 				state.AddBalance(accountAddr, balance)
 				accountsAdded += 1
+				logger.WithFields(log.Fields{
+					"amount": balance,
+					"account": accountAddr,
+				}).Debug("Unlocked genesis balance")
 			}
 		}
-		log.WithField("accountsAdded", accountsAdded).Debug("Allocated genesis accounts")
+		logger.WithFields(log.Fields{
+			"accountsAdded": accountsAdded,
+			"blockNum":      blockNum,
+		}).Debug("Allocated genesis accounts")
 	}
 	return nil
 }
