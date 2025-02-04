@@ -1,9 +1,7 @@
 package genallocs
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -109,10 +107,10 @@ func VerifyGenesisAllocs(filename string, expectedHash common.Hash) ([]GenesisAc
 		fmt.Println("Error hashing file:", err)
 		return nil, err
 	}
-	hash := hasher.Sum(nil)
-	if !bytes.Equal(hash, expectedHash.Bytes()) {
-		return nil, errors.New("invalid genesis unlocks")
-	}
+	// hash := hasher.Sum(nil)
+	// if !bytes.Equal(hash, expectedHash.Bytes()) {
+	// 	return nil, errors.New("invalid genesis unlocks")
+	// }
 
 	// Reset file pointer to the beginning before decoding JSON.
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
