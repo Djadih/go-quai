@@ -1,6 +1,7 @@
 package progpow
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -489,4 +490,19 @@ func (progpow *Progpow) SetThreads(threads int) {
 		default:
 		}
 	}
+}
+
+// String method excludes the allocs to avoid blowing up the logs.
+func (c Config) String() string {
+	type Alias Config // Avoid infinite recursion by using an alias
+	aux := struct {
+		Alias
+		GenAllocs []genallocs.GenesisAccount `json:"-"` // Exclude from JSON
+	}{
+		Alias:     (Alias)(c),
+		GenAllocs: nil, // Ensure it's omitted
+	}
+
+	b, _ := json.MarshalIndent(aux, "", "  ")
+	return string(b)
 }
