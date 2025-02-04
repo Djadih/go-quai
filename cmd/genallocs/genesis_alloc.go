@@ -90,6 +90,16 @@ func GenerateGenesisUnlocks(filename string) ([]GenesisAccount, error) {
 	for i := range allocs {
 		allocs[i].calculateLockedBalances()
 	}
+	for _, actualAlloc := range allocs {
+		for actualUnlock := actualAlloc.BalanceSchedule.Oldest(); actualUnlock != nil; actualUnlock = actualUnlock.Next() {
+			if actualUnlock.Key%params.BlocksPerMonth != 0 {
+				log.Global.WithFields(log.Fields{
+					"address": actualAlloc.Address,
+					"index":   actualUnlock.Key,
+				}).Fatal("wrong index")
+			}
+		}
+	}
 	return allocs, nil
 }
 
@@ -128,6 +138,32 @@ func decodeGenesisAllocs(r io.Reader) ([]GenesisAccount, error) {
 	decoder := json.NewDecoder(r)
 	if err := decoder.Decode(&accounts); err != nil {
 		return nil, fmt.Errorf("failed to decode JSON: %w", err)
+	}
+
+	for _, actualAlloc := range accounts {
+		var firstUnlock, lastUnlock *orderedmap.Pair[uint64, *big.Int]
+		// if more than one unlock
+		if actualAlloc.BalanceSchedule.Len() > 1 {
+			firstUnlock = actualAlloc.BalanceSchedule.Oldest()
+			secondUnlock := firstUnlock.Next()
+			lastUnlock = actualAlloc.BalanceSchedule.Newest()
+			for actualUnlock := actualAlloc.BalanceSchedule.Oldest(); actualUnlock != nil; actualUnlock = actualUnlock.Next() {
+				if actualUnlock.Key%params.BlocksPerMonth != 0 || actualUnlock.Key/params.BlocksPerMonth > 72 || (secondUnlock.Value.Cmp(actualUnlock.Value) != 0 && actualUnlock.Value.Cmp(lastUnlock.Value) != 0 && actualUnlock.Value.Cmp(firstUnlock.Value) != 0) {
+					log.Global.WithFields(log.Fields{
+						"address": actualAlloc.Address,
+						"index":   actualUnlock.Key,
+					}).Fatal("wrong index")
+				}
+			}
+		}
+		// make sure the diff is not more than secondlast
+		// diff := new(big.Int).Sub(lastUnlock, secondLast)
+		// if diff.Cmp(secondLast) >= 0 {
+		// 	log.Global.WithFields(log.Fields{
+		// 		"address": actualAlloc.Address,
+		// 	}).Fatal("wrong index")
+		// }
+
 	}
 
 	return accounts, nil
