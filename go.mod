@@ -15,6 +15,7 @@ require (
 	github.com/edsrzf/mmap-go v1.1.0
 	github.com/golang/snappy v0.0.4
 	github.com/google/gofuzz v1.2.0
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/golang-lru/v2 v2.0.5
