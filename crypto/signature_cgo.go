@@ -20,28 +20,29 @@
 package crypto
 
 import (
-	"crypto/ecdsa"
 	"crypto/elliptic"
 	"fmt"
 
-	"github.com/dominant-strategies/go-quai/common/math"
-	"github.com/ledgerwatch/secp256k1"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 )
 
 // Ecrecover returns the uncompressed public key that created the given signature.
 func Ecrecover(hash, sig []byte) ([]byte, error) {
-	return secp256k1.RecoverPubkey(hash, sig)
-}
-
-// SigToPub returns the public key that created the given signature.
-func SigToPub(hash, sig []byte) (*ecdsa.PublicKey, error) {
-	s, err := Ecrecover(hash, sig)
+	pubKey, _, err := ecdsa.RecoverCompact(sig, hash)
 	if err != nil {
 		return nil, err
 	}
+	return pubKey.SerializeUncompressed(), nil
+}
 
-	x, y := elliptic.Unmarshal(S256(), s)
-	return &ecdsa.PublicKey{Curve: S256(), X: x, Y: y}, nil
+// SigToPub returns the public key that created the given signature.
+func SigToPub(hash, sig []byte) (*secp256k1.PublicKey, error) {
+	pubBytes, err := Ecrecover(hash, sig)
+	if err != nil {
+		return nil, err
+	}
+	return secp256k1.ParsePubKey(pubBytes)
 }
 
 // Sign calculates an ECDSA signature.
@@ -52,20 +53,19 @@ func SigToPub(hash, sig []byte) (*ecdsa.PublicKey, error) {
 // solution is to hash any input before calculating the signature.
 //
 // The produced signature is in the [R || S || V] format where V is 0 or 1.
-func Sign(digestHash []byte, prv *ecdsa.PrivateKey) (sig []byte, err error) {
+func Sign(digestHash []byte, prv *secp256k1.PrivateKey) (sig []byte, err error) {
 	if len(digestHash) != DigestLength {
 		return nil, fmt.Errorf("hash is required to be exactly %d bytes (%d)", DigestLength, len(digestHash))
 	}
-	seckey := math.PaddedBigBytes(prv.D, prv.Params().BitSize/8)
-	defer zeroBytes(seckey)
-	return secp256k1.Sign(digestHash, seckey)
+	return ecdsa.SignCompact(prv, digestHash, false), nil
 }
 
 // VerifySignature checks that the given public key created signature over digest.
 // The public key should be in compressed (33 bytes) or uncompressed (65 bytes) format.
 // The signature should have the 64 byte [R || S] format.
 func VerifySignature(pubkey, digestHash, signature []byte) bool {
-	return secp256k1.VerifySignature(pubkey, digestHash, signature)
+	// return secp256k1.VerifySignature(pubkey, digestHash, signature)
+	return ecdsa.VerifySignature(pubkey, digestHash, signature)
 }
 
 // DecompressPubkey parses a public key in the 33-byte compressed format.
