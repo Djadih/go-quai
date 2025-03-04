@@ -11,6 +11,7 @@ require (
 	github.com/cockroachdb/pebble v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/deckarep/golang-set v1.8.0
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dominant-strategies/bn256 v0.0.0-20250117181620-a3c0ff77c445
 	github.com/edsrzf/mmap-go v1.1.0
@@ -25,7 +26,6 @@ require (
 	github.com/ipfs/go-datastore v0.6.0
 	github.com/jedisct1/go-minisign v0.0.0-20230811132847-661be99b8267
 	github.com/kaspanet/go-muhash v0.0.4
-	github.com/ledgerwatch/secp256k1 v1.0.0
 	github.com/libp2p/go-libp2p-kad-dht v0.25.2
 	github.com/libp2p/go-libp2p-pubsub v0.10.0
 	github.com/multiformats/go-multiaddr v0.12.0
@@ -65,7 +65,6 @@ require (
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.1 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
