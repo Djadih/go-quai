@@ -1103,16 +1103,18 @@ func (s *PublicBlockChainQuaiAPI) ReceiveRawWorkShare(ctx context.Context, raw h
 		return err
 	}
 
-	workShare := &types.WorkObjectHeader{}
-	err = workShare.ProtoDecode(protoWorkShare, s.b.NodeLocation())
+	workShareHeader := &types.WorkObjectHeader{}
+	err = workShareHeader.ProtoDecode(protoWorkShare, s.b.NodeLocation())
 	if err != nil {
 		return err
 	}
 
+	workShare := types.NewWorkObject(workShareHeader, nil, nil)
+
 	return s.ReceiveWorkShare(ctx, workShare)
 }
 
-func (s *PublicBlockChainQuaiAPI) ReceiveWorkShare(ctx context.Context, workShare *types.WorkObjectHeader) error {
+func (s *PublicBlockChainQuaiAPI) ReceiveWorkShare(ctx context.Context, workShare *types.WorkObject) error {
 	return s.b.ReceiveWorkShare(workShare)
 }
 

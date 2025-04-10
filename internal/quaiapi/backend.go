@@ -123,7 +123,7 @@ type Backend interface {
 	SetWorkShareP2PThreshold(threshold int)
 	GetMinerEndpoints() []string
 	ReceiveMinedHeader(woHeader *types.WorkObject) error
-	ReceiveWorkShare(workShare *types.WorkObjectHeader) error
+	ReceiveWorkShare(workShare *types.WorkObject) error
 	ReceiveNonce(sealHash common.Hash, nonce types.BlockNonce) error
 	GenerateCustomWorkObject(original *types.WorkObject, lock uint8, minerPreference float64, quaiCoinbase, qiCoinbase common.Address) *types.WorkObject
 

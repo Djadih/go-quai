@@ -533,7 +533,7 @@ func (b *QuaiAPIBackend) GetPendingBlockBody(sealHash common.Hash) *types.WorkOb
 	return b.quai.core.GetPendingBlockBody(sealHash)
 }
 
-func (b *QuaiAPIBackend) ReceiveWorkShare(workShare *types.WorkObjectHeader) error {
+func (b *QuaiAPIBackend) ReceiveWorkShare(workShare *types.WorkObject) error {
 	// Evaluate the validity of the share and add it to the chain.
 	shareView, err := b.quai.core.ReceiveWorkShare(workShare)
 	if err != nil {
@@ -562,12 +562,16 @@ func (b *QuaiAPIBackend) ReceiveNonce(sealHash common.Hash, nonce types.BlockNon
 	workObject.WorkObjectHeader().SetNonce(nonce)
 	mixHash, _ := b.ComputePowLight(workObject.WorkObjectHeader())
 	workObject.SetMixHash(mixHash)
-	err := b.ReceiveWorkShare(workObject.WorkObjectHeader())
+	err := b.ReceiveWorkShare(workObject)
 	if err != nil {
 		return err
 	}
 
-	return b.ReceiveMinedHeader(workObject)
+	// shareView, err := b.ReceiveMinedHeader(workObject)
+	// if err != nil {
+	// 	return err
+	// }
+	return nil
 }
 
 func (b *QuaiAPIBackend) ReceiveMinedHeader(woHeader *types.WorkObject) error {
