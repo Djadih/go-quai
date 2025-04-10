@@ -1110,7 +1110,6 @@ func (s *PublicBlockChainQuaiAPI) ReceiveRawWorkShare(ctx context.Context, raw h
 	}
 
 	workShare := types.NewWorkObject(workShareHeader, nil, nil)
-
 	return s.ReceiveWorkShare(ctx, workShare)
 }
 

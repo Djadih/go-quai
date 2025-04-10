@@ -1308,6 +1308,14 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObject) (*types.WorkObjec
 	return nil, errors.New("workshare is nil")
 }
 
+func (sl *Slice) ReceiveNonce(sealHash common.Hash, nonce types.BlockNonce) (*types.WorkObjectShareView, error) {
+	workObject := sl.GetPendingBlockBody(sealHash)
+	workObject.WorkObjectHeader().SetNonce(nonce)
+	mixHash, _ := sl.engine.ComputePowLight(workObject.WorkObjectHeader())
+	workObject.SetMixHash(mixHash)
+	return sl.ReceiveWorkShare(workObject)
+}
+
 // combinePendingHeader updates the pending header at the given index with the value from given header.
 func (sl *Slice) combinePendingHeader(header *types.WorkObject, slPendingHeader *types.WorkObject, index int, inSlice bool) *types.WorkObject {
 	// copying the slPendingHeader and updating the copy to remove any shared memory access issues

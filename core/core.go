@@ -714,6 +714,10 @@ func (c *Core) ReceiveWorkShare(workShare *types.WorkObject) (*types.WorkObjectS
 	return c.sl.ReceiveWorkShare(workShare)
 }
 
+func (c *Core) ReceiveNonce(sealHash common.Hash, nonce types.BlockNonce) (*types.WorkObjectShareView, error) {
+	return c.sl.ReceiveNonce(sealHash, nonce)
+}
+
 func (c *Core) GetPendingBlockBody(sealHash common.Hash) *types.WorkObject {
 	return c.sl.GetPendingBlockBody(sealHash)
 }
