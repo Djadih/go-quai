@@ -381,7 +381,7 @@ func (c *Core) RequestDomToAppendOrFetch(hash common.Hash, entropy *big.Int, ord
 	// appended to reduce the network bandwidth utilization
 	nodeCtx := c.NodeLocation().Context()
 	if nodeCtx == common.PRIME_CTX {
-		// If prime all you can do it to ask for the block
+		// If prime all you can do is to ask for the block
 		_, exists := c.appendQueue.Get(hash)
 		if !exists {
 			c.logger.WithFields(log.Fields{

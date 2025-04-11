@@ -544,16 +544,17 @@ func (b *QuaiAPIBackend) ReceiveWorkShare(workShare *types.WorkObject) error {
 }
 
 // ReceiveNonce will build the workObject given the sealHash and provided Nonce.
-// Then it will call ReceiveWorkShare to broadcast the share.
-// After which it will check if the share is also a block and call ReceiveMinedHeader.
+// It will calculate the correct order of the share. If it is just a share, it will
+// call ReceiveWorkShare to add it to the chain.
+// If it is a block, it will send to the appropriate backends.
 func (b *QuaiAPIBackend) ReceiveNonce(sealHash common.Hash, nonce types.BlockNonce) error {
-	shareView, err := b.quai.core.ReceiveNonce(sealHash, nonce)
+	workObject, err := b.quai.core.ReceiveNonce(sealHash, nonce)
 	if err != nil {
 		return err
 	}
 
 	// Broadcast the share to P2P backend.
-	return b.BroadcastWorkShare(shareView, b.NodeLocation())
+	return b.BroadcastWorkShare(workObject, b.NodeLocation())
 }
 
 func (b *QuaiAPIBackend) ReceiveMinedHeader(woHeader *types.WorkObject) error {
