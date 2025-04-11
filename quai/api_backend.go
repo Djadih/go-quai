@@ -574,6 +574,12 @@ func (b *QuaiAPIBackend) ReceiveMinedHeader(woHeader *types.WorkObject) error {
 		return err
 	}
 
+	// Send the block internally to the relevant backends.
+	err = b.quai.core.ReceiveMinedHeader(block)
+	if err != nil {
+		return err
+	}
+
 	// Broadcast the block and announce chain insertion event
 	if block.Header() != nil {
 		err := b.BroadcastBlock(block, b.NodeLocation())

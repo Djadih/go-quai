@@ -100,7 +100,6 @@ type Backend interface {
 	SubscribeExpansionEvent(ch chan<- core.ExpansionEvent) event.Subscription
 	WriteGenesisBlock(block *types.WorkObject, location common.Location)
 	SetDomInterface(domInterface core.CoreBackend)
-	BroadcastWorkShare(workShare *types.WorkObjectShareView, location common.Location) error
 	GetMaxTxInWorkShare() uint64
 	GetExpansionNumber() uint8
 	SuggestFinalityDepth(ctx context.Context, qiValue *big.Int, correlatedRisk *big.Int) (*big.Int, error)
@@ -168,6 +167,7 @@ type Backend interface {
 	// P2P apis
 	BroadcastBlock(block *types.WorkObject, location common.Location) error
 	BroadcastHeader(header *types.WorkObject, location common.Location) error
+	BroadcastWorkShare(workShare *types.WorkObjectShareView, location common.Location) error
 }
 
 func GetAPIs(apiBackend Backend) []rpc.API {

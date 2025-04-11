@@ -718,6 +718,10 @@ func (c *Core) ReceiveNonce(sealHash common.Hash, nonce types.BlockNonce) (*type
 	return c.sl.ReceiveNonce(sealHash, nonce)
 }
 
+func (c *Core) ReceiveMinedHeader(workObject *types.WorkObject) error {
+	return c.sl.ReceiveMinedHeader(workObject)
+}
+
 func (c *Core) GetPendingBlockBody(sealHash common.Hash) *types.WorkObject {
 	return c.sl.GetPendingBlockBody(sealHash)
 }

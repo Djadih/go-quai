@@ -60,7 +60,7 @@ type CoreBackend interface {
 	GetManifest(blockHash common.Hash) (types.BlockManifest, error)
 	GetPrimeBlock(blockHash common.Hash) *types.WorkObject
 	GetKQuaiAndUpdateBit(blockHash common.Hash) (*big.Int, uint8, error)
-	// ReceiveNonce()
+	ReceiveMinedHeader(*types.WorkObject) error
 }
 
 type pEtxRetry struct {
@@ -1049,6 +1049,34 @@ func (sl *Slice) GetKQuaiAndUpdateBit(hash common.Hash) (*big.Int, uint8, error)
 		}
 		return sl.hc.bc.processor.GetKQuaiAndUpdateBit(block)
 	}
+}
+
+// Ensure that the dom interface receives the header as well.
+func (sl *Slice) ReceiveMinedHeader(workObject *types.WorkObject) error {
+	if workObject == nil {
+		return errors.New("work object is nil")
+	}
+
+	// Get the order of the block
+	_, order, err := sl.CalcOrder(workObject)
+	if err != nil {
+		return err
+	}
+
+	// Send up the chain if needed.
+	switch order {
+	case common.REGION_CTX:
+		// Send up, ensure that region doesn't broadcast to itself.
+		if sl.NodeLocation().Context() != common.REGION_CTX {
+			return sl.domInterface.ReceiveMinedHeader(workObject)
+		}
+	case common.PRIME_CTX:
+		// Send up, ensure that prime doesn't broadcast to itself.
+		if sl.NodeLocation().Context() != common.PRIME_CTX {
+			return sl.domInterface.ReceiveMinedHeader(workObject)
+		}
+	}
+	return nil
 }
 
 // SendPendingEtxsToDom shares a set of pending ETXs with your dom, so he can reference them when a coincident block is found
