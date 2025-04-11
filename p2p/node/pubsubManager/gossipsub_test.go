@@ -158,12 +158,9 @@ func TestMultipleRequests(t *testing.T) {
 
 	wo := types.EmptyZoneWorkObject()
 
-	tx := types.NewEmptyQuaiTx()
-	txs := types.Transactions{tx}
-
 	headerView := wo.ConvertToHeaderView()
 	blockView := wo.ConvertToBlockView()
-	workShareView := wo.ConvertToWorkObjectShareView(txs)
+	workShareView := wo.ConvertToWorkObjectShareView()
 
 	var topics []interface{}
 	topics = append(topics, headerView)
@@ -208,7 +205,7 @@ func TestMultipleRequests(t *testing.T) {
 			case *types.WorkObjectBlockView:
 				msg = newWo.ConvertToBlockView()
 			case *types.WorkObjectShareView:
-				msg = newWo.ConvertToWorkObjectShareView(txs)
+				msg = newWo.ConvertToWorkObjectShareView()
 			}
 
 			messages = append(messages, msg)

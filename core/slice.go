@@ -1302,7 +1302,7 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObject) (*types.WorkObjec
 			return nil, err
 		}
 		wo := types.NewWorkObject(workShare.WorkObjectHeader(), pendingBlockBody.Body(), nil)
-		shareView := wo.ConvertToWorkObjectShareView(txs)
+		shareView := wo.ConvertToWorkObjectShareView()
 		return shareView, nil
 	}
 	return nil, errors.New("workshare is nil")

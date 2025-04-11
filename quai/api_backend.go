@@ -879,7 +879,7 @@ func (b *QuaiAPIBackend) BroadcastBlock(block *types.WorkObject, location common
 	}
 	txEgressCounter.Add(float64(len(block.Transactions())))
 	b.Logger().WithField("tx count", len(block.Transactions())).Info("Broadcasted block with txs")
-	return b.quai.p2p.Broadcast(location, block.ConvertToBlockView())
+	return nil
 }
 
 func (b *QuaiAPIBackend) BroadcastHeader(header *types.WorkObject, location common.Location) error {

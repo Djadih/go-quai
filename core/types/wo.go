@@ -1417,8 +1417,8 @@ func (wo *WorkObject) ConvertToPEtxView() *WorkObject {
 	return wo.WithBody(wo.Header(), nil, nil, nil, nil, nil)
 }
 
-func (wo *WorkObject) ConvertToWorkObjectShareView(txs Transactions) *WorkObjectShareView {
+func (wo *WorkObject) ConvertToWorkObjectShareView() *WorkObjectShareView {
 	return &WorkObjectShareView{
-		WorkObject: wo.WithBody(wo.Header(), txs, nil, nil, nil, nil),
+		WorkObject: wo,
 	}
 }
