@@ -1088,7 +1088,6 @@ func (s *PublicBlockChainQuaiAPI) ReceiveMinedHeader(ctx context.Context, raw he
 	}
 
 	return s.b.ReceiveMinedHeader(woHeader)
-
 }
 
 // Receives a WorkObjectHeader in the form of bytes, decodes it, then calls ReceiveWorkShare.

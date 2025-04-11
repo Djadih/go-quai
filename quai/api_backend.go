@@ -540,7 +540,7 @@ func (b *QuaiAPIBackend) ReceiveWorkShare(workShare *types.WorkObject) error {
 		return err
 	}
 
-	return b.broadcastShare(shareView, b.NodeLocation())
+	return b.BroadcastWorkShare(shareView, b.NodeLocation())
 }
 
 // ReceiveNonce will build the workObject given the sealHash and provided Nonce.
@@ -553,7 +553,7 @@ func (b *QuaiAPIBackend) ReceiveNonce(sealHash common.Hash, nonce types.BlockNon
 	}
 
 	// Broadcast the share to P2P backend.
-	return b.broadcastShare(shareView, b.NodeLocation())
+	return b.BroadcastWorkShare(shareView, b.NodeLocation())
 }
 
 func (b *QuaiAPIBackend) ReceiveMinedHeader(woHeader *types.WorkObject) error {
@@ -592,21 +592,6 @@ func (b *QuaiAPIBackend) ReceiveMinedHeader(woHeader *types.WorkObject) error {
 		"hash":     block.Hash(),
 	}).Info("Received mined header")
 
-	return nil
-}
-
-func (b *QuaiAPIBackend) broadcastShare(shareView *types.WorkObjectShareView, location common.Location) error {
-	// Broadcast the share to P2P backend.
-	err := b.BroadcastWorkShare(shareView, b.NodeLocation())
-	if err != nil {
-		b.Logger().WithFields(log.Fields{
-			"hash": shareView.Hash(),
-			"err":  err,
-		}).Error("Error broadcasting work share")
-		return err
-	}
-	txEgressCounter.Add(float64(len(shareView.WorkObject.Transactions())))
-	b.Logger().WithFields(log.Fields{"tx count": len(shareView.Transactions())}).Info("Broadcasted workshares with txs")
 	return nil
 }
 
@@ -883,6 +868,17 @@ func (b *QuaiAPIBackend) ComputeMinerDifficulty(parent *types.WorkObject) *big.I
 // /////// P2P ///////////////
 // ///////////////////////////
 func (b *QuaiAPIBackend) BroadcastBlock(block *types.WorkObject, location common.Location) error {
+	// Log the number of transactions in this block.
+	err := b.quai.p2p.Broadcast(location, block.ConvertToBlockView())
+	if err != nil {
+		b.Logger().WithFields(log.Fields{
+			"hash": block.Hash(),
+			"err":  err,
+		}).Error("Error broadcasting block")
+		return err
+	}
+	txEgressCounter.Add(float64(len(block.Transactions())))
+	b.Logger().WithField("tx count", len(block.Transactions())).Info("Broadcasted block with txs")
 	return b.quai.p2p.Broadcast(location, block.ConvertToBlockView())
 }
 
