@@ -60,7 +60,7 @@ type CoreBackend interface {
 	GetManifest(blockHash common.Hash) (types.BlockManifest, error)
 	GetPrimeBlock(blockHash common.Hash) *types.WorkObject
 	GetKQuaiAndUpdateBit(blockHash common.Hash) (*big.Int, uint8, error)
-	ReceiveMinedHeader(wo *types.WorkObject) error
+	ReceiveMinedHeader(*types.WorkObject) error
 }
 
 type pEtxRetry struct {
@@ -1313,7 +1313,7 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObjectHeader) (*types.Wor
 			return nil, isBlock, err
 		}
 		wo := types.NewWorkObject(workShare, pendingBlockBody.Body(), nil)
-		shareView := wo.ConvertToWorkObjectShareView(txs)
+		shareView := wo.ConvertToWorkObjectShareView()
 		return shareView, isBlock, nil
 	}
 	return nil, false, errors.New("workshare is nil")
@@ -2334,3 +2334,14 @@ func (sl *Slice) AddGenesisPendingEtxs(block *types.WorkObject) {
 func (sl *Slice) SubscribeExpansionEvent(ch chan<- ExpansionEvent) event.Subscription {
 	return sl.scope.Track(sl.expansionFeed.Subscribe(ch))
 }
+
+// func (sl *Slice) ReceiveNonce() {
+// 	switch sl.NodeCtx() {
+// 	case common.PRIME_CTX:
+
+// 	case common.REGION_CTX:
+// 		sl.domInterface.ReceiveNonce()
+// 	case common.ZONE_CTX:
+// 		sl.domInterface.ReceiveNonce()
+// 	}
+// }
