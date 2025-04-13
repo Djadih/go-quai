@@ -209,7 +209,7 @@ type Engine interface {
 
 	// VerifySeal computes the PowHash and checks if work meets the difficulty
 	// requirement specified in header
-	VerifySeal(header *types.WorkObjectHeader) (common.Hash, error)
+	VerifySeal(*types.WorkObjectHeader) (powHash common.Hash, err error)
 
 	// VerifyWorkThreshold checks if the work meets the difficulty requirement
 	CheckWorkThreshold(workObjectHeader *types.WorkObjectHeader, workShareThreshold int) bool

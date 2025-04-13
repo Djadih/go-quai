@@ -1306,7 +1306,7 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObjectHeader) (*types.Wor
 		// there is no need to broadcast the share
 		isWorkShare = sl.engine.CheckWorkThreshold(workShare, params.WorkSharesThresholdDiff)
 		if !isWorkShare && len(txs) == 0 {
-			return nil, isBlock, errors.New("this workshare doesnt meet the workshare work requirement")
+			return nil, isBlock, nil
 		}
 		if pendingBlockBody == nil {
 			sl.logger.Warn("Could not get the pending Block body", "err", err)
