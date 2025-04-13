@@ -310,6 +310,8 @@ func (w *worker) GenerateCustomWorkObject(original *types.WorkObject, lock uint8
 	custom.WorkObjectHeader().PickCoinbase(minerPreference, quaiCoinbase, qiCoinbase)
 	custom.WorkObjectHeader().SetData([]byte{lock})
 
+	log.Global.WithField("sealHash", custom.SealHash()).Warn("Generate custom wobject")
+
 	// Not sure if lock is needed here.
 	// w.mu.Lock()
 	// defer w.mu.Unlock()

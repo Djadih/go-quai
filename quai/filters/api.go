@@ -890,6 +890,7 @@ func (api *PublicFilterAPI) CustomWorkObject(ctx context.Context, crit quai.Work
 		for {
 			select {
 			case wo := <-pendingWoChan:
+				log.Global.WithField("sealHash", wo.SealHash()).Warn("Received new pending work object")
 				newWo := api.backend.GenerateCustomWorkObject(wo, crit.LockupByte, crit.MinerPreference, crit.QuaiCoinbase, crit.QiCoinbase)
 				notifier.Notify(rpcSub.ID, &quai.WorkShareUpdate{
 					SealHash:            newWo.SealHash(),
