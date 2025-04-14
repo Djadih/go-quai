@@ -518,6 +518,10 @@ func (w *worker) asyncStateLoop() {
 					return
 				}
 				// Send the updated pendingHeader in the asyncPhFeed
+				log.Global.WithFields(log.Fields{
+					"sealHash": header.SealHash(),
+					"number":   header.NumberU64(common.ZONE_CTX),
+				}).Warn("Sending pending header")
 				w.asyncPhFeed.Send(header)
 			}()
 		case side := <-w.chainSideCh:
@@ -2381,7 +2385,7 @@ func (w *worker) SubscribeAsyncPendingHeader(ch chan *types.WorkObject) event.Su
 }
 
 func (w *worker) SubscribePendingWorkObjectEvent(ch chan<- *types.WorkObject) event.Subscription {
-	return w.scope.Track(w.asyncPhFeed.Subscribe(ch))
+	return w.scope.Track(w.pendingHeaderFeed.Subscribe(ch))
 }
 
 // copyReceipts makes a deep copy of the given receipts.

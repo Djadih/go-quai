@@ -1211,9 +1211,10 @@ func (sl *Slice) ConstructLocalMinedBlock(wo *types.WorkObject) (*types.WorkObje
 	var pendingBlockBody *types.WorkObject
 	if nodeCtx == common.ZONE_CTX {
 		// do not include the tx hash while storing the body
-		woHeaderCopy := types.CopyWorkObjectHeader(wo.WorkObjectHeader())
-		woHeaderCopy.SetTxHash(common.Hash{})
-		pendingBlockBody = sl.GetPendingBlockBody(woHeaderCopy.SealHash())
+		// woHeaderCopy := types.CopyWorkObjectHeader(wo.WorkObjectHeader())
+		// woHeaderCopy.SetTxHash(common.Hash{})
+		// woHeaderCopy.SetTxHash(types.EmptyRootHash)
+		pendingBlockBody = sl.GetPendingBlockBody(wo.SealHash())
 		if pendingBlockBody == nil {
 			sl.logger.WithFields(log.Fields{"wo.Hash": wo.Hash(),
 				"wo.Header":       wo.HeaderHash(),
@@ -1305,9 +1306,14 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObjectHeader) (shareView 
 		if err == nil {
 			isBlock = true
 		}
-		workShareCopy := types.CopyWorkObjectHeader(workShare)
-		workShareCopy.SetTxHash(types.EmptyRootHash)
-		pendingBlockBody := sl.GetPendingBlockBody(workShareCopy.SealHash())
+		// workShareCopy := types.CopyWorkObjectHeader(workShare)
+
+		// if len(workShareCopy.Transactions()) > 0 {
+		// 	workShareCopy.SetTxHash(types.EmptyRootHash)
+		// } else {
+		// 	workShareCopy.SetTxHash(common.Hash{})
+		// }
+		pendingBlockBody := sl.GetPendingBlockBody(workShare.SealHash())
 		txs, err := sl.GetTxsFromBroadcastSet(workShare.TxHash())
 		if err != nil {
 			txs = types.Transactions{}
@@ -1319,7 +1325,7 @@ func (sl *Slice) ReceiveWorkShare(workShare *types.WorkObjectHeader) (shareView 
 		// there is no need to broadcast the share
 		isWorkShare = sl.engine.CheckWorkThreshold(workShare, params.WorkSharesThresholdDiff)
 		if !isWorkShare && len(txs) == 0 {
-			// This is a workshare but not a block and no transactions.
+			// This is a p2p workshare and has no transactions.
 			return nil, false, true, nil
 		}
 		if pendingBlockBody == nil {

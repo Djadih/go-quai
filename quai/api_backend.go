@@ -564,10 +564,13 @@ func (b *QuaiAPIBackend) ReceiveMinedHeader(wo *types.WorkObject) error {
 		// Once the sealhash and the nonce is recieved, the workshare is constructed
 		workShare, isBlock, isWorkShare, err := b.quai.core.ReceiveWorkShare(wo.WorkObjectHeader())
 		if err == nil && !isBlock && isWorkShare {
-			// Broadcast the share to P2P backend.
-			err = b.BroadcastWorkShare(workShare, b.NodeLocation())
-			if err != nil {
-				b.Logger().WithField("err", err).Error("Error broadcasting block")
+			if workShare != nil {
+				// Only if the workshare had transactions should it be broadcasted.
+				// Broadcast the share to P2P backend.
+				err = b.BroadcastWorkShare(workShare, b.NodeLocation())
+				if err != nil {
+					b.Logger().WithField("err", err).Error("Error broadcasting block")
+				}
 			}
 			return nil
 		} else if err != nil {
